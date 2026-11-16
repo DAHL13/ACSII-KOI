@@ -1,41 +1,41 @@
 # ASCII Koi Pond New Tab
 
-An interactive, zero-dependency **Manifest V3** browser extension that replaces your New Tab page with a luminous, living ASCII Koi pond. Built with HTML5 Canvas, a pre-rendered `OffscreenCanvas` glyph atlas, zero-GC object pools, and daily productivity tools.
+Extensión **Manifest V3** interactiva y sin dependencias externas que reemplaza la página de Nueva Pestaña por un estanque zen luminoso en arte ASCII. Construida con HTML5 Canvas, un atlas de glifos pre-renderizados (`OffscreenCanvas`), Object Pooling sin asignaciones en bucle y herramientas de productividad diaria.
 
-**[Download Latest Release](../../releases/latest)**
-
----
-
-## Features
-
-- **Articulated ASCII Koi & `GlyphAtlas` Rendering:**
-  - Each Koi swims with a 12-node articulated spine, sinusoidal tail undulation proportional to speed, and movable pectoral fins rendered onto a crisp `devicePixelRatio`-scaled matrix (`@`, `#`, `%`, `*`, `+`, `:`, `.`).
-  - Pre-rendered `OffscreenCanvas` glyph atlas (`glyph-atlas.js`) with dual `glow` and `flat` states—zero `fillText()` or `shadowBlur` calls inside the animation loop.
-  - Weighted genetics across classic varieties (*Kohaku*, *Yamabuki Ogon*, *Showa*, *Asagi*) and rare variants (*Tancho* 8%, *Phantom Butterfly* 7% with 45% longer fins and luminous trails).
-- **2.5D Water Lilies & Occlusion:**
-  - Drifting, gently rotating ASCII lily pads with V-notches, elastic pad-to-pad collisions, and pale pink/white lotus flowers.
-  - Broad-phase bounding-circle + narrow-phase per-glyph occlusion dims Koi swimming beneath pads to `22%` alpha without glow.
-- **Solar Cycle & Dynamic Weather:**
-  - Automatic or manual solar phases (`Auto`, `Day`, `Sunset`, `Night`) with drifting water caustics by day, warm twilight shimmer at sunset, and Brownian green-gold ASCII fireflies at night.
-  - Toggleable soft diagonal rain (`|`, `/`, `'`) spawning expanding surface micro-ripples (`( )` -> `(   )`).
-- **River Stone Shortcuts:**
-  - Bottom dock of organic basalt-style pebbles populated via `chrome.topSites` (with curated defaults if unavailable), native MV3 `/_favicon/` loading with domain-initial fallback, water ripples on hover, and full add/edit/delete customization saved to `localStorage`.
-- **Smart Search Bar (Bangs, Direct URLs & Native Search):**
-  - Uses `chrome.search.query()` to respect your browser's default search engine (with automatic fallback to Google Search if unavailable).
-  - Real-time Bang pills inside the search bar and direct URL navigation (`localhost:3000`, `github.com`, `https://...`).
-- **Pomodoro Timer & Cherry Blossom Shower:**
-  - Collapsible SVG progress-ring Pomodoro (`25:00` Focus / `05:00` Break) with a `🌸` preview button.
-  - Completing a focus session triggers a 25-second cherry blossom shower (`✿`, `❀`, `*`, `~`, `·`) powered by a 90-petal object pool; petals ripple upon landing and attract curious Koi.
-- **Performance & Zen Mode:**
-  - Smart pause via the Page Visibility API (`visibilitychange`), clamped `deltaTime` (`<= 0.05s`), fixed-size object pools, optional real-time FPS/`ms` telemetry badge, and distraction-free **Zen Mode** (`Z` / `Esc`).
+**[Descargar última versión (Release)](../../releases/latest)**
 
 ---
 
-## Quick Search Commands (Bangs)
+## Características
 
-Type a prefix followed by a space at the beginning of the search bar to turn it into a colored search pill. Press `Backspace` on an empty input to remove it.
+- **Peces Koi Articulados y `GlyphAtlas`:**
+  - Cada pez Koi nada con una columna vertebral articulada de 12 nodos, ondulación senoidal proporcional a su velocidad y aletas pectorales móviles rasterizadas sobre una cuadrícula nítida adaptada a `devicePixelRatio` (`@`, `#`, `%`, `*`, `+`, `:`, `.`).
+  - Atlas de glifos pre-renderizados en `OffscreenCanvas` (`glyph-atlas.js`) con doble estado (`glow` y `flat`), eliminando por completo `fillText()` y `shadowBlur` del bucle principal de animación.
+  - Genética ponderada con variedades clásicas (*Kohaku*, *Yamabuki Ogon*, *Showa*, *Asagi*) y variantes raras (*Tancho* 8% y *Koi Fantasma / Butterfly* 7% con aletas y cola un 45% más largas y estela luminosa).
+- **Nenúfares con Oclusión 2.5D:**
+  - Hojas de loto en ASCII con muesca en `"V"`, deriva suave, rotación, colisiones elásticas y flores de loto en tonos rosa pálido o blanco.
+  - Descarte rápido por círculo envolvente (*broad-phase*) y oclusión por glifo (*narrow-phase*) que atenúa al `22%` de opacidad sin brillo cuando un Koi pasa por debajo de una hoja.
+- **Ciclo Solar y Clima Dinámico:**
+  - Fases solares automáticas o manuales (`Auto`, `Día`, `Tarde`, `Noche`) con cáusticas sutiles de día, reflejos ámbar/magenta al atardecer y luciérnagas ASCII verde-doradas con movimiento browniano por la noche.
+  - Interruptor de lluvia suave (`|`, `/`, `'`) que genera micro-ondas circulares `( )` → `(   )` al impactar en el agua.
+- **Accesos Directos "Piedras de Río":**
+  - Fila inferior de cantos rodados oscuros poblados automáticamente con `chrome.topSites` (con enlaces predeterminados de respaldo), carga de favicons mediante la API nativa `/_favicon/` con respaldo circular por inicial del dominio, ondas de agua al pasar el cursor y edición/alta/eliminación persistida en `localStorage`.
+- **Buscador Inteligente (Bangs, URLs directas y búsqueda nativa):**
+  - Usa `chrome.search.query()` para respetar el motor de búsqueda predeterminado del navegador (con respaldo automático a Google si no está disponible).
+  - Transformación en tiempo real de prefijos Bang en píldoras coloreadas y navegación directa de URLs (`localhost:3000`, `github.com`, `https://...`).
+- **Temporizador Pomodoro y Lluvia de Pétalos de Cerezo:**
+  - Widget colapsable con anillo circular SVG (*Enfoque 25:00* / *Descanso 05:00*) y botón de previsualización `🌸`.
+  - Al completar una sesión de enfoque, activa una lluvia de pétalos de cerezo (`✿`, `❀`, `*`, `~`, `·`) durante 25 segundos usando un Object Pool de 90 pétalos que generan ondas al aterrizar y atraen la curiosidad de los Koi cercanos.
+- **Rendimiento y Modo Zen:**
+  - Pausa inteligente en segundo plano con Page Visibility API (`visibilitychange`), `deltaTime` acotado (`<= 0.05s`), pools de objetos reutilizables, indicador opcional de FPS/`ms` en tiempo real y **Modo Zen** (`Z` / `Esc`).
 
-| Prefix | Platform | Target |
+---
+
+## Comandos Rápidos de Búsqueda (Bangs)
+
+Escribe un prefijo seguido de un espacio al inicio de la barra de búsqueda para convertirlo en una etiqueta visual. Pulsa `Backspace` con el campo vacío para quitarlo.
+
+| Prefijo | Plataforma | Destino |
 | :--- | :--- | :--- |
 | `!gh ` | GitHub | `https://github.com/search?q=` |
 | `!yt ` | YouTube | `https://www.youtube.com/results?search_query=` |
@@ -46,24 +46,24 @@ Type a prefix followed by a space at the beginning of the search bar to turn it 
 
 ---
 
-## Installation
+## Instalación
 
 ### Microsoft Edge
-1. Download the latest `.zip` archive from **[Releases](../../releases/latest)** and extract it to a permanent folder.
-2. Open `edge://extensions` in Microsoft Edge.
-3. Enable **Developer mode** (left sidebar or top-right toggle).
-4. Click **Load unpacked** and select the extracted folder containing `manifest.json`.
-5. Open a new tab. When Edge asks whether you want to keep the New Tab extension, click **"Keep changes"** (*"Conservar los cambios"*).
+1. Descarga el archivo `.zip` más reciente desde **[Releases](../../releases/latest)** y descomprímelo en una carpeta permanente.
+2. Abre `edge://extensions` en Microsoft Edge.
+3. Activa el **Modo de desarrollador** en el panel lateral o esquina superior.
+4. Haz clic en **Cargar descomprimida** y selecciona la carpeta extraída que contiene `manifest.json`.
+5. Abre una nueva pestaña. Cuando Edge pregunte si deseas mantener el cambio de Nueva Pestaña, pulsa **"Conservar los cambios"**.
 
 ### Google Chrome / Brave / Vivaldi
-1. Download and extract the latest `.zip` archive from **[Releases](../../releases/latest)**.
-2. Open `chrome://extensions` (or `brave://extensions` / `vivaldi://extensions`).
-3. Enable **Developer mode** in the top-right corner.
-4. Click **Load unpacked** and select the extracted folder.
-5. Open a new tab to enjoy the pond.
+1. Descarga y descomprime el `.zip` más reciente desde **[Releases](../../releases/latest)**.
+2. Abre `chrome://extensions` (o `brave://extensions` / `vivaldi://extensions`).
+3. Activa el **Modo de desarrollador** en la esquina superior derecha.
+4. Haz clic en **Cargar descomprimida** y selecciona la carpeta extraída.
+5. Abre una pestaña nueva para disfrutar del estanque.
 
 ---
 
-## License
+## Licencia
 
-Released under the [MIT License](LICENSE).
+Distribuido bajo la licencia [MIT](LICENSE).
