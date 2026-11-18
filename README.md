@@ -8,16 +8,19 @@ Extensión **Manifest V3** interactiva y sin dependencias externas que reemplaza
 
 ## Características
 
-- **Peces Koi Articulados y `GlyphAtlas`:**
-  - Cada pez Koi nada con una columna vertebral articulada de 12 nodos, ondulación senoidal proporcional a su velocidad y aletas pectorales móviles rasterizadas sobre una cuadrícula nítida adaptada a `devicePixelRatio` (`@`, `#`, `%`, `*`, `+`, `:`, `.`).
+- **Selector de Fauna y Especies Articuladas (`GlyphAtlas`):**
+  - **Peces Koi:** Columna vertebral articulada de 12 nodos, genética ponderada (*Kohaku*, *Yamabuki Ogon*, *Showa*, *Asagi*, más variantes raras *Tancho* 8% y *Butterfly Fantasma* 7%).
+  - **Tortugas Marinas:** Caparazón con placas doradas, aleteo lento de remado y nado sereno.
+  - **Tiburón Ballena y Tiburón Martillo:** Siluetas cenitales realistas con propulsión carangiforme fluida en la cola, aletas pectorales falcadas, aletas pélvicas, cefalofoil curvo en `"T"` (Martillo) y patrón moteado luminoso (Ballena).
+  - **Luciérnagas:** Controlables en modo `Auto` (noche), `Activas` (a cualquier hora) u `Off`.
   - Atlas de glifos pre-renderizados en `OffscreenCanvas` (`glyph-atlas.js`) con doble estado (`glow` y `flat`), eliminando por completo `fillText()` y `shadowBlur` del bucle principal de animación.
-  - Genética ponderada con variedades clásicas (*Kohaku*, *Yamabuki Ogon*, *Showa*, *Asagi*) y variantes raras (*Tancho* 8% y *Koi Fantasma / Butterfly* 7% con aletas y cola un 45% más largas y estela luminosa).
-- **Nenúfares con Oclusión 2.5D:**
-  - Hojas de loto en ASCII con muesca en `"V"`, deriva suave, rotación, colisiones elásticas y flores de loto en tonos rosa pálido o blanco.
-  - Descarte rápido por círculo envolvente (*broad-phase*) y oclusión por glifo (*narrow-phase*) que atenúa al `22%` de opacidad sin brillo cuando un Koi pasa por debajo de una hoja.
+- **Hábitat `Estanque` vs `Mar Abierto`:**
+  - **Estanque:** Nenúfares ASCII con muesca en `"V"`, flores de loto, deriva suave, colisiones elásticas y oclusión 2.5D (*broad-phase* + *narrow-phase* al `22%` de opacidad sin brillo).
+  - **Mar Abierto:** Corrientes marinas (`≈`, `~`, `·`), rayos de luz submarinos, algas ondulantes en los márgenes, 3 medusas abisales pulsantes, plancton bioluminiscente al mover el cursor o girar, burbujas ascendentes y un **cardumen de 45 micro-peces** que se dispersa en remolino ante los tiburones y el cursor.
+  - Cada capa ambiental puede activarse o combinarse individualmente desde el panel de Fauna y Entorno.
 - **Ciclo Solar y Clima Dinámico:**
-  - Fases solares automáticas o manuales (`Auto`, `Día`, `Tarde`, `Noche`) con cáusticas sutiles de día, reflejos ámbar/magenta al atardecer y luciérnagas ASCII verde-doradas con movimiento browniano por la noche.
-  - Interruptor de lluvia suave (`|`, `/`, `'`) que genera micro-ondas circulares `( )` → `(   )` al impactar en el agua.
+  - Fases solares automáticas o manuales (`Auto`, `Día`, `Tarde`, `Noche`) con cáusticas sutiles de día y reflejos cálidos al atardecer.
+  - Interruptor de lluvia suave (`|`, `/`, `'`) que genera micro-ondas azules `( )` → `(   )` al impactar en el agua.
 - **Accesos Directos "Piedras de Río":**
   - Fila inferior de cantos rodados oscuros poblados automáticamente con `chrome.topSites` (con enlaces predeterminados de respaldo), carga de favicons mediante la API nativa `/_favicon/` con respaldo circular por inicial del dominio, ondas de agua al pasar el cursor y edición/alta/eliminación persistida en `localStorage`.
 - **Buscador Inteligente (Bangs, URLs directas y búsqueda nativa):**

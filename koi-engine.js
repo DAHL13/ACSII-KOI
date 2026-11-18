@@ -9,50 +9,15 @@
   const RIPPLE_POOL_SIZE = 60;
   const FOOD_POOL_SIZE = 30;
   const TRAIL_POOL_SIZE = 140;
+  const BAIT_POOL_SIZE = 45;
 
   const VARIETY_COLOR_KEYS = {
-    kohaku: {
-      base: 'kohakuWhite',
-      spotA: 'vermilion',
-      spotB: 'crimson',
-      fin: 'kohakuFin',
-      eye: 'eyeDark'
-    },
-    yamabuki: {
-      base: 'goldOgon',
-      spotA: 'goldHighlight',
-      spotB: 'goldOgon',
-      fin: 'goldFin',
-      eye: 'eyeDark'
-    },
-    showa: {
-      base: 'sumiCharcoal',
-      spotA: 'vermilion',
-      spotB: 'tanchoWhite',
-      fin: 'sumiFin',
-      eye: 'eyeDark'
-    },
-    asagi: {
-      base: 'asagiBlue',
-      spotA: 'asagiOrange',
-      spotB: 'asagiLight',
-      fin: 'asagiOrange',
-      eye: 'eyeDark'
-    },
-    tancho: {
-      base: 'tanchoWhite',
-      spotA: 'crimson',
-      spotB: 'tanchoWhite',
-      fin: 'kohakuFin',
-      eye: 'eyeDark'
-    },
-    butterfly: {
-      base: 'ghostCyan',
-      spotA: 'ghostBright',
-      spotB: 'ghostFin',
-      fin: 'ghostFin',
-      eye: 'eyeDark'
-    }
+    kohaku: { base: 'kohakuWhite', spotA: 'vermilion', spotB: 'crimson', fin: 'kohakuFin', eye: 'eyeDark' },
+    yamabuki: { base: 'goldOgon', spotA: 'goldHighlight', spotB: 'goldOgon', fin: 'goldFin', eye: 'eyeDark' },
+    showa: { base: 'sumiCharcoal', spotA: 'vermilion', spotB: 'tanchoWhite', fin: 'sumiFin', eye: 'eyeDark' },
+    asagi: { base: 'asagiBlue', spotA: 'asagiOrange', spotB: 'asagiLight', fin: 'asagiOrange', eye: 'eyeDark' },
+    tancho: { base: 'tanchoWhite', spotA: 'crimson', spotB: 'tanchoWhite', fin: 'kohakuFin', eye: 'eyeDark' },
+    butterfly: { base: 'ghostCyan', spotA: 'ghostBright', spotB: 'ghostFin', fin: 'ghostFin', eye: 'eyeDark' }
   };
 
   function clamp(val, min, max) {
@@ -99,14 +64,7 @@
         });
       }
     } else if (variety === 'yamabuki') {
-      patches.push({
-        type: 'A',
-        u: 0.25,
-        v: 0,
-        ru: 0.24,
-        rv: 0.55,
-        phase: randRange(0, Math.PI * 2)
-      });
+      patches.push({ type: 'A', u: 0.25, v: 0, ru: 0.24, rv: 0.55, phase: randRange(0, Math.PI * 2) });
     } else if (variety === 'showa') {
       const redCount = 2 + Math.floor(Math.random() * 2);
       for (let i = 0; i < redCount; i++) {
@@ -136,100 +94,76 @@
       patches.push({ type: 'A', u: 0.42, v: 0.78, ru: 0.24, rv: 0.32, phase: 2.3 });
       patches.push({ type: 'A', u: 0.42, v: -0.78, ru: 0.24, rv: 0.32, phase: 3.9 });
     } else if (variety === 'butterfly') {
-      patches.push({
-        type: 'A',
-        u: 0.24,
-        v: 0,
-        ru: 0.22,
-        rv: 0.46,
-        phase: randRange(0, Math.PI * 2)
-      });
+      patches.push({ type: 'A', u: 0.24, v: 0, ru: 0.22, rv: 0.46, phase: randRange(0, Math.PI * 2) });
     }
     return patches;
   }
 
-  class KoiFish {
-    constructor(width, height, depthOverride, varietyOverride) {
-      this.depth = depthOverride !== undefined ? clamp(depthOverride, 0.6, 1.15) : randRange(0.6, 1.15);
+  /* ---------------------------------------------------------
+   * Base Class: Shared Boids, Spine Kinematics & 2.5D Rasterizer
+   * --------------------------------------------------------- */
+  class AquaticCreature {
+    constructor(width, height, config) {
+      this.species = config.species;
+      this.depth = clamp(config.depth !== undefined ? config.depth : randRange(0.6, 1.15), 0.6, 1.15);
       this.depthNorm = (this.depth - 0.6) / (1.15 - 0.6);
-      this.variety = varietyOverride || pickGeneticVariety();
-      this.isButterfly = this.variety === 'butterfly';
-      this.isTancho = this.variety === 'tancho';
-      this.colorKeys = VARIETY_COLOR_KEYS[this.variety];
 
-      this.nodeCount = 12;
-      this.totalLength = 152 * this.depth * randRange(0.94, 1.06);
-      this.maxRadius = this.totalLength * randRange(0.148, 0.17);
+      this.nodeCount = config.nodeCount || 12;
+      this.totalLength = config.totalLength;
+      this.maxRadius = config.maxRadius;
       this.segLength = this.totalLength / (this.nodeCount - 1);
 
-      this.finScale = this.isButterfly ? 1.45 : 1.0;
-      this.alphaMultiplier = this.isButterfly ? 0.58 : 1.0;
-      this.isGlowingDefault = this.isButterfly || this.depth >= 0.76;
-      this.boundingRadius = this.totalLength * (this.isButterfly ? 0.68 : 0.58);
-      this.ghostTrailTimer = 0;
+      this.waveAmplitudeRatio = config.waveAmplitudeRatio !== undefined ? config.waveAmplitudeRatio : 0.088;
+      this.waveFrequency = config.waveFrequency !== undefined ? config.waveFrequency : 4.5;
+      this.waveStartT = config.waveStartT !== undefined ? config.waveStartT : 0;
+      this.wavePow = config.wavePow !== undefined ? config.wavePow : 1.55;
+      this.turnCurlScale = config.turnCurlScale !== undefined ? config.turnCurlScale : 0;
+      this.swimBaseRate = config.swimBaseRate !== undefined ? config.swimBaseRate : 3.1;
+      this.swimSpeedRate = config.swimSpeedRate !== undefined ? config.swimSpeedRate : 5.6;
+      this.maxTurnRate = config.maxTurnRate !== undefined ? config.maxTurnRate : 2.1;
+      this.alphaMultiplier = config.alphaMultiplier !== undefined ? config.alphaMultiplier : 1.0;
+      this.isGlowingDefault = config.isGlowingDefault !== undefined ? config.isGlowingDefault : this.depth >= 0.76;
+      this.boundingRadius = config.boundingRadius || this.totalLength * 0.62;
+      this.bboxPad = config.bboxPad || this.maxRadius * 2.2;
+      this.maxTailT = config.maxTailT || 1.0;
+      this.tailExtraProj = config.tailExtraProj || 1.0;
+      this.headScanAmp = config.headScanAmp || 0;
+      this.turnBias = 0;
 
-      const angle = randRange(0, Math.PI * 2);
-      this.baseSpeed = lerp(38, 66, this.depthNorm) * randRange(0.92, 1.08);
+      this.baseSpeed = config.baseSpeed;
       this.speed = this.baseSpeed;
-      this.heading = angle;
+      this.heading = randRange(0, Math.PI * 2);
 
-      const x = randRange(65, Math.max(130, width - 65));
-      const y = randRange(65, Math.max(130, height - 65));
-      this.x = x;
-      this.y = y;
-      this.vx = Math.cos(angle) * this.speed;
-      this.vy = Math.sin(angle) * this.speed;
+      this.x = randRange(70, Math.max(140, width - 70));
+      this.y = randRange(70, Math.max(140, height - 70));
+      this.vx = Math.cos(this.heading) * this.speed;
+      this.vy = Math.sin(this.heading) * this.speed;
 
       this.swimPhase = randRange(0, Math.PI * 2);
       this.wanderPhase = randRange(0, Math.PI * 2);
-      this.wanderSpeed = randRange(0.45, 0.95);
-      this.curiosityBias = randRange(0.5, 1.15);
-
-      this.patches = createMarkings(this.variety);
+      this.wanderSpeed = randRange(0.4, 0.9);
+      this.curiosityBias = config.curiosityBias !== undefined ? config.curiosityBias : randRange(0.5, 1.15);
 
       this.baseNodes = new Array(this.nodeCount);
       this.nodes = new Array(this.nodeCount);
       for (let i = 0; i < this.nodeCount; i++) {
-        const nx = x - Math.cos(angle) * this.segLength * i;
-        const ny = y - Math.sin(angle) * this.segLength * i;
+        const nx = this.x - Math.cos(this.heading) * this.segLength * i;
+        const ny = this.y - Math.sin(this.heading) * this.segLength * i;
         this.baseNodes[i] = { x: nx, y: ny };
         this.nodes[i] = { x: nx, y: ny };
       }
 
-      this.centerX = this.nodes[5].x;
-      this.centerY = this.nodes[5].y;
+      this.centerIdx = Math.floor(this.nodeCount * 0.45);
+      this.centerX = this.nodes[this.centerIdx].x;
+      this.centerY = this.nodes[this.centerIdx].y;
 
-      // Pre-allocated typed segment buffers (zero per-frame allocations)
       const segCount = this.nodeCount - 1;
       this.segAx = new Float64Array(segCount);
       this.segAy = new Float64Array(segCount);
       this.segVx = new Float64Array(segCount);
       this.segVy = new Float64Array(segCount);
       this.segLenSq = new Float64Array(segCount);
-
-      // Pre-allocated lily pad intersection list
       this._intersectingLilies = new Uint8Array(16);
-    }
-
-    bodyRadiusAt(t) {
-      const maxT = this.isButterfly ? 1.095 : 1.0;
-      if (t < 0 || t > maxT) return 0;
-      if (t < 0.14) {
-        const s = t / 0.14;
-        return this.maxRadius * (0.24 + 0.68 * Math.pow(Math.sin(s * Math.PI * 0.5), 0.72));
-      }
-      if (t < 0.36) {
-        const s = (t - 0.14) / 0.22;
-        return this.maxRadius * (0.92 + 0.08 * Math.sin(s * Math.PI * 0.5));
-      }
-      if (t < 0.79) {
-        const s = (t - 0.36) / 0.43;
-        return this.maxRadius * (1.0 - 0.81 * Math.pow(s, 1.18));
-      }
-      const tailSpan = this.isButterfly ? 0.305 : 0.21;
-      const s = clamp((t - 0.79) / tailSpan, 0, 1);
-      const flare = this.isButterfly ? 0.86 : 0.58;
-      return this.maxRadius * (0.19 + flare * Math.pow(s, 0.84));
     }
 
     updatePhysics(dt, width, height, neighbors, foodPool, mouse, obstacleRect, stonesRect, ecosystem, engine) {
@@ -238,7 +172,7 @@
       let steerX = 0;
       let steerY = 0;
 
-      // 1. Boids: Separation, Alignment, Cohesion
+      // 1. Boids: Separation across all creatures; Alignment & Cohesion with same species
       let sepX = 0;
       let sepY = 0;
       let aliX = 0;
@@ -248,9 +182,8 @@
       let aliCount = 0;
       let cohCount = 0;
 
-      const sepRadius = 56 + this.maxRadius * 1.4;
-      const sepRadiusSq = sepRadius * sepRadius;
-      const neighborRadius = 175 + this.depthNorm * 55;
+      const sepRadius = 54 + this.maxRadius * 1.45;
+      const neighborRadius = 175 + this.depthNorm * 60;
       const neighborRadiusSq = neighborRadius * neighborRadius;
 
       for (let i = 0; i < neighbors.length; i++) {
@@ -263,43 +196,43 @@
         const distSq = dx * dx + dy * dy;
         if (distSq < 1) continue;
 
-        if (depthDist < 0.22 && distSq < sepRadiusSq) {
+        const combinedSep = sepRadius + other.maxRadius * 0.85;
+        if (depthDist < 0.24 && distSq < combinedSep * combinedSep) {
           const dist = Math.sqrt(distSq);
-          const force = (sepRadius - dist) / sepRadius;
+          const force = (combinedSep - dist) / combinedSep;
           sepX -= (dx / dist) * force;
           sepY -= (dy / dist) * force;
         }
 
-        if (depthDist < 0.28 && distSq < neighborRadiusSq) {
+        if (other.species === this.species && depthDist < 0.28 && distSq < neighborRadiusSq) {
           aliX += other.vx;
           aliY += other.vy;
           aliCount++;
-
           cohX += other.x;
           cohY += other.y;
           cohCount++;
         }
       }
 
-      steerX += sepX * 95;
-      steerY += sepY * 95;
+      steerX += sepX * 105;
+      steerY += sepY * 105;
 
       if (aliCount > 0) {
-        steerX += (aliX / aliCount - this.vx) * 0.55;
-        steerY += (aliY / aliCount - this.vy) * 0.55;
+        steerX += (aliX / aliCount - this.vx) * 0.52;
+        steerY += (aliY / aliCount - this.vy) * 0.52;
       }
 
       if (cohCount > 0) {
-        steerX += (cohX / cohCount - this.x) * 0.16;
-        steerY += (cohY / cohCount - this.y) * 0.16;
+        steerX += (cohX / cohCount - this.x) * 0.14;
+        steerY += (cohY / cohCount - this.y) * 0.14;
       }
 
       // 2. Organic wander
-      const wanderAngle = this.heading + Math.sin(this.wanderPhase) * 0.72;
-      steerX += Math.cos(wanderAngle) * 24;
-      steerY += Math.sin(wanderAngle) * 24;
+      const wanderAngle = this.heading + Math.sin(this.wanderPhase) * 0.68;
+      steerX += Math.cos(wanderAngle) * 22;
+      steerY += Math.sin(wanderAngle) * 22;
 
-      // 3. Pooled food detection
+      // 3. Food attraction & floating Sakura petal curiosity
       let targetSpeed = this.baseSpeed;
       let nearestFood = null;
       let nearestFoodDist = 480;
@@ -319,13 +252,12 @@
         const dy = nearestFood.y - this.y;
         const d = Math.max(1, nearestFoodDist);
         const urgency = clamp(1 - d / 520, 0.25, 1.0);
-        steerX += (dx / d) * (165 + urgency * 145);
-        steerY += (dy / d) * (165 + urgency * 145);
-        targetSpeed = this.baseSpeed * (1.35 + urgency * 0.65);
+        steerX += (dx / d) * (155 + urgency * 135);
+        steerY += (dy / d) * (155 + urgency * 135);
+        targetSpeed = this.baseSpeed * (1.28 + urgency * 0.58);
       } else {
-        // Gentle curiosity toward floating Sakura cherry blossom petals
         let nearPetal = null;
-        let nearPetalDist = 260;
+        let nearPetalDist = 250;
         if (ecosystem && ecosystem.petalPool) {
           const pool = ecosystem.petalPool;
           const len = ecosystem.petalPoolSize || pool.length;
@@ -346,25 +278,24 @@
           const d = Math.max(1, nearPetalDist);
           const ux = dx / d;
           const uy = dy / d;
-          // Orbit curiously around floating petal when close, swim gently toward it when far
-          const orbitPull = d < 75 ? -0.35 : 0.65;
+          const orbitPull = d < 80 ? -0.35 : 0.62;
           const tangentDir = this.vx * -uy + this.vy * ux >= 0 ? 1 : -1;
-          steerX += (ux * orbitPull + -uy * tangentDir * 0.75) * 62 * this.curiosityBias;
-          steerY += (uy * orbitPull + ux * tangentDir * 0.75) * 62 * this.curiosityBias;
-          targetSpeed = this.baseSpeed * 1.12;
+          steerX += (ux * orbitPull + -uy * tangentDir * 0.72) * 58 * this.curiosityBias;
+          steerY += (uy * orbitPull + ux * tangentDir * 0.72) * 58 * this.curiosityBias;
+          targetSpeed = this.baseSpeed * 1.1;
         } else if (mouse.active && mouse.energy > 0.05) {
           const dx = mouse.x - this.x;
           const dy = mouse.y - this.y;
           const d = Math.hypot(dx, dy);
           if (d > 55 && d < 280) {
             const pull = (1 - d / 280) * mouse.energy * this.curiosityBias;
-            steerX += (dx / d) * pull * 52;
-            steerY += (dy / d) * pull * 52;
+            steerX += (dx / d) * pull * 48;
+            steerY += (dy / d) * pull * 48;
           }
         }
       }
 
-      // 4. Obstacle avoidance around central UI search card & bottom river stones
+      // 4. Obstacle avoidance (hero search card & bottom river stones)
       if (obstacleRect && obstacleRect.width > 0 && obstacleRect.height > 0) {
         const pad = 44;
         const left = obstacleRect.left - pad;
@@ -410,7 +341,7 @@
       }
 
       // 5. Soft viewport margins
-      const margin = 85;
+      const margin = 90;
       if (this.x < margin) steerX += ((margin - this.x) / margin) * 155;
       else if (this.x > width - margin) steerX -= ((this.x - (width - margin)) / margin) * 155;
 
@@ -421,11 +352,14 @@
       const desiredVy = this.vy + steerY * dt;
       const desiredHeading = Math.atan2(desiredVy, desiredVx);
 
-      const maxTurn = (2.1 + (targetSpeed / this.baseSpeed) * 0.7) * dt;
+      const maxTurn = (this.maxTurnRate + (targetSpeed / this.baseSpeed) * 0.55) * dt;
       const dAngle = clamp(angleDiff(desiredHeading, this.heading), -maxTurn, maxTurn);
       this.heading += dAngle;
 
-      this.speed = lerp(this.speed, targetSpeed, clamp(dt * 3.2, 0, 1));
+      const instantTurn = clamp(dAngle / Math.max(dt, 0.001), -2.5, 2.5);
+      this.turnBias = lerp(this.turnBias, instantTurn, clamp(dt * 4.5, 0, 1));
+
+      this.speed = lerp(this.speed, targetSpeed, clamp(dt * 3.0, 0, 1));
       this.vx = Math.cos(this.heading) * this.speed;
       this.vy = Math.sin(this.heading) * this.speed;
 
@@ -433,30 +367,26 @@
       this.y += this.vy * dt;
 
       const speedRatio = this.speed / Math.max(1, this.baseSpeed);
-      this.swimPhase += (3.1 + speedRatio * 5.6) * dt;
+      this.swimPhase += (this.swimBaseRate + speedRatio * this.swimSpeedRate) * dt;
 
       this.updateSpine();
-
-      if (this.isButterfly) {
-        this.ghostTrailTimer += dt;
-        if (this.ghostTrailTimer >= 0.085) {
-          this.ghostTrailTimer = 0;
+      if (ecosystem && ecosystem.planktonEnabled) {
+        if ((Math.abs(this.turnBias) > 0.55 || speedRatio > 1.15) && Math.random() < dt * 11) {
           const tail = this.nodes[this.nodeCount - 1];
-          engine.spawnTrailGlyph(
-            tail.x + randRange(-6, 6),
-            tail.y + randRange(-6, 6),
-            Math.random() > 0.45 ? '·' : '~',
-            'ghostFin'
-          );
+          ecosystem.spawnPlankton(tail.x + randRange(-8, 8), tail.y + randRange(-8, 8), -this.vx * 0.12, -this.vy * 0.12);
+        }
+        if (Math.random() < dt * 0.65) {
+          ecosystem.spawnBubble(this.x + randRange(-10, 10), this.y + randRange(-8, 8));
         }
       }
+      this.onAfterUpdate(dt, engine);
     }
+
+    onAfterUpdate() {}
 
     updateSpine() {
       this.baseNodes[0].x = this.x;
       this.baseNodes[0].y = this.y;
-      this.nodes[0].x = this.x;
-      this.nodes[0].y = this.y;
 
       for (let i = 1; i < this.nodeCount; i++) {
         const prev = this.baseNodes[i - 1];
@@ -468,10 +398,10 @@
         curr.y = prev.y + (dy / dist) * this.segLength;
       }
 
-      const maxWave = this.totalLength * 0.088;
-      for (let i = 1; i < this.nodeCount; i++) {
+      const maxWave = this.totalLength * this.waveAmplitudeRatio;
+      for (let i = 0; i < this.nodeCount; i++) {
         const t = i / (this.nodeCount - 1);
-        const prev = this.baseNodes[i - 1];
+        const prev = this.baseNodes[Math.max(0, i - 1)];
         const next = this.baseNodes[Math.min(this.nodeCount - 1, i + 1)];
         let tx = prev.x - next.x;
         let ty = prev.y - next.y;
@@ -482,58 +412,37 @@
         const nx = -ty;
         const ny = tx;
 
-        const amp = maxWave * (0.04 + 0.96 * Math.pow(t, 1.55));
-        const waveOffset = Math.sin(this.swimPhase - t * 4.5) * amp;
+        let waveOffset;
+        if (i === 0) {
+          waveOffset = this.headScanAmp > 0 ? Math.sin(this.swimPhase * 0.85) * this.headScanAmp : 0;
+        } else {
+          let ampFactor;
+          if (this.waveStartT > 0) {
+            const postT = clamp((t - this.waveStartT) / (1 - this.waveStartT), 0, 1);
+            ampFactor = 0.015 + 0.985 * Math.pow(postT, this.wavePow);
+          } else {
+            ampFactor = 0.04 + 0.96 * Math.pow(t, this.wavePow);
+          }
+          const amp = maxWave * ampFactor;
+          const tailLag = t > 0.72 ? Math.pow((t - 0.72) / 0.28, 1.4) * 0.55 : 0;
+          const turnCurl = this.turnCurlScale > 0 ? this.turnBias * this.totalLength * this.turnCurlScale * Math.pow(t, 1.85) : 0;
+          waveOffset = Math.sin(this.swimPhase - t * this.waveFrequency - tailLag) * amp + turnCurl;
+        }
 
         this.nodes[i].x = this.baseNodes[i].x + nx * waveOffset;
         this.nodes[i].y = this.baseNodes[i].y + ny * waveOffset;
       }
 
-      this.centerX = this.nodes[5].x;
-      this.centerY = this.nodes[5].y;
+      this.centerX = this.nodes[this.centerIdx].x;
+      this.centerY = this.nodes[this.centerIdx].y;
     }
 
-    getMarkType(t, vNorm, px, py) {
-      if (this.isTancho) {
-        const headNode = this.nodes[1];
-        const spotRadius = this.maxRadius * 0.46;
-        const dx = px - headNode.x;
-        const dy = py - headNode.y;
-        if (dx * dx + dy * dy <= spotRadius * spotRadius) {
-          return 'A';
-        }
-        return 'base';
-      }
-
-      if (this.variety === 'asagi') {
-        for (let i = 0; i < this.patches.length; i++) {
-          const p = this.patches[i];
-          const du = (t - p.u) / p.ru;
-          const dv = (vNorm - p.v) / p.rv;
-          const warp = 1 + 0.14 * Math.sin(t * 22 + p.phase);
-          if (du * du + dv * dv < warp) return 'A';
-        }
-        const scalePattern = Math.sin(t * 48) * Math.cos(vNorm * 8.5);
-        if (scalePattern > 0.56 && Math.abs(vNorm) < 0.65) return 'B';
-        return 'base';
-      }
-
-      for (let i = 0; i < this.patches.length; i++) {
-        const p = this.patches[i];
-        const du = (t - p.u) / p.ru;
-        const dv = (vNorm - p.v) / p.rv;
-        const warp = 1 + 0.18 * Math.sin(t * 20 + vNorm * 5 + p.phase);
-        if (du * du + dv * dv < warp) {
-          return p.type;
-        }
-      }
-      return 'base';
+    // Overridden by subclasses for species-specific anatomy & markings
+    sampleCell(bestT, bestSignedDist, absDist, bodyR, px, py, time) {
+      return null;
     }
 
     render(ctx, atlas, ecosystem, time) {
-      const colors = this.colorKeys;
-
-      // Broad-phase Bounding Circle test against lily pads (skip per-node occlusion if no intersection)
       const hitLilyCount = ecosystem
         ? ecosystem.testCircleIntersectsLilies(
             this.centerX,
@@ -547,7 +456,7 @@
       let minY = Infinity;
       let maxX = -Infinity;
       let maxY = -Infinity;
-      const pad = this.maxRadius * (this.isButterfly ? 3.2 : 2.2);
+      const pad = this.bboxPad;
 
       for (let i = 0; i < this.nodeCount; i++) {
         const n = this.nodes[i];
@@ -562,7 +471,6 @@
       const startRow = Math.floor((minY - pad) / CELL_H);
       const endRow = Math.ceil((maxY + pad) / CELL_H);
 
-      const flap = Math.sin(this.swimPhase - 0.9);
       const segCount = this.nodeCount - 1;
       const invSegCount = 1 / segCount;
       const lastIdx = segCount - 1;
@@ -579,11 +487,13 @@
         this.segLenSq[i] = vx * vx + vy * vy || 0.0001;
       }
 
-      const maxTailT = this.isButterfly ? 1.095 : 1.0;
       const baseAlpha = lerp(0.48, 0.98, this.depthNorm) * this.alphaMultiplier;
       const occludedAlpha = baseAlpha * 0.22;
       let currentOccludedState = false;
       ctx.globalAlpha = baseAlpha;
+
+      // Reusable sample result holder (zero allocations in loop)
+      const cellOut = this._cellOut || (this._cellOut = { char: '.', colorKey: 'kohakuWhite', glow: false });
 
       for (let row = startRow; row <= endRow; row++) {
         const py = (row + 0.5) * CELL_H;
@@ -601,7 +511,7 @@
             const svy = this.segVy[i];
             const wx = px - ax;
             const wy = py - ay;
-            const maxProj = this.isButterfly && i === lastIdx ? 2.05 : 1.0;
+            const maxProj = i === lastIdx ? this.tailExtraProj : 1.0;
             const proj = clamp((wx * svx + wy * svy) / this.segLenSq[i], 0, maxProj);
             const dx = px - (ax + proj * svx);
             const dy = py - (ay + proj * svy);
@@ -615,93 +525,10 @@
             }
           }
 
-          let adjustedSignedDist = bestSignedDist;
-          if (this.isButterfly && bestT > 0.79) {
-            const extraT = (bestT - 0.79) / 0.305;
-            adjustedSignedDist += Math.sin(this.swimPhase * 1.4 - extraT * 4.5) * this.maxRadius * 0.26 * extraT;
+          if (!this.evaluateCell(bestT, bestSignedDist, px, py, time, cellOut)) {
+            continue;
           }
 
-          const absDist = Math.abs(adjustedSignedDist);
-          const bodyR = this.bodyRadiusAt(bestT);
-          let density = -1;
-          let isFin = false;
-          let isEye = false;
-
-          if (bestT >= 0 && bestT <= maxTailT && absDist <= bodyR) {
-            const notchStart = 0.85;
-            if (bestT > notchStart) {
-              const tailT = (bestT - notchStart) / (maxTailT - notchStart);
-              const notchRatio = (this.isButterfly ? 0.34 : 0.28) * tailT;
-              const normLat = absDist / Math.max(1, bodyR);
-              if (normLat > notchRatio) {
-                const finFade = (1 - normLat) * (1 - tailT * 0.48);
-                density = clamp(finFade * (this.isButterfly ? 0.58 : 0.65), 0.05, 0.55);
-                isFin = true;
-              }
-            } else if (bestT > 0.78) {
-              const normLat = absDist / Math.max(1, bodyR);
-              density = clamp((1 - normLat) * 0.62, 0.08, 0.62);
-              isFin = true;
-            } else {
-              const normLat = absDist / Math.max(1, bodyR);
-              const shimmer = Math.sin(bestT * 26 - this.swimPhase * 0.6 + time * 1.4) * 0.06;
-              density = clamp((1 - normLat * normLat) * 0.96 + shimmer, 0.08, 1.0);
-
-              if (this.depth > 0.66 && bestT > 0.065 && bestT < 0.115 && normLat > 0.38 && normLat < 0.72) {
-                isEye = true;
-              }
-            }
-          }
-
-          if (density < 0.15 && bestT > 0.16 && bestT < 0.46) {
-            const side = bestSignedDist >= 0 ? 1 : -1;
-            const finWave = this.isButterfly ? Math.sin(this.swimPhase * 1.35 - absDist * 0.09) * 0.045 : 0;
-            const finCenterT = 0.29 + side * flap * 0.028 + finWave;
-            const finOutMin = bodyR * 0.82;
-            const finOutMax = this.maxRadius * ((1.72 + flap * side * 0.15) * this.finScale);
-
-            if (absDist > finOutMin && absDist < finOutMax) {
-              const du = (bestT - finCenterT) / (this.isButterfly ? 0.125 : 0.095);
-              const dv = (absDist - (finOutMin + finOutMax) * 0.5) / ((finOutMax - finOutMin) * 0.5);
-              const ell = du * du + dv * dv;
-              if (ell < 1.0) {
-                const finD = (1 - ell) * (this.isButterfly ? 0.52 : 0.46);
-                if (finD > density) {
-                  density = finD;
-                  isFin = true;
-                }
-              }
-            }
-          }
-
-          if (density <= 0.04) continue;
-
-          let char;
-          if (isEye) {
-            char = 'o';
-          } else {
-            const idx = clamp(
-              Math.floor((1 - density) * (DENSITY_CHARS.length - 0.01)),
-              0,
-              DENSITY_CHARS.length - 1
-            );
-            char = DENSITY_CHARS[idx];
-          }
-
-          let colorKey;
-          if (isEye) {
-            colorKey = colors.eye;
-          } else if (isFin) {
-            colorKey = colors.fin;
-          } else {
-            const vNorm = bestSignedDist / Math.max(1, bodyR);
-            const mark = this.getMarkType(bestT, vNorm, px, py);
-            if (mark === 'A') colorKey = colors.spotA;
-            else if (mark === 'B') colorKey = colors.spotB;
-            else colorKey = colors.base;
-          }
-
-          // Narrow-phase occlusion only when broad-phase circle intersected a lily pad
           const isOccluded =
             hitLilyCount > 0 ? ecosystem.isOccludedInList(px, py, this._intersectingLilies, hitLilyCount) : false;
 
@@ -710,8 +537,8 @@
             ctx.globalAlpha = isOccluded ? occludedAlpha : baseAlpha;
           }
 
-          const isGlowing = !isOccluded && !isEye && this.isGlowingDefault && density > 0.25;
-          atlas.drawGlyph(ctx, char, colorKey, isGlowing, px, py);
+          const isGlowing = !isOccluded && cellOut.glow;
+          atlas.drawGlyph(ctx, cellOut.char, cellOut.colorKey, isGlowing, px, py);
         }
       }
 
@@ -719,6 +546,681 @@
     }
   }
 
+  /* ---------------------------------------------------------
+   * Species 1: Koi Fish (Classic + Tancho + Phantom Butterfly)
+   * --------------------------------------------------------- */
+  class KoiFish extends AquaticCreature {
+    constructor(width, height, depthOverride, varietyOverride) {
+      const depth = clamp(depthOverride !== undefined ? depthOverride : randRange(0.6, 1.15), 0.6, 1.15);
+      const depthNorm = (depth - 0.6) / (1.15 - 0.6);
+      const variety = varietyOverride || pickGeneticVariety();
+      const isButterfly = variety === 'butterfly';
+      const totalLength = 152 * depth * randRange(0.94, 1.06);
+      const maxRadius = totalLength * randRange(0.148, 0.17);
+
+      super(width, height, {
+        species: 'koi',
+        depth,
+        nodeCount: 12,
+        totalLength,
+        maxRadius,
+        baseSpeed: lerp(38, 66, depthNorm) * randRange(0.92, 1.08),
+        alphaMultiplier: isButterfly ? 0.58 : 1.0,
+        isGlowingDefault: isButterfly || depth >= 0.76,
+        boundingRadius: totalLength * (isButterfly ? 0.68 : 0.58),
+        bboxPad: maxRadius * (isButterfly ? 3.2 : 2.2),
+        maxTailT: isButterfly ? 1.095 : 1.0,
+        tailExtraProj: isButterfly ? 2.05 : 1.0
+      });
+
+      this.variety = variety;
+      this.isButterfly = isButterfly;
+      this.isTancho = variety === 'tancho';
+      this.colorKeys = VARIETY_COLOR_KEYS[variety];
+      this.finScale = isButterfly ? 1.45 : 1.0;
+      this.patches = createMarkings(variety);
+      this.ghostTrailTimer = 0;
+    }
+
+    bodyRadiusAt(t) {
+      if (t < 0 || t > this.maxTailT) return 0;
+      if (t < 0.14) {
+        const s = t / 0.14;
+        return this.maxRadius * (0.24 + 0.68 * Math.pow(Math.sin(s * Math.PI * 0.5), 0.72));
+      }
+      if (t < 0.36) {
+        const s = (t - 0.14) / 0.22;
+        return this.maxRadius * (0.92 + 0.08 * Math.sin(s * Math.PI * 0.5));
+      }
+      if (t < 0.79) {
+        const s = (t - 0.36) / 0.43;
+        return this.maxRadius * (1.0 - 0.81 * Math.pow(s, 1.18));
+      }
+      const tailSpan = this.isButterfly ? 0.305 : 0.21;
+      const s = clamp((t - 0.79) / tailSpan, 0, 1);
+      const flare = this.isButterfly ? 0.86 : 0.58;
+      return this.maxRadius * (0.19 + flare * Math.pow(s, 0.84));
+    }
+
+    onAfterUpdate(dt, engine) {
+      if (this.isButterfly) {
+        this.ghostTrailTimer += dt;
+        if (this.ghostTrailTimer >= 0.085) {
+          this.ghostTrailTimer = 0;
+          const tail = this.nodes[this.nodeCount - 1];
+          engine.spawnTrailGlyph(
+            tail.x + randRange(-6, 6),
+            tail.y + randRange(-6, 6),
+            Math.random() > 0.45 ? '·' : '~',
+            'ghostFin'
+          );
+        }
+      }
+    }
+
+    getMarkType(t, vNorm, px, py) {
+      if (this.isTancho) {
+        const headNode = this.nodes[1];
+        const spotRadius = this.maxRadius * 0.46;
+        const dx = px - headNode.x;
+        const dy = py - headNode.y;
+        return dx * dx + dy * dy <= spotRadius * spotRadius ? 'A' : 'base';
+      }
+      if (this.variety === 'asagi') {
+        for (let i = 0; i < this.patches.length; i++) {
+          const p = this.patches[i];
+          const du = (t - p.u) / p.ru;
+          const dv = (vNorm - p.v) / p.rv;
+          if (du * du + dv * dv < 1 + 0.14 * Math.sin(t * 22 + p.phase)) return 'A';
+        }
+        return Math.sin(t * 48) * Math.cos(vNorm * 8.5) > 0.56 && Math.abs(vNorm) < 0.65 ? 'B' : 'base';
+      }
+      for (let i = 0; i < this.patches.length; i++) {
+        const p = this.patches[i];
+        const du = (t - p.u) / p.ru;
+        const dv = (vNorm - p.v) / p.rv;
+        if (du * du + dv * dv < 1 + 0.18 * Math.sin(t * 20 + vNorm * 5 + p.phase)) return p.type;
+      }
+      return 'base';
+    }
+
+    evaluateCell(bestT, bestSignedDist, px, py, time, out) {
+      let adjustedSignedDist = bestSignedDist;
+      if (this.isButterfly && bestT > 0.79) {
+        const extraT = (bestT - 0.79) / 0.305;
+        adjustedSignedDist += Math.sin(this.swimPhase * 1.4 - extraT * 4.5) * this.maxRadius * 0.26 * extraT;
+      }
+
+      const absDist = Math.abs(adjustedSignedDist);
+      const bodyR = this.bodyRadiusAt(bestT);
+      let density = -1;
+      let isFin = false;
+      let isEye = false;
+
+      if (bestT >= 0 && bestT <= this.maxTailT && absDist <= bodyR) {
+        if (bestT > 0.85) {
+          const tailT = (bestT - 0.85) / (this.maxTailT - 0.85);
+          const notchRatio = (this.isButterfly ? 0.34 : 0.28) * tailT;
+          const normLat = absDist / Math.max(1, bodyR);
+          if (normLat > notchRatio) {
+            density = clamp((1 - normLat) * (1 - tailT * 0.48) * (this.isButterfly ? 0.58 : 0.65), 0.05, 0.55);
+            isFin = true;
+          }
+        } else if (bestT > 0.78) {
+          const normLat = absDist / Math.max(1, bodyR);
+          density = clamp((1 - normLat) * 0.62, 0.08, 0.62);
+          isFin = true;
+        } else {
+          const normLat = absDist / Math.max(1, bodyR);
+          const shimmer = Math.sin(bestT * 26 - this.swimPhase * 0.6 + time * 1.4) * 0.06;
+          density = clamp((1 - normLat * normLat) * 0.96 + shimmer, 0.08, 1.0);
+          if (this.depth > 0.66 && bestT > 0.065 && bestT < 0.115 && normLat > 0.38 && normLat < 0.72) {
+            isEye = true;
+          }
+        }
+      }
+
+      if (density < 0.15 && bestT > 0.16 && bestT < 0.46) {
+        const flap = Math.sin(this.swimPhase - 0.9);
+        const side = bestSignedDist >= 0 ? 1 : -1;
+        const finWave = this.isButterfly ? Math.sin(this.swimPhase * 1.35 - absDist * 0.09) * 0.045 : 0;
+        const finCenterT = 0.29 + side * flap * 0.028 + finWave;
+        const finOutMin = bodyR * 0.82;
+        const finOutMax = this.maxRadius * ((1.72 + flap * side * 0.15) * this.finScale);
+
+        if (absDist > finOutMin && absDist < finOutMax) {
+          const du = (bestT - finCenterT) / (this.isButterfly ? 0.125 : 0.095);
+          const dv = (absDist - (finOutMin + finOutMax) * 0.5) / ((finOutMax - finOutMin) * 0.5);
+          const ell = du * du + dv * dv;
+          if (ell < 1.0) {
+            const finD = (1 - ell) * (this.isButterfly ? 0.52 : 0.46);
+            if (finD > density) {
+              density = finD;
+              isFin = true;
+            }
+          }
+        }
+      }
+
+      if (density <= 0.04) return false;
+
+      if (isEye) {
+        out.char = 'o';
+        out.colorKey = this.colorKeys.eye;
+        out.glow = false;
+        return true;
+      }
+
+      const idx = clamp(Math.floor((1 - density) * (DENSITY_CHARS.length - 0.01)), 0, DENSITY_CHARS.length - 1);
+      out.char = DENSITY_CHARS[idx];
+
+      if (isFin) {
+        out.colorKey = this.colorKeys.fin;
+      } else {
+        const vNorm = bestSignedDist / Math.max(1, bodyR);
+        const mark = this.getMarkType(bestT, vNorm, px, py);
+        out.colorKey = mark === 'A' ? this.colorKeys.spotA : mark === 'B' ? this.colorKeys.spotB : this.colorKeys.base;
+      }
+
+      out.glow = this.isGlowingDefault && density > 0.25;
+      return true;
+    }
+  }
+
+  /* ---------------------------------------------------------
+   * Species 2: Sea Turtle (Tortuga Marina)
+   * --------------------------------------------------------- */
+  class SeaTurtle extends AquaticCreature {
+    constructor(width, height, depthOverride) {
+      const depth = clamp(depthOverride !== undefined ? depthOverride : randRange(0.62, 1.12), 0.6, 1.15);
+      const depthNorm = (depth - 0.6) / (1.15 - 0.6);
+      const totalLength = 122 * depth * randRange(0.92, 1.08);
+      const maxRadius = totalLength * 0.34;
+
+      super(width, height, {
+        species: 'turtle',
+        depth,
+        nodeCount: 5,
+        totalLength,
+        maxRadius,
+        baseSpeed: lerp(24, 38, depthNorm) * randRange(0.92, 1.08),
+        waveAmplitudeRatio: 0.014,
+        waveFrequency: 2.2,
+        swimBaseRate: 1.8,
+        swimSpeedRate: 2.3,
+        maxTurnRate: 1.4,
+        boundingRadius: totalLength * 0.72,
+        bboxPad: maxRadius * 2.1
+      });
+    }
+
+    bodyRadiusAt(t) {
+      if (t < 0 || t > 0.96) return 0;
+      if (t < 0.14) {
+        const s = t / 0.14;
+        return this.maxRadius * (0.14 + 0.24 * Math.sin(s * Math.PI * 0.65));
+      }
+      if (t < 0.20) {
+        return this.maxRadius * 0.32;
+      }
+      if (t < 0.78) {
+        const s = (t - 0.20) / 0.58;
+        return this.maxRadius * Math.pow(Math.sin(s * Math.PI), 0.62);
+      }
+      const s = (t - 0.78) / 0.18;
+      return this.maxRadius * 0.18 * Math.max(0, 1 - s);
+    }
+
+    evaluateCell(bestT, bestSignedDist, px, py, time, out) {
+      const absDist = Math.abs(bestSignedDist);
+      const bodyR = this.bodyRadiusAt(bestT);
+      let density = -1;
+      let part = 0; // 0 = shell, 1 = head, 2 = flipper, 3 = eye
+
+      // 1. Head, Shell & Short Tail
+      if (bestT >= 0 && bestT <= 0.95 && absDist <= bodyR) {
+        const normLat = absDist / Math.max(1, bodyR);
+        if (bestT < 0.20) {
+          part = 1;
+          density = clamp((1 - normLat * normLat) * 0.85, 0.18, 0.9);
+          if (bestT > 0.04 && bestT < 0.11 && normLat > 0.42 && normLat < 0.78) {
+            part = 3;
+          }
+        } else if (bestT <= 0.78) {
+          part = 0;
+          density = clamp(0.95 - normLat * 0.45, 0.28, 0.98);
+        } else {
+          part = 1;
+          density = clamp((1 - normLat) * 0.5, 0.08, 0.52);
+        }
+      }
+
+      // 2. Swept Rowing Front Flippers (t ≈ 0.24..0.54)
+      if (density < 0.2 && bestT > 0.20 && bestT < 0.64) {
+        const flap = Math.sin(this.swimPhase);
+        const reach = this.maxRadius * (1.76 + flap * 0.18);
+        const startR = bodyR * 0.76;
+        if (absDist > startR && absDist < reach) {
+          const outRatio = (absDist - startR) / Math.max(1, reach - startR);
+          const sweepCenterT = 0.29 + outRatio * 0.17 - flap * 0.065;
+          const halfWidthT = lerp(0.11, 0.042, outRatio);
+          const du = (bestT - sweepCenterT) / halfWidthT;
+          const dv = (outRatio - 0.48) / 0.54;
+          const ell = du * du + dv * dv;
+          if (ell < 1.0) {
+            const finD = (1 - ell) * 0.72;
+            if (finD > density) {
+              density = finD;
+              part = 2;
+            }
+          }
+        }
+      }
+
+      // 3. Compact Rear Flippers (t ≈ 0.70..0.92)
+      if (density < 0.2 && bestT > 0.68 && bestT < 0.94) {
+        const flapRear = Math.cos(this.swimPhase);
+        const startR = bodyR * 0.72;
+        const reach = this.maxRadius * 0.95;
+        if (absDist > startR && absDist < reach) {
+          const outRatio = (absDist - startR) / Math.max(1, reach - startR);
+          const centerT = 0.78 + outRatio * 0.07 + flapRear * 0.025;
+          const du = (bestT - centerT) / 0.075;
+          const dv = (outRatio - 0.5) / 0.52;
+          const ell = du * du + dv * dv;
+          if (ell < 1.0) {
+            const finD = (1 - ell) * 0.56;
+            if (finD > density) {
+              density = finD;
+              part = 2;
+            }
+          }
+        }
+      }
+
+      if (density <= 0.05) return false;
+
+      if (part === 3) {
+        out.char = 'o';
+        out.colorKey = 'eyeDark';
+        out.glow = false;
+        return true;
+      }
+
+      const idx = clamp(Math.floor((1 - density) * (DENSITY_CHARS.length - 0.01)), 0, DENSITY_CHARS.length - 1);
+      out.char = DENSITY_CHARS[idx];
+
+      if (part === 1) {
+        out.colorKey = 'turtleSkin';
+        out.glow = this.isGlowingDefault && density > 0.35;
+      } else if (part === 2) {
+        out.colorKey = density > 0.4 ? 'turtleSkin' : 'turtleFinTip';
+        out.glow = false;
+      } else {
+        const normLat = absDist / Math.max(1, bodyR);
+        const vNorm = bestSignedDist / Math.max(1, bodyR);
+        const shellT = (bestT - 0.20) / 0.58;
+        const scuteGrid = Math.abs(Math.sin(shellT * Math.PI * 4.5)) < 0.19 || Math.abs(Math.cos(vNorm * 4.2)) < 0.20;
+        if (normLat > 0.78 || (normLat < 0.18 && shellT > 0.16 && shellT < 0.84)) {
+          out.colorKey = 'turtleScuteGold';
+          out.glow = this.isGlowingDefault;
+        } else if (scuteGrid) {
+          out.colorKey = 'turtleShellDark';
+          out.glow = false;
+        } else {
+          out.colorKey = 'turtleShellMid';
+          out.glow = this.isGlowingDefault && density > 0.55;
+        }
+      }
+      return true;
+    }
+  }
+
+  /* ---------------------------------------------------------
+   * Shared Shark Base (Top-Down Silhouette, Pelvic Fins & Whip Tail)
+   * --------------------------------------------------------- */
+  class SharkCreature extends AquaticCreature {
+    sharkTailRadius(t) {
+      if (t < 0.68 || t > this.maxTailT) return 0;
+      const s = clamp((t - 0.68) / (this.maxTailT - 0.68), 0, 1);
+      const rawR = this.maxRadius * lerp(0.28, 0.05, Math.pow(s, 0.85));
+      // Keep minimum raster thickness so the long curved ASCII tail whip stays continuous
+      return Math.max(rawR, t < 0.96 ? 4.6 : 2.8);
+    }
+
+    evaluateSharkAppendages(bestT, bestSignedDist, absDist, bodyR, pecReachMult) {
+      let density = -1;
+      let kind = 0; // 0 = none, 1 = fin, 2 = subterminal tail notch
+
+      // 1. Falcate swept pectoral wings (0.23 <= t <= 0.48)
+      if (bestT > 0.22 && bestT < 0.50) {
+        const startR = bodyR * 0.78;
+        const reach = this.maxRadius * pecReachMult;
+        if (absDist > startR && absDist < reach) {
+          const outRatio = (absDist - startR) / Math.max(1, reach - startR);
+          const centerT = 0.27 + Math.pow(outRatio, 1.15) * 0.16;
+          const halfW = lerp(0.088, 0.022, outRatio);
+          const du = (bestT - centerT) / halfW;
+          const dv = (outRatio - 0.48) / 0.54;
+          const ell = du * du + dv * dv;
+          if (ell < 1.0) {
+            density = (1 - ell) * 0.72;
+            kind = 1;
+          }
+        }
+      }
+
+      // 2. Swept rear pelvic fins (0.55 <= t <= 0.70)
+      if (density < 0.15 && bestT > 0.54 && bestT < 0.72) {
+        const startR = bodyR * 0.72;
+        const reach = this.maxRadius * 1.04;
+        if (absDist > startR && absDist < reach) {
+          const outRatio = (absDist - startR) / Math.max(1, reach - startR);
+          const centerT = 0.585 + outRatio * 0.085;
+          const halfW = lerp(0.062, 0.018, outRatio);
+          const du = (bestT - centerT) / halfW;
+          const dv = (outRatio - 0.48) / 0.54;
+          const ell = du * du + dv * dv;
+          if (ell < 1.0) {
+            const pelD = (1 - ell) * 0.64;
+            if (pelD > density) {
+              density = pelD;
+              kind = 1;
+            }
+          }
+        }
+      }
+
+      // 3. Asymmetric subterminal caudal notch along one side of the whip tail
+      if (density < 0.1 && bestT > 0.83 && bestT < 0.90 && bestSignedDist > 0) {
+        const notchCenter = 0.865;
+        const du = (bestT - notchCenter) / 0.026;
+        const reach = bodyR + this.maxRadius * 0.18;
+        if (absDist > bodyR * 0.6 && absDist < reach) {
+          const dv = (absDist - bodyR) / Math.max(1, reach - bodyR);
+          if (du * du + dv * dv < 1.0) {
+            density = 0.52;
+            kind = 2;
+          }
+        }
+      }
+
+      this._appendageOut = this._appendageOut || { density: -1, kind: 0 };
+      this._appendageOut.density = density;
+      this._appendageOut.kind = kind;
+      return this._appendageOut;
+    }
+  }
+
+  /* ---------------------------------------------------------
+   * Species 3: Whale Shark (Tiburón Ballena)
+   * --------------------------------------------------------- */
+  class WhaleShark extends SharkCreature {
+    constructor(width, height, depthOverride) {
+      const depth = clamp(depthOverride !== undefined ? depthOverride : randRange(0.65, 1.12), 0.6, 1.15);
+      const depthNorm = (depth - 0.6) / (1.15 - 0.6);
+      const totalLength = 284 * depth * randRange(0.95, 1.06);
+      const maxRadius = totalLength * 0.156;
+
+      super(width, height, {
+        species: 'whaleShark',
+        depth,
+        nodeCount: 15,
+        totalLength,
+        maxRadius,
+        baseSpeed: lerp(28, 46, depthNorm) * randRange(0.94, 1.06),
+        waveStartT: 0.20,
+        wavePow: 1.85,
+        waveAmplitudeRatio: 0.132,
+        waveFrequency: 2.85,
+        turnCurlScale: 0.085,
+        swimBaseRate: 2.0,
+        swimSpeedRate: 3.4,
+        maxTurnRate: 1.25,
+        boundingRadius: totalLength * 0.64,
+        bboxPad: maxRadius * 2.5,
+        maxTailT: 1.04,
+        tailExtraProj: 1.3
+      });
+    }
+
+    bodyRadiusAt(t) {
+      if (t < 0 || t > this.maxTailT) return 0;
+      if (t < 0.08) {
+        const s = t / 0.08;
+        return this.maxRadius * (0.56 + 0.32 * Math.pow(s, 0.55));
+      }
+      if (t < 0.28) {
+        const s = (t - 0.08) / 0.20;
+        return this.maxRadius * (0.88 + 0.12 * Math.sin(s * Math.PI * 0.5));
+      }
+      if (t < 0.68) {
+        const s = (t - 0.28) / 0.40;
+        return this.maxRadius * lerp(1.0, 0.28, Math.pow(s, 1.12));
+      }
+      return this.sharkTailRadius(t);
+    }
+
+    evaluateCell(bestT, bestSignedDist, px, py, time, out) {
+      const absDist = Math.abs(bestSignedDist);
+      const bodyR = this.bodyRadiusAt(bestT);
+      let density = -1;
+      let isFin = false;
+      let isEye = false;
+
+      if (bestT >= 0 && bestT <= this.maxTailT && absDist <= bodyR) {
+        const normLat = absDist / Math.max(1, bodyR);
+        if (bestT > 0.72) {
+          const tailFade = clamp((bestT - 0.72) / (this.maxTailT - 0.72), 0, 1);
+          density = clamp((1 - normLat * 0.75) * lerp(0.85, 0.42, tailFade), 0.1, 0.85);
+          isFin = bestT > 0.82;
+        } else {
+          density = clamp((1 - normLat * normLat * 0.88) * 0.96, 0.14, 1.0);
+          if (bestT > 0.045 && bestT < 0.085 && normLat > 0.72 && normLat < 0.90) {
+            isEye = true;
+          }
+        }
+      }
+
+      if (density < 0.18) {
+        const app = this.evaluateSharkAppendages(bestT, bestSignedDist, absDist, bodyR, 2.22);
+        if (app.density > density) {
+          density = app.density;
+          isFin = app.kind > 0;
+        }
+      }
+
+      if (density <= 0.05) return false;
+
+      if (isEye) {
+        out.char = 'o';
+        out.colorKey = 'eyeDark';
+        out.glow = false;
+        return true;
+      }
+
+      const idx = clamp(Math.floor((1 - density) * (DENSITY_CHARS.length - 0.01)), 0, DENSITY_CHARS.length - 1);
+      out.char = DENSITY_CHARS[idx];
+
+      if (isFin) {
+        const isDottedFin = bestT < 0.68 && Math.sin(bestT * 60) * Math.cos(absDist * 0.22) > 0.65;
+        out.colorKey = isDottedFin ? 'whaleSpot' : 'whaleFin';
+        out.glow = isDottedFin && this.isGlowingDefault;
+        return true;
+      }
+
+      const vNorm = bestSignedDist / Math.max(1, bodyR);
+      const isDorsalLine = bestT > 0.36 && bestT < 0.54 && Math.abs(vNorm) < 0.14;
+      const isSpot =
+        bestT > 0.10 &&
+        bestT < 0.74 &&
+        Math.abs(vNorm) < 0.88 &&
+        ((Math.sin(bestT * 56) > 0.45 && Math.cos(vNorm * 11) > 0.34) ||
+          (Math.sin(bestT * 28) > 0.90 && Math.abs(vNorm) < 0.72));
+
+      if (isSpot) {
+        out.char = '*';
+        out.colorKey = 'whaleSpot';
+        out.glow = this.isGlowingDefault;
+      } else if (isDorsalLine) {
+        out.colorKey = 'whaleFlank';
+        out.glow = this.isGlowingDefault;
+      } else {
+        out.colorKey = Math.abs(vNorm) < 0.56 ? 'whaleBack' : 'whaleFlank';
+        out.glow = this.isGlowingDefault && density > 0.65;
+      }
+      return true;
+    }
+  }
+
+  /* ---------------------------------------------------------
+   * Species 4: Hammerhead Shark (Tiburón Martillo)
+   * --------------------------------------------------------- */
+  class HammerheadShark extends SharkCreature {
+    constructor(width, height, depthOverride) {
+      const depth = clamp(depthOverride !== undefined ? depthOverride : randRange(0.64, 1.15), 0.6, 1.15);
+      const depthNorm = (depth - 0.6) / (1.15 - 0.6);
+      const totalLength = 224 * depth * randRange(0.94, 1.07);
+      const maxRadius = totalLength * 0.128;
+
+      super(width, height, {
+        species: 'hammerhead',
+        depth,
+        nodeCount: 14,
+        totalLength,
+        maxRadius,
+        baseSpeed: lerp(44, 72, depthNorm) * randRange(0.94, 1.06),
+        waveStartT: 0.20,
+        wavePow: 1.85,
+        waveAmplitudeRatio: 0.148,
+        waveFrequency: 2.85,
+        turnCurlScale: 0.095,
+        swimBaseRate: 2.6,
+        swimSpeedRate: 4.4,
+        maxTurnRate: 2.15,
+        headScanAmp: maxRadius * 0.09,
+        boundingRadius: totalLength * 0.64,
+        bboxPad: maxRadius * 2.7,
+        maxTailT: 1.03,
+        tailExtraProj: 1.3
+      });
+    }
+
+    bodyRadiusAt(t) {
+      if (t < 0 || t > this.maxTailT) return 0;
+      if (t < 0.14) {
+        const s = clamp((t - 0.06) / 0.08, 0, 1);
+        return this.maxRadius * lerp(0.66, 0.72, s);
+      }
+      if (t < 0.29) {
+        const s = (t - 0.14) / 0.15;
+        return this.maxRadius * lerp(0.72, 1.0, Math.sin(s * Math.PI * 0.5));
+      }
+      if (t < 0.68) {
+        const s = (t - 0.29) / 0.39;
+        return this.maxRadius * lerp(1.0, 0.28, Math.pow(s, 1.12));
+      }
+      return this.sharkTailRadius(t);
+    }
+
+    evaluateCell(bestT, bestSignedDist, px, py, time, out) {
+      const absDist = Math.abs(bestSignedDist);
+      const bodyR = this.bodyRadiusAt(bestT);
+      let density = -1;
+      let isFin = false;
+      let isEye = false;
+      let inHammer = false;
+
+      // 1. Curved convex + swept-back Cephalofoil ("Hammer" Head)
+      if (bestT >= 0 && bestT < 0.145) {
+        const latNorm = absDist / this.maxRadius;
+        if (latNorm <= 1.82) {
+          const sweepBack = 0.025 * Math.pow(latNorm, 1.35);
+          const effT = bestT - sweepBack;
+          if (effT >= 0 && effT <= 0.085) {
+            const hammerReach = this.maxRadius * 1.82 * Math.sin(clamp(effT / 0.085, 0.16, 1.0) * Math.PI);
+            if (absDist <= hammerReach) {
+              inHammer = true;
+              const edgeFade = 1 - Math.abs(effT - 0.042) / 0.045;
+              const tipFade = 1 - (absDist / Math.max(1, hammerReach)) * 0.35;
+              density = clamp(0.55 + edgeFade * 0.42 * tipFade, 0.3, 0.98);
+              if (effT > 0.024 && effT < 0.064 && latNorm > 1.36 && latNorm < 1.66) {
+                isEye = true;
+              }
+            }
+          }
+        }
+      }
+
+      // 2. Torso & long whip tail
+      if (!inHammer && bestT >= 0.03 && bestT <= this.maxTailT && absDist <= bodyR) {
+        const normLat = absDist / Math.max(1, bodyR);
+        if (bestT > 0.72) {
+          const tailFade = clamp((bestT - 0.72) / (this.maxTailT - 0.72), 0, 1);
+          density = clamp((1 - normLat * 0.72) * lerp(0.86, 0.44, tailFade), 0.12, 0.88);
+          isFin = bestT > 0.82;
+        } else {
+          density = clamp((1 - normLat * normLat * 0.82) * 0.96, 0.18, 1.0);
+        }
+      }
+
+      // 3. Falcate pectoral wings, pelvic fins & subterminal tail notch
+      if (density < 0.18) {
+        const app = this.evaluateSharkAppendages(bestT, bestSignedDist, absDist, bodyR, 2.26);
+        if (app.density > density) {
+          density = app.density;
+          isFin = app.kind > 0;
+        }
+      }
+
+      if (density <= 0.05) return false;
+
+      if (isEye) {
+        out.char = 'o';
+        out.colorKey = 'eyeDark';
+        out.glow = false;
+        return true;
+      }
+
+      const idx = clamp(Math.floor((1 - density) * (DENSITY_CHARS.length - 0.01)), 0, DENSITY_CHARS.length - 1);
+      out.char = DENSITY_CHARS[idx];
+
+      if (isFin) {
+        out.colorKey = 'hammerFin';
+        out.glow = false;
+        return true;
+      }
+
+      const normLat = absDist / Math.max(1, bodyR);
+      const isGillTick =
+        !inHammer && bestT > 0.17 && bestT < 0.23 && normLat > 0.74 && Math.sin(bestT * 140) > 0.45;
+      const isDorsalLine = !inHammer && bestT > 0.34 && bestT < 0.50 && absDist <= this.maxRadius * 0.13;
+
+      if (isGillTick) {
+        out.char = '·';
+        out.colorKey = 'hammerEdge';
+        out.glow = false;
+      } else if (isDorsalLine) {
+        out.char = '*';
+        out.colorKey = 'hammerEdge';
+        out.glow = this.isGlowingDefault;
+      } else if (inHammer) {
+        out.colorKey = absDist > this.maxRadius * 1.48 ? 'hammerEdge' : 'hammerDark';
+        out.glow = this.isGlowingDefault && absDist > this.maxRadius * 1.48;
+      } else if (normLat < 0.56) {
+        out.colorKey = 'hammerDark';
+        out.glow = this.isGlowingDefault && density > 0.65;
+      } else {
+        out.colorKey = normLat > 0.84 ? 'hammerEdge' : 'hammerMid';
+        out.glow = this.isGlowingDefault && normLat > 0.84;
+      }
+      return true;
+    }
+  }
+
+  /* ---------------------------------------------------------
+   * Main Engine (Multi-Species Boids, Pooling & Atlas Render)
+   * --------------------------------------------------------- */
   class KoiPondEngine {
     constructor(canvas, atlas, ecosystem, options = {}) {
       this.canvas = canvas;
@@ -731,6 +1233,11 @@
       this.dpr = window.devicePixelRatio || 1;
 
       this.fishCount = clamp(options.fishCount || 12, 5, 25);
+      this.enabledSpecies = Object.assign(
+        { koi: true, turtle: false, whaleShark: false, hammerhead: false },
+        options.species || {}
+      );
+
       this.obstacleRect = null;
       this.stonesRect = null;
       this.kois = [];
@@ -782,6 +1289,22 @@
       }
       this.trailCursor = 0;
 
+      // Pre-allocated Object Pool: 45 Baitfish micro-school
+      this.schoolEnabled = Boolean(options.schoolEnabled);
+      this.baitPool = new Array(BAIT_POOL_SIZE);
+      for (let i = 0; i < BAIT_POOL_SIZE; i++) {
+        this.baitPool[i] = {
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          heading: 0,
+          baseSpeed: 68,
+          neon: i % 3 === 0
+        };
+      }
+      this.initBaitSchool();
+
       this.mouse = {
         x: this.width * 0.5,
         y: this.height * 0.5,
@@ -797,7 +1320,6 @@
       this.running = false;
       this.pausedByVisibility = false;
 
-      // Performance telemetry (zero allocations)
       this.fps = 60;
       this.frameTimeMs = 0;
       this.fpsSampleStart = 0;
@@ -805,7 +1327,7 @@
       this.onMetrics = options.onMetrics || null;
 
       this.resize();
-      this.syncFishCount(this.fishCount);
+      this.syncPopulation();
 
       this.handleResize = this.resize.bind(this);
       this.handleVisibilityChange = this.onVisibilityChange.bind(this);
@@ -865,19 +1387,109 @@
       this.stonesRect = rect;
     }
 
+    setSpecies(speciesMap) {
+      this.enabledSpecies = Object.assign({}, this.enabledSpecies, speciesMap);
+      this.syncPopulation();
+    }
+
+    setSchoolEnabled(enabled) {
+      this.schoolEnabled = Boolean(enabled);
+    }
+
+    initBaitSchool() {
+      const cx = randRange(this.width * 0.2, this.width * 0.8);
+      const cy = randRange(this.height * 0.2, this.height * 0.8);
+      const baseAngle = randRange(0, Math.PI * 2);
+      for (let i = 0; i < BAIT_POOL_SIZE; i++) {
+        const b = this.baitPool[i];
+        const angle = baseAngle + randRange(-0.4, 0.4);
+        b.x = cx + randRange(-95, 95);
+        b.y = cy + randRange(-65, 65);
+        b.heading = angle;
+        b.baseSpeed = randRange(66, 86);
+        b.vx = Math.cos(angle) * b.baseSpeed;
+        b.vy = Math.sin(angle) * b.baseSpeed;
+      }
+    }
+
     syncFishCount(targetCount) {
-      const count = clamp(Math.round(targetCount), 5, 25);
-      this.fishCount = count;
+      this.fishCount = clamp(Math.round(targetCount), 5, 25);
+      this.syncPopulation();
+    }
 
-      while (this.kois.length < count) {
-        const idx = this.kois.length;
-        const depth = lerp(0.6, 1.15, (idx * 0.6180339887) % 1);
-        this.kois.push(new KoiFish(this.width, this.height, depth));
+    computeSpeciesTargets() {
+      const sp = this.enabledSpecies;
+      const total = this.fishCount;
+      const activeList = [];
+      if (sp.koi) activeList.push('koi');
+      if (sp.turtle) activeList.push('turtle');
+      if (sp.whaleShark) activeList.push('whaleShark');
+      if (sp.hammerhead) activeList.push('hammerhead');
+
+      const targets = { koi: 0, turtle: 0, whaleShark: 0, hammerhead: 0 };
+      if (activeList.length === 0) return targets;
+
+      if (activeList.length === 1) {
+        const only = activeList[0];
+        if (only === 'koi') targets.koi = total;
+        else if (only === 'turtle') targets.turtle = clamp(Math.round(total * 0.55), 3, 12);
+        else if (only === 'whaleShark') targets.whaleShark = clamp(Math.round(total * 0.2), 1, 4);
+        else if (only === 'hammerhead') targets.hammerhead = clamp(Math.round(total * 0.36), 2, 8);
+        return targets;
       }
 
-      if (this.kois.length > count) {
-        this.kois.length = count;
+      // Balanced mixed ecosystem (respecting giant sizing)
+      if (sp.whaleShark) {
+        targets.whaleShark = total >= 16 ? 2 : 1;
       }
+      if (sp.hammerhead) {
+        targets.hammerhead = clamp(Math.round(total * 0.18), 1, 4);
+      }
+      if (sp.turtle) {
+        targets.turtle = clamp(Math.round(total * 0.25), 1, 6);
+      }
+      if (sp.koi) {
+        const used = targets.whaleShark + targets.hammerhead + targets.turtle;
+        targets.koi = Math.max(2, total - used);
+      }
+      return targets;
+    }
+
+    createCreature(species, idx) {
+      const depth = lerp(0.62, 1.14, (idx * 0.6180339887) % 1);
+      if (species === 'turtle') return new SeaTurtle(this.width, this.height, depth);
+      if (species === 'whaleShark') return new WhaleShark(this.width, this.height, clamp(depth, 0.68, 1.08));
+      if (species === 'hammerhead') return new HammerheadShark(this.width, this.height, depth);
+      return new KoiFish(this.width, this.height, depth);
+    }
+
+    syncPopulation() {
+      const targets = this.computeSpeciesTargets();
+      const bySpecies = { koi: [], turtle: [], whaleShark: [], hammerhead: [] };
+
+      for (let i = 0; i < this.kois.length; i++) {
+        const c = this.kois[i];
+        if (bySpecies[c.species]) {
+          bySpecies[c.species].push(c);
+        }
+      }
+
+      const nextList = [];
+      const order = ['koi', 'turtle', 'hammerhead', 'whaleShark'];
+      for (let s = 0; s < order.length; s++) {
+        const sp = order[s];
+        const wanted = targets[sp];
+        const existing = bySpecies[sp];
+        for (let i = 0; i < wanted; i++) {
+          if (i < existing.length) {
+            nextList.push(existing[i]);
+          } else {
+            nextList.push(this.createCreature(sp, nextList.length));
+          }
+        }
+      }
+
+      this.kois = nextList;
     }
 
     activateFoodSlot(x, y, delay = 0) {
@@ -999,6 +1611,13 @@
         if (dist > 34) {
           this.spawnRipple(x, y, 48, 0.85, 0.32);
         }
+
+        if (this.ecosystem && this.ecosystem.planktonEnabled) {
+          const sparks = dist > 42 ? 3 : 1;
+          for (let i = 0; i < sparks; i++) {
+            this.ecosystem.spawnPlankton(x + randRange(-12, 12), y + randRange(-10, 10));
+          }
+        }
       }
     }
 
@@ -1066,7 +1685,6 @@
         this.ecosystem.update(dt);
       }
 
-      // Pooled concentric ripples
       for (let i = 0; i < RIPPLE_POOL_SIZE; i++) {
         const r = this.ripplePool[i];
         if (!r.active) continue;
@@ -1076,7 +1694,6 @@
         }
       }
 
-      // Pooled trail particles
       for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
         const p = this.trailPool[i];
         if (!p.active) continue;
@@ -1091,7 +1708,6 @@
         p.vy *= 0.96;
       }
 
-      // Pooled food pellets
       for (let i = 0; i < FOOD_POOL_SIZE; i++) {
         const f = this.foodPool[i];
         if (!f.active) continue;
@@ -1105,10 +1721,10 @@
 
         let eaten = false;
         for (let k = 0; k < this.kois.length; k++) {
-          const koi = this.kois[k];
-          const dx = koi.x - f.x;
-          const dy = koi.y - f.y;
-          const eatR = 18 + koi.maxRadius * 0.4;
+          const c = this.kois[k];
+          const dx = c.x - f.x;
+          const dy = c.y - f.y;
+          const eatR = 18 + c.maxRadius * 0.4;
           if (dx * dx + dy * dy < eatR * eatR) {
             eaten = true;
             this.spawnRipple(f.x, f.y, 72, 0.95, 0.68);
@@ -1137,6 +1753,143 @@
       }
 
       this.kois.sort((a, b) => a.depth - b.depth);
+
+      if (this.schoolEnabled) {
+        this.updateBaitSchool(dt);
+      }
+    }
+
+    updateBaitSchool(dt) {
+      const margin = 55;
+      for (let i = 0; i < BAIT_POOL_SIZE; i++) {
+        const b = this.baitPool[i];
+        let sepX = 0;
+        let sepY = 0;
+        let aliX = 0;
+        let aliY = 0;
+        let cohX = 0;
+        let cohY = 0;
+        let aliCount = 0;
+        let cohCount = 0;
+
+        for (let j = 0; j < BAIT_POOL_SIZE; j++) {
+          if (i === j) continue;
+          const o = this.baitPool[j];
+          const dx = o.x - b.x;
+          const dy = o.y - b.y;
+          const dSq = dx * dx + dy * dy;
+          if (dSq < 1) continue;
+
+          if (dSq < 484) {
+            const d = Math.sqrt(dSq);
+            sepX -= (dx / d) * ((22 - d) / 22);
+            sepY -= (dy / d) * ((22 - d) / 22);
+          }
+          if (dSq < 6400) {
+            aliX += o.vx;
+            aliY += o.vy;
+            aliCount++;
+            cohX += o.x;
+            cohY += o.y;
+            cohCount++;
+          }
+        }
+
+        let steerX = sepX * 195;
+        let steerY = sepY * 195;
+        if (aliCount > 0) {
+          steerX += (aliX / aliCount - b.vx) * 1.4;
+          steerY += (aliY / aliCount - b.vy) * 1.4;
+        }
+        if (cohCount > 0) {
+          steerX += (cohX / cohCount - b.x) * 0.85;
+          steerY += (cohY / cohCount - b.y) * 0.85;
+        }
+
+        // Predator evasion & vortex swirl around Sharks / Turtles / Koi
+        let fleeBoost = 0;
+        for (let k = 0; k < this.kois.length; k++) {
+          const pred = this.kois[k];
+          const isShark = pred.species === 'whaleShark' || pred.species === 'hammerhead';
+          const fleeR = isShark ? 155 : 95;
+          const dx = b.x - pred.centerX;
+          const dy = b.y - pred.centerY;
+          const dSq = dx * dx + dy * dy;
+          if (dSq < fleeR * fleeR && dSq > 1) {
+            const d = Math.sqrt(dSq);
+            const urgency = (fleeR - d) / fleeR;
+            const ux = dx / d;
+            const uy = dy / d;
+            const side = b.vx * -uy + b.vy * ux >= 0 ? 1 : -1;
+            steerX += (ux * 260 + -uy * side * 140) * urgency;
+            steerY += (uy * 260 + ux * side * 140) * urgency;
+            if (urgency > fleeBoost) fleeBoost = urgency;
+          }
+        }
+
+        // Scatter from cursor motion
+        if (this.mouse.active && this.mouse.energy > 0.12) {
+          const dx = b.x - this.mouse.x;
+          const dy = b.y - this.mouse.y;
+          const dSq = dx * dx + dy * dy;
+          if (dSq < 13225 && dSq > 1) {
+            const d = Math.sqrt(dSq);
+            const urgency = ((115 - d) / 115) * this.mouse.energy;
+            steerX += (dx / d) * urgency * 290;
+            steerY += (dy / d) * urgency * 290;
+            if (urgency > fleeBoost) fleeBoost = urgency;
+          }
+        }
+
+        // Central card & bottom river stones avoidance
+        if (this.obstacleRect && this.obstacleRect.width > 0) {
+          const r = this.obstacleRect;
+          if (b.x > r.left - 24 && b.x < r.right + 24 && b.y > r.top - 24 && b.y < r.bottom + 24) {
+            const cx = (r.left + r.right) * 0.5;
+            const cy = (r.top + r.bottom) * 0.5;
+            const dx = b.x - cx;
+            const dy = b.y - cy;
+            const d = Math.hypot(dx, dy) || 1;
+            steerX += (dx / d) * 210;
+            steerY += (dy / d) * 210;
+          }
+        }
+
+        if (this.stonesRect && this.stonesRect.width > 0 && b.y > this.stonesRect.top - 22) {
+          steerY -= 190;
+        }
+
+        // Viewport boundaries
+        if (b.x < margin) steerX += ((margin - b.x) / margin) * 220;
+        else if (b.x > this.width - margin) steerX -= ((b.x - (this.width - margin)) / margin) * 220;
+        if (b.y < margin) steerY += ((margin - b.y) / margin) * 220;
+        else if (b.y > this.height - margin) steerY -= ((b.y - (this.height - margin)) / margin) * 220;
+
+        const targetSpd = b.baseSpeed * (1 + fleeBoost * 0.9);
+        const desiredHeading = Math.atan2(b.vy + steerY * dt, b.vx + steerX * dt);
+        const dAng = clamp(angleDiff(desiredHeading, b.heading), -4.5 * dt, 4.5 * dt);
+        b.heading += dAng;
+        b.vx = Math.cos(b.heading) * targetSpd;
+        b.vy = Math.sin(b.heading) * targetSpd;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+      }
+    }
+
+    renderBaitSchool(ctx, atlas) {
+      for (let i = 0; i < BAIT_POOL_SIZE; i++) {
+        const b = this.baitPool[i];
+        const headChar = b.vx >= 0 ? '>' : '<';
+        const colorKey = b.neon ? 'baitNeon' : 'baitSilver';
+        const tx = b.x - Math.cos(b.heading) * 6.5;
+        const ty = b.y - Math.sin(b.heading) * 6.5;
+
+        ctx.globalAlpha = 0.48;
+        atlas.drawGlyph(ctx, '-', colorKey, false, tx, ty, 0.78);
+        ctx.globalAlpha = 0.78;
+        atlas.drawGlyph(ctx, headChar, colorKey, b.neon, b.x, b.y, 0.82);
+      }
+      ctx.globalAlpha = 1;
     }
 
     render() {
@@ -1149,7 +1902,10 @@
       // LAYER 1: SUBACUÁTICA
       this.ecosystem.renderSubaqueous(ctx, atlas);
 
-      // Wake & ghost trails (zero fillText / shadowBlur)
+      if (this.schoolEnabled) {
+        this.renderBaitSchool(ctx, atlas);
+      }
+
       for (let i = 0; i < TRAIL_POOL_SIZE; i++) {
         const p = this.trailPool[i];
         if (!p.active) continue;
@@ -1166,7 +1922,7 @@
         this.kois[i].render(ctx, atlas, this.ecosystem, this.time);
       }
 
-      // LAYER 2: SUPERFICIE (Ondas, Pellets y Nenúfares)
+      // LAYER 2: SUPERFICIE
       for (let i = 0; i < RIPPLE_POOL_SIZE; i++) {
         const r = this.ripplePool[i];
         if (!r.active) continue;
@@ -1191,7 +1947,6 @@
         }
       }
 
-      // Pooled food pellets
       for (let i = 0; i < FOOD_POOL_SIZE; i++) {
         const f = this.foodPool[i];
         if (!f.active || f.age < 0) continue;

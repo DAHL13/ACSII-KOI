@@ -1,7 +1,10 @@
 (function (global) {
   'use strict';
 
-  const ATLAS_CHARS = ['@', '#', '%', '*', '+', ':', '.', '~', '|', '/', "'", '(', ')', '·', 'o', '✿', '❀'];
+  const ATLAS_CHARS = [
+    '@', '#', '%', '*', '+', ':', '.', '~', '|', '/', "'", '(', ')', '·', 'o', '✿', '❀',
+    '≈', '-', '>', '<', '°'
+  ];
 
   const PALETTE_COLORS = {
     kohakuWhite: '#f4f8ff',
@@ -51,10 +54,40 @@
 
     sakuraLight: '#ffb7c5',
     sakuraDeep: '#ff8fa3',
-    sakuraPale: '#fff0f3'
+    sakuraPale: '#fff0f3',
+
+    turtleShellDark: '#1b4332',
+    turtleShellMid: '#2d6a4f',
+    turtleScuteGold: '#e9c46a',
+    turtleSkin: '#52b788',
+    turtleFinTip: '#74c69d',
+
+    whaleBack: '#2c5364',
+    whaleFlank: '#3b6e8c',
+    whaleSpot: '#e0f4ff',
+    whaleFin: '#5b8fa8',
+
+    hammerDark: '#475569',
+    hammerMid: '#64748b',
+    hammerEdge: '#cbd5e1',
+    hammerFin: '#54647a',
+
+    planktonCyan: '#00f5d4',
+    planktonBlue: '#38bdf8',
+    bubblePearl: '#e0f7ff',
+    currentTeal: '#2dd4bf',
+    currentDeep: '#0ea5e9',
+    baitSilver: '#cbd5e1',
+    baitNeon: '#67e8f9',
+    jellyBell: '#c084fc',
+    jellyRim: '#f0abfc',
+    jellyTentacle: '#818cf8',
+    kelpDark: '#113b36',
+    kelpMid: '#1b5e50',
+    kelpTip: '#2e8b72'
   };
 
-  const LOGICAL_CELL = 26;
+  const LOGICAL_CELL = 22;
   const FONT_SPEC = '600 12px "Cascadia Code", "JetBrains Mono", "Fira Code", Consolas, monospace';
 
   class GlyphAtlas {
@@ -81,7 +114,7 @@
     }
 
     ensureDpr(dpr) {
-      const normalizedDpr = Math.max(1, Math.min(dpr || 1, 3));
+      const normalizedDpr = Math.max(1, Math.min(dpr || 1, 2.5));
       if (Math.abs(normalizedDpr - this.dpr) < 0.01 && this.canvas) {
         return false;
       }
@@ -133,7 +166,7 @@
 
         // 2. Bioluminescent glow state
         actx.shadowColor = hex;
-        actx.shadowBlur = 7.5;
+        actx.shadowBlur = 5.5;
         for (let c = 0; c < this.charCount; c++) {
           const ch = ATLAS_CHARS[c];
           const cxGlow = (c + this.charCount) * this.cellLogical + halfCell;

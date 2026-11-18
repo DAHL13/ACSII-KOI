@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ASCII Koi Pond New Tab",
-  "version": "1.0.0",
-  "description": "Replace your New Tab page with an interactive luminous ASCII Koi pond featuring 2.5D lily pad occlusion, solar cycle, rain, river stone shortcuts, search bangs, and a Pomodoro timer.",
+  "version": "1.1.0",
+  "description": "Replace your New Tab page with an interactive luminous ASCII Koi pond & open ocean featuring turtles, sharks, jellyfish, bioluminescence, 2.5D lily pad occlusion, river stones, search bangs, and Pomodoro.",
   "permissions": ["topSites", "search", "favicon"],
   "icons": {
     "16": "icons/icon16.png",

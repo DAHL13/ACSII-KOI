@@ -4,9 +4,22 @@
   const STORAGE_KEY = 'ascii_koi_zen_prefs_v3';
   const DEFAULT_PREFS = {
     fishCount: 12,
+    biome: 'pond',
+    species: {
+      koi: true,
+      turtle: false,
+      whaleShark: false,
+      hammerhead: false
+    },
+    firefliesMode: 'auto',
     timeMode: 'auto',
     rainEnabled: false,
     liliesEnabled: true,
+    currentsEnabled: false,
+    planktonEnabled: false,
+    kelpEnabled: false,
+    jellyfishEnabled: false,
+    schoolEnabled: false,
     zenMode: false,
     showClock: true,
     showPerf: false,
@@ -24,15 +37,36 @@
   function loadPrefs() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('ascii_koi_zen_prefs_v2');
-      if (!raw) return { ...DEFAULT_PREFS };
+      if (!raw) {
+        return {
+          ...DEFAULT_PREFS,
+          species: { ...DEFAULT_PREFS.species }
+        };
+      }
       const parsed = JSON.parse(raw);
+      const parsedSp = parsed.species || {};
       return {
         fishCount: clampInt(parsed.fishCount, 5, 25, DEFAULT_PREFS.fishCount),
+        biome: parsed.biome === 'ocean' ? 'ocean' : 'pond',
+        species: {
+          koi: parsedSp.koi !== undefined ? Boolean(parsedSp.koi) : DEFAULT_PREFS.species.koi,
+          turtle: Boolean(parsedSp.turtle),
+          whaleShark: Boolean(parsedSp.whaleShark),
+          hammerhead: Boolean(parsedSp.hammerhead)
+        },
+        firefliesMode: ['auto', 'on', 'off'].includes(parsed.firefliesMode)
+          ? parsed.firefliesMode
+          : DEFAULT_PREFS.firefliesMode,
         timeMode: ['auto', 'day', 'sunset', 'night'].includes(parsed.timeMode)
           ? parsed.timeMode
           : DEFAULT_PREFS.timeMode,
         rainEnabled: Boolean(parsed.rainEnabled),
         liliesEnabled: parsed.liliesEnabled !== undefined ? Boolean(parsed.liliesEnabled) : DEFAULT_PREFS.liliesEnabled,
+        currentsEnabled: Boolean(parsed.currentsEnabled),
+        planktonEnabled: Boolean(parsed.planktonEnabled),
+        kelpEnabled: Boolean(parsed.kelpEnabled),
+        jellyfishEnabled: Boolean(parsed.jellyfishEnabled),
+        schoolEnabled: Boolean(parsed.schoolEnabled),
         zenMode: Boolean(parsed.zenMode),
         showClock: parsed.showClock !== undefined ? Boolean(parsed.showClock) : DEFAULT_PREFS.showClock,
         showPerf: Boolean(parsed.showPerf),
@@ -41,7 +75,10 @@
         pomodoroCollapsed: Boolean(parsed.pomodoroCollapsed)
       };
     } catch (_) {
-      return { ...DEFAULT_PREFS };
+      return {
+        ...DEFAULT_PREFS,
+        species: { ...DEFAULT_PREFS.species }
+      };
     }
   }
 
@@ -61,11 +98,18 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('koi-canvas');
+    const faunaBtn = document.getElementById('fauna-btn');
+    const faunaBtnLabel = document.getElementById('fauna-btn-label');
+    const faunaPopover = document.getElementById('fauna-popover');
+    const speciesCards = Array.from(document.querySelectorAll('.species-card'));
+    const faunaPresets = Array.from(document.querySelectorAll('.fauna-preset-btn'));
+    const fireflyModeButtons = Array.from(document.querySelectorAll('.firefly-mode-btn'));
+    const biomeButtons = Array.from(document.querySelectorAll('.biome-btn'));
+    const envChips = Array.from(document.querySelectorAll('.env-chip'));
     const fishSlider = document.getElementById('fish-count');
     const fishCountValue = document.getElementById('fish-count-value');
     const solarButtons = Array.from(document.querySelectorAll('.solar-btn'));
     const rainBtn = document.getElementById('rain-btn');
-    const liliesBtn = document.getElementById('lilies-btn');
     const feedBtn = document.getElementById('feed-btn');
     const stonesToggleBtn = document.getElementById('stones-toggle-btn');
     const pomoToggleBtn = document.getElementById('pomo-toggle-btn');
@@ -118,12 +162,20 @@
 
     const ecosystem = new window.PondEcosystem(window.innerWidth, window.innerHeight, {
       timeMode: prefs.timeMode,
+      biome: prefs.biome,
       rainEnabled: prefs.rainEnabled,
-      liliesEnabled: prefs.liliesEnabled
+      liliesEnabled: prefs.liliesEnabled,
+      firefliesMode: prefs.firefliesMode,
+      currentsEnabled: prefs.currentsEnabled,
+      planktonEnabled: prefs.planktonEnabled,
+      kelpEnabled: prefs.kelpEnabled,
+      jellyfishEnabled: prefs.jellyfishEnabled
     });
 
     const engine = new window.KoiPondEngine(canvas, atlas, ecosystem, {
       fishCount: prefs.fishCount,
+      species: prefs.species,
+      schoolEnabled: prefs.schoolEnabled,
       onMetrics: (fps, frameMs) => {
         if (!prefs.showPerf) return;
         perfText.textContent = `${fps} FPS · ${frameMs.toFixed(1)} ms`;
@@ -179,12 +231,64 @@
       savePrefs(prefs);
     }
 
+    const SPECIES_SHORT_LABELS = {
+      koi: 'Koi',
+      turtle: 'Tortugas',
+      whaleShark: 'T. Ballena',
+      hammerhead: 'T. Martillo'
+    };
+
+    function updateFaunaTriggerLabel() {
+      const sp = prefs.species;
+      const activeKeys = Object.keys(SPECIES_SHORT_LABELS).filter((k) => sp[k]);
+      if (activeKeys.length === 0) {
+        faunaBtnLabel.textContent = prefs.firefliesMode === 'on' ? 'Luciérnagas' : 'Fauna (0)';
+      } else if (activeKeys.length === 1) {
+        faunaBtnLabel.textContent = SPECIES_SHORT_LABELS[activeKeys[0]];
+      } else {
+        faunaBtnLabel.textContent = `Fauna (${activeKeys.length})`;
+      }
+      fishCountValue.textContent = String(engine.kois.length);
+    }
+
+    function applySpecies(nextSpecies) {
+      prefs.species = {
+        koi: Boolean(nextSpecies.koi),
+        turtle: Boolean(nextSpecies.turtle),
+        whaleShark: Boolean(nextSpecies.whaleShark),
+        hammerhead: Boolean(nextSpecies.hammerhead)
+      };
+      engine.setSpecies(prefs.species);
+      speciesCards.forEach((card) => {
+        const active = prefs.species[card.dataset.species];
+        card.classList.toggle('is-active', active);
+        card.setAttribute('aria-pressed', String(active));
+      });
+      updateFaunaTriggerLabel();
+      savePrefs(prefs);
+    }
+
+    function applyFirefliesMode(mode) {
+      prefs.firefliesMode = mode;
+      ecosystem.setFirefliesMode(mode);
+      fireflyModeButtons.forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.fireflies === mode);
+      });
+      updateFaunaTriggerLabel();
+      savePrefs(prefs);
+    }
+
+    function setFaunaPopoverOpen(open) {
+      faunaPopover.hidden = !open;
+      faunaBtn.setAttribute('aria-expanded', String(open));
+    }
+
     function applyFishCount(value) {
       const count = clampInt(value, 5, 25, DEFAULT_PREFS.fishCount);
       prefs.fishCount = count;
       fishSlider.value = String(count);
-      fishCountValue.textContent = String(count);
       engine.syncFishCount(count);
+      fishCountValue.textContent = String(engine.kois.length);
       savePrefs(prefs);
     }
 
@@ -195,10 +299,69 @@
       savePrefs(prefs);
     }
 
-    function applyLilies(enabled) {
-      prefs.liliesEnabled = Boolean(enabled);
+    function syncEnvFlags() {
       ecosystem.setLiliesEnabled(prefs.liliesEnabled);
-      liliesBtn.setAttribute('aria-pressed', String(prefs.liliesEnabled));
+      ecosystem.setCurrentsEnabled(prefs.currentsEnabled);
+      ecosystem.setPlanktonEnabled(prefs.planktonEnabled);
+      ecosystem.setKelpEnabled(prefs.kelpEnabled);
+      ecosystem.setJellyfishEnabled(prefs.jellyfishEnabled);
+      engine.setSchoolEnabled(prefs.schoolEnabled);
+
+      const map = {
+        lilies: prefs.liliesEnabled,
+        currents: prefs.currentsEnabled,
+        plankton: prefs.planktonEnabled,
+        kelp: prefs.kelpEnabled,
+        jellyfish: prefs.jellyfishEnabled,
+        school: prefs.schoolEnabled
+      };
+      envChips.forEach((chip) => {
+        const active = Boolean(map[chip.dataset.env]);
+        chip.classList.toggle('is-active', active);
+        chip.setAttribute('aria-pressed', String(active));
+      });
+    }
+
+    function applyBiome(biome, applyPreset = true) {
+      prefs.biome = biome === 'ocean' ? 'ocean' : 'pond';
+      document.documentElement.setAttribute('data-biome', prefs.biome);
+      ecosystem.setBiome(prefs.biome);
+
+      biomeButtons.forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.biome === prefs.biome);
+      });
+
+      if (applyPreset) {
+        if (prefs.biome === 'ocean') {
+          prefs.liliesEnabled = false;
+          prefs.currentsEnabled = true;
+          prefs.planktonEnabled = true;
+          prefs.kelpEnabled = true;
+          prefs.jellyfishEnabled = true;
+          prefs.schoolEnabled = true;
+        } else {
+          prefs.liliesEnabled = true;
+          prefs.currentsEnabled = false;
+          prefs.planktonEnabled = false;
+          prefs.kelpEnabled = false;
+          prefs.jellyfishEnabled = false;
+          prefs.schoolEnabled = false;
+        }
+      }
+
+      syncEnvFlags();
+      savePrefs(prefs);
+    }
+
+    function applyEnvFlag(envKey, enabled) {
+      const val = Boolean(enabled);
+      if (envKey === 'lilies') prefs.liliesEnabled = val;
+      else if (envKey === 'currents') prefs.currentsEnabled = val;
+      else if (envKey === 'plankton') prefs.planktonEnabled = val;
+      else if (envKey === 'kelp') prefs.kelpEnabled = val;
+      else if (envKey === 'jellyfish') prefs.jellyfishEnabled = val;
+      else if (envKey === 'school') prefs.schoolEnabled = val;
+      syncEnvFlags();
       savePrefs(prefs);
     }
 
@@ -250,6 +413,7 @@
       savePrefs(prefs);
 
       if (enabled) {
+        setFaunaPopoverOpen(false);
         searchInput.blur();
         if (notify) showZenToast();
       } else {
@@ -327,9 +491,11 @@
 
     // Apply initial preferences
     applyTimeMode(prefs.timeMode);
+    applyBiome(prefs.biome, false);
+    applySpecies(prefs.species);
+    applyFirefliesMode(prefs.firefliesMode);
     applyFishCount(prefs.fishCount);
     applyRain(prefs.rainEnabled);
-    applyLilies(prefs.liliesEnabled);
     applyStonesVisibility(prefs.stonesVisible);
     applyPomodoroVisibility(prefs.pomodoroVisible);
     applyClockVisibility(prefs.showClock);
@@ -340,6 +506,65 @@
 
     engine.start();
     requestAnimationFrame(syncObstacles);
+
+    // Fauna & environment popover listeners
+    faunaBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setFaunaPopoverOpen(faunaPopover.hidden);
+    });
+
+    biomeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyBiome(btn.dataset.biome, true);
+      });
+    });
+
+    envChips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const key = chip.dataset.env;
+        const current =
+          key === 'lilies' ? prefs.liliesEnabled :
+          key === 'currents' ? prefs.currentsEnabled :
+          key === 'plankton' ? prefs.planktonEnabled :
+          key === 'kelp' ? prefs.kelpEnabled :
+          key === 'jellyfish' ? prefs.jellyfishEnabled :
+          prefs.schoolEnabled;
+        applyEnvFlag(key, !current);
+      });
+    });
+
+    speciesCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        const key = card.dataset.species;
+        const next = { ...prefs.species, [key]: !prefs.species[key] };
+        applySpecies(next);
+      });
+    });
+
+    faunaPresets.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.preset;
+        if (preset === 'koi') {
+          applySpecies({ koi: true, turtle: false, whaleShark: false, hammerhead: false });
+        } else if (preset === 'ocean') {
+          applySpecies({ koi: false, turtle: true, whaleShark: true, hammerhead: true });
+        } else if (preset === 'all') {
+          applySpecies({ koi: true, turtle: true, whaleShark: true, hammerhead: true });
+        }
+      });
+    });
+
+    fireflyModeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyFirefliesMode(btn.dataset.fireflies);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!faunaPopover.hidden && !faunaPopover.contains(e.target) && !faunaBtn.contains(e.target)) {
+        setFaunaPopoverOpen(false);
+      }
+    });
 
     // Top-bar listeners
     fishSlider.addEventListener('input', (e) => {
@@ -354,10 +579,6 @@
 
     rainBtn.addEventListener('click', () => {
       applyRain(!prefs.rainEnabled);
-    });
-
-    liliesBtn.addEventListener('click', () => {
-      applyLilies(!prefs.liliesEnabled);
     });
 
     feedBtn.addEventListener('click', () => {
@@ -420,6 +641,10 @@
       const isTyping = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
 
       if (e.key === 'Escape') {
+        if (!faunaPopover.hidden) {
+          setFaunaPopoverOpen(false);
+          return;
+        }
         if (!stoneModal.hidden) {
           stoneModal.hidden = true;
           return;

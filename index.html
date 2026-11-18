@@ -21,15 +21,18 @@
 
   <header class="top-bar" id="top-bar" aria-label="Controles del estanque">
     <div class="control-pill">
-      <div class="control-group control-fish" title="Cantidad de peces Koi">
-        <label for="fish-count" class="control-label">
+      <div class="control-group control-fish" title="Cantidad de fauna en el estanque">
+        <button type="button" id="fauna-btn" class="fauna-trigger-btn" aria-expanded="false" aria-controls="fauna-popover" title="Elegir especies y luciérnagas">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M6.5 12c2.5-4 7.5-4.5 11.5-1.5 1.2.9 2.2 1.5 3.5 1.5-1.3 0-2.3.6-3.5 1.5C14 16.5 9 16 6.5 12Z" />
             <path d="M6.5 12 3 9.2v5.6L6.5 12Z" />
             <circle cx="15.5" cy="11.2" r="0.8" fill="currentColor" stroke="none" />
           </svg>
-          <span>Koi</span>
-        </label>
+          <span id="fauna-btn-label">Koi</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
         <input
           id="fish-count"
           class="range-slider"
@@ -38,7 +41,7 @@
           max="25"
           step="1"
           value="12"
-          aria-label="Cantidad de peces Koi"
+          aria-label="Cantidad de criaturas marinas"
         >
         <span id="fish-count-value" class="count-badge">12</span>
       </div>
@@ -65,6 +68,18 @@
 
       <span class="pill-divider" aria-hidden="true"></span>
 
+      <div class="control-group biome-selector" role="group" aria-label="Hábitat acuático">
+        <button type="button" class="biome-btn is-active" data-biome="pond" title="Estanque zen con nenúfares">
+          <span>Estanque</span>
+        </button>
+        <button type="button" class="biome-btn" data-biome="ocean" title="Mar abierto con corrientes, cardumen, medusas y algas">
+          <span class="swatch swatch-ocean" aria-hidden="true"></span>
+          <span>Mar</span>
+        </button>
+      </div>
+
+      <span class="pill-divider" aria-hidden="true"></span>
+
       <div class="control-group control-toggles">
         <button type="button" id="rain-btn" class="toggle-btn" aria-pressed="false" title="Activar o desactivar lluvia suave">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -72,14 +87,6 @@
             <path d="M9 18l-1 3M13 18l-1 3M17 18l-1 3" />
           </svg>
           <span>Lluvia</span>
-        </button>
-
-        <button type="button" id="lilies-btn" class="toggle-btn" aria-pressed="true" title="Mostrar u ocultar nenúfares">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 12l6.8-3.6A8 8 0 1 1 12 4v8Z" />
-            <circle cx="10.5" cy="13.5" r="1.4" fill="currentColor" stroke="none" opacity="0.7" />
-          </svg>
-          <span>Nenúfares</span>
         </button>
       </div>
 
@@ -132,6 +139,75 @@
       </div>
     </div>
   </header>
+
+  <section id="fauna-popover" class="fauna-popover" aria-label="Selector de especies del estanque" hidden>
+    <div class="fauna-popover-header">
+      <span class="fauna-popover-title">Habitantes del estanque</span>
+      <div class="fauna-presets">
+        <button type="button" class="fauna-preset-btn" data-preset="koi">Solo Koi</button>
+        <button type="button" class="fauna-preset-btn" data-preset="ocean">Océano</button>
+        <button type="button" class="fauna-preset-btn" data-preset="all">Todos</button>
+      </div>
+    </div>
+
+    <div class="fauna-grid">
+      <button type="button" class="species-card is-active" data-species="koi" aria-pressed="true">
+        <span class="species-swatch swatch-koi" aria-hidden="true"></span>
+        <span class="species-info">
+          <span class="species-name">Peces Koi</span>
+          <span class="species-desc">Clásicos, Tancho y Fantasma</span>
+        </span>
+      </button>
+
+      <button type="button" class="species-card" data-species="turtle" aria-pressed="false">
+        <span class="species-swatch swatch-turtle" aria-hidden="true"></span>
+        <span class="species-info">
+          <span class="species-name">Tortugas Marinas</span>
+          <span class="species-desc">Caparazón dorado y aleteo lento</span>
+        </span>
+      </button>
+
+      <button type="button" class="species-card" data-species="whaleShark" aria-pressed="false">
+        <span class="species-swatch swatch-whale" aria-hidden="true"></span>
+        <span class="species-info">
+          <span class="species-name">Tiburón Ballena</span>
+          <span class="species-desc">Gigante moteado y sereno</span>
+        </span>
+      </button>
+
+      <button type="button" class="species-card" data-species="hammerhead" aria-pressed="false">
+        <span class="species-swatch swatch-hammer" aria-hidden="true"></span>
+        <span class="species-info">
+          <span class="species-name">Tiburón Martillo</span>
+          <span class="species-desc">Nado ágil con cefalofoil en T</span>
+        </span>
+      </button>
+    </div>
+
+    <div class="fauna-env-section">
+      <span class="fauna-popover-title">Entorno y vida marina</span>
+      <div class="env-chips">
+        <button type="button" id="lilies-btn" class="env-chip is-active" data-env="lilies" aria-pressed="true">Nenúfares</button>
+        <button type="button" class="env-chip" data-env="currents" aria-pressed="false">Corrientes</button>
+        <button type="button" class="env-chip" data-env="plankton" aria-pressed="false">Plancton y Burbujas</button>
+        <button type="button" class="env-chip" data-env="kelp" aria-pressed="false">Algas</button>
+        <button type="button" class="env-chip" data-env="jellyfish" aria-pressed="false">Medusas</button>
+        <button type="button" class="env-chip" data-env="school" aria-pressed="false">Cardumen</button>
+      </div>
+    </div>
+
+    <div class="fauna-fireflies-row">
+      <div class="fauna-fireflies-label">
+        <span class="species-swatch swatch-firefly" aria-hidden="true"></span>
+        <span>Luciérnagas</span>
+      </div>
+      <div class="firefly-modes" role="group" aria-label="Modo de luciérnagas">
+        <button type="button" class="firefly-mode-btn is-active" data-fireflies="auto" title="Solo durante la noche">Auto</button>
+        <button type="button" class="firefly-mode-btn" data-fireflies="on" title="Visibles a cualquier hora">Activas</button>
+        <button type="button" class="firefly-mode-btn" data-fireflies="off" title="Ocultas">Off</button>
+      </div>
+    </div>
+  </section>
 
   <main class="center-stage" id="center-stage">
     <section class="hero-card" id="hero-card" aria-label="Saludo y búsqueda">
