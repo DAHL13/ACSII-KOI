@@ -8,13 +8,22 @@ Extensión **Manifest V3** interactiva y sin dependencias externas que reemplaza
 
 ## Vista Previa
 
-### Estanque Nocturno con Peces Koi, Nenúfares 2.5D y Luciérnagas
-![Estanque Nocturno con Peces Koi ASCII, nenúfares y luciérnagas](docs/pond-koi.png)
+### Peces Koi
+![Peces Koi ASCII nadando entre nenúfares en el estanque](docs/koi.png)
 
-### Hábitat Mar Abierto (Modo Zen): Tiburón Martillo, Tiburón Ballena, Tortugas, Medusas, Algas y Cardumen
-![Mar Abierto en Modo Zen con tiburones, tortugas marinas, medusas, cardumen y plancton bioluminiscente](docs/ocean-fauna.png)
+### Tortugas Marinas
+![Tortugas Marinas ASCII nadando en modo Mar Abierto](docs/tortugas.png)
 
-### Estanque de Día, Lluvia Suave, Pétalos de Cerezo (`🌸`) y Comandos Bangs
+### Tiburón Ballena
+![Tiburón Ballena ASCII moteado en modo Mar Abierto](docs/tiburon-ballena.png)
+
+### Tiburón Martillo
+![Tiburón Martillo ASCII con cefalofoil en modo Mar Abierto](docs/tiburon-martillo.png)
+
+### Luciérnagas
+![Luciérnagas ASCII brillando sobre el estanque nocturno y nenúfares](docs/luciernagas.png)
+
+### Interfaz, Modo Día, Lluvia Suave, Pétalos de Cerezo (`🌸`) y Comandos Bangs
 ![Estanque de día con lluvia suave, pétalos de cerezo y búsqueda con Bang GitHub](docs/sakura-rain.png)
 
 ---
