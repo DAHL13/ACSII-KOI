@@ -6,6 +6,19 @@ Extensión **Manifest V3** interactiva y sin dependencias externas que reemplaza
 
 ---
 
+## Vista Previa
+
+### Estanque Nocturno con Peces Koi, Nenúfares 2.5D y Luciérnagas
+![Estanque Nocturno con Peces Koi ASCII, nenúfares y luciérnagas](docs/pond-koi.png)
+
+### Hábitat Mar Abierto (Modo Zen): Tiburón Martillo, Tiburón Ballena, Tortugas, Medusas, Algas y Cardumen
+![Mar Abierto en Modo Zen con tiburones, tortugas marinas, medusas, cardumen y plancton bioluminiscente](docs/ocean-fauna.png)
+
+### Estanque de Día, Lluvia Suave, Pétalos de Cerezo (`🌸`) y Comandos Bangs
+![Estanque de día con lluvia suave, pétalos de cerezo y búsqueda con Bang GitHub](docs/sakura-rain.png)
+
+---
+
 ## Características
 
 - **Selector de Fauna y Especies Articuladas (`GlyphAtlas`):**
