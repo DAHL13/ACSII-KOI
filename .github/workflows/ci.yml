@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify MV3 manifest, locales, and POSIX package archive
+        run: python scripts/package.py --check
+
+      - name: Ensure Chromium or Chrome is available
+        run: |
+          if ! command -v google-chrome >/dev/null 2>&1 && ! command -v chromium >/dev/null 2>&1 && ! command -v chromium-browser >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y chromium-browser
+          fi
+
+      - name: Run headless unit, UI integration, and smoke tests
+        run: python scripts/run-tests.py

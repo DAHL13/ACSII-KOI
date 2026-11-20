@@ -1,0 +1,453 @@
+{
+  "extName": {
+    "message": "Estanque Koi ASCII · Nueva Pestaña"
+  },
+  "extDescription": {
+    "message": "Reemplaza tu página de Nueva Pestaña por un estanque Koi y mar abierto en ASCII luminoso interactivo con tortugas, tiburones, medusas, bioluminiscencia, nenúfares 2.5D, piedras de río, prefijos de búsqueda y Pomodoro."
+  },
+  "pageTitlePond": {
+    "message": "Nueva pestaña · Estanque Koi"
+  },
+  "pageTitleOcean": {
+    "message": "Nueva pestaña · Mar Abierto"
+  },
+  "perfPlaceholder": {
+    "message": "-- FPS · -- ms"
+  },
+  "controlsAria": {
+    "message": "Controles del estanque"
+  },
+  "fishTitle": {
+    "message": "Cantidad de fauna en el estanque"
+  },
+  "faunaBtnTitle": {
+    "message": "Elegir especies y luciérnagas"
+  },
+  "fishSliderAria": {
+    "message": "Densidad de fauna"
+  },
+  "solarGroupAria": {
+    "message": "Momento del día"
+  },
+  "solarAuto": {
+    "message": "Auto"
+  },
+  "solarAutoTitle": {
+    "message": "Ciclo solar automático"
+  },
+  "solarDay": {
+    "message": "Día"
+  },
+  "solarDayTitle": {
+    "message": "Día (07:00 - 17:59)"
+  },
+  "solarSunset": {
+    "message": "Tarde"
+  },
+  "solarSunsetTitle": {
+    "message": "Atardecer (18:00 - 20:29)"
+  },
+  "solarNight": {
+    "message": "Noche"
+  },
+  "solarNightTitle": {
+    "message": "Noche (20:30 - 06:59)"
+  },
+  "biomeGroupAria": {
+    "message": "Hábitat acuático"
+  },
+  "biomePond": {
+    "message": "Estanque"
+  },
+  "biomePondTitle": {
+    "message": "Estanque zen con nenúfares"
+  },
+  "biomeOcean": {
+    "message": "Mar"
+  },
+  "biomeOceanTitle": {
+    "message": "Mar abierto con corrientes, cardumen, medusas y algas"
+  },
+  "rainBtn": {
+    "message": "Lluvia"
+  },
+  "rainBtnTitle": {
+    "message": "Activar o desactivar lluvia suave"
+  },
+  "feedBtn": {
+    "message": "Alimentar"
+  },
+  "feedBtnTitle": {
+    "message": "Soltar comida múltiple en el estanque"
+  },
+  "stonesToggleTitle": {
+    "message": "Mostrar u ocultar piedras de río"
+  },
+  "pomoToggleTitle": {
+    "message": "Mostrar u ocultar Pomodoro"
+  },
+  "clockToggleTitle": {
+    "message": "Mostrar u ocultar reloj"
+  },
+  "perfToggleTitle": {
+    "message": "Mostrar u ocultar FPS y tiempo de render"
+  },
+  "perfToggleAria": {
+    "message": "Indicador de rendimiento"
+  },
+  "zenBtnTitle": {
+    "message": "Modo Zen (Z)"
+  },
+  "zenBtnAria": {
+    "message": "Activar Modo Zen"
+  },
+  "faunaPopoverAria": {
+    "message": "Selector de especies del estanque"
+  },
+  "faunaPopoverTitle": {
+    "message": "Habitantes del estanque"
+  },
+  "presetKoi": {
+    "message": "Solo Koi"
+  },
+  "presetOcean": {
+    "message": "Océano"
+  },
+  "presetAll": {
+    "message": "Todos"
+  },
+  "speciesKoiName": {
+    "message": "Peces Koi"
+  },
+  "speciesKoiDesc": {
+    "message": "Clásicos, Tancho y Fantasma"
+  },
+  "speciesTurtleName": {
+    "message": "Tortugas Marinas"
+  },
+  "speciesTurtleDesc": {
+    "message": "Caparazón dorado y aleteo lento"
+  },
+  "speciesWhaleName": {
+    "message": "Tiburón Ballena"
+  },
+  "speciesWhaleDesc": {
+    "message": "Gigante moteado y sereno"
+  },
+  "speciesHammerName": {
+    "message": "Tiburón Martillo"
+  },
+  "speciesHammerDesc": {
+    "message": "Nado ágil con cefalofoil en T"
+  },
+  "envSectionTitle": {
+    "message": "Entorno y vida marina"
+  },
+  "envLilies": {
+    "message": "Nenúfares"
+  },
+  "envCurrents": {
+    "message": "Corrientes"
+  },
+  "envPlankton": {
+    "message": "Plancton y Burbujas"
+  },
+  "envKelp": {
+    "message": "Algas"
+  },
+  "envJellyfish": {
+    "message": "Medusas"
+  },
+  "envSchool": {
+    "message": "Cardumen"
+  },
+  "firefliesLabel": {
+    "message": "Luciérnagas"
+  },
+  "firefliesGroupAria": {
+    "message": "Modo de luciérnagas"
+  },
+  "firefliesAuto": {
+    "message": "Auto"
+  },
+  "firefliesAutoTitle": {
+    "message": "Solo durante la noche"
+  },
+  "firefliesOn": {
+    "message": "Activas"
+  },
+  "firefliesOnTitle": {
+    "message": "Visibles a cualquier hora"
+  },
+  "firefliesOff": {
+    "message": "Off"
+  },
+  "firefliesOffTitle": {
+    "message": "Ocultas"
+  },
+  "heroAria": {
+    "message": "Saludo y búsqueda"
+  },
+  "searchAria": {
+    "message": "Buscar en la web o mediante prefijos"
+  },
+  "searchPlaceholder": {
+    "message": "Buscar en la web, URL o !gh !yt !r !mdn !so !w..."
+  },
+  "searchInLabel": {
+    "message": "Buscar en $A1$...",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchSubmitAria": {
+    "message": "Buscar"
+  },
+  "bangBadgeTitle": {
+    "message": "Clic o Backspace para quitar prefijo"
+  },
+  "bangRemoveAria": {
+    "message": "Quitar prefijo $A1$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pondHintPrefix": {
+    "message": "Clic en el agua para alimentar · Prefijos:"
+  },
+  "dockAria": {
+    "message": "Accesos directos en piedras de río"
+  },
+  "stoneAddTitle": {
+    "message": "Añadir piedra de río"
+  },
+  "stoneAddAria": {
+    "message": "Añadir acceso directo"
+  },
+  "stoneEditTitle": {
+    "message": "Editar o eliminar piedras"
+  },
+  "stoneEditAria": {
+    "message": "Editar accesos directos"
+  },
+  "stoneNewTitle": {
+    "message": "Nueva piedra de río"
+  },
+  "stoneEditModalTitle": {
+    "message": "Editar piedra de río"
+  },
+  "stoneEditOneTitle": {
+    "message": "Editar enlace"
+  },
+  "stoneDeleteOneTitle": {
+    "message": "Eliminar enlace"
+  },
+  "stoneEditOneAria": {
+    "message": "Editar $A1$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "stoneDeleteOneAria": {
+    "message": "Eliminar $A1$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "stoneFieldName": {
+    "message": "Nombre corto"
+  },
+  "stoneNamePlaceholder": {
+    "message": "Ej. GitHub"
+  },
+  "stoneFieldUrl": {
+    "message": "URL del sitio"
+  },
+  "stoneUrlPlaceholder": {
+    "message": "Ej. github.com"
+  },
+  "stoneInvalidUrl": {
+    "message": "Introduce una URL válida http:// o https:// (ej. github.com o localhost:3000)."
+  },
+  "stoneResetAll": {
+    "message": "Restaurar todas"
+  },
+  "stoneResetAllTitle": {
+    "message": "Restaurar todos los accesos directos predeterminados"
+  },
+  "stoneConfirmReset": {
+    "message": "¿Confirmar?"
+  },
+  "stoneCancel": {
+    "message": "Cancelar"
+  },
+  "stoneSave": {
+    "message": "Guardar"
+  },
+  "stoneDefaultSite": {
+    "message": "Sitio"
+  },
+  "pomoAria": {
+    "message": "Temporizador Pomodoro"
+  },
+  "pomoTitle": {
+    "message": "Pomodoro Zen"
+  },
+  "pomoCollapseTitle": {
+    "message": "Colapsar o expandir Pomodoro"
+  },
+  "pomoCollapseAria": {
+    "message": "Colapsar Pomodoro"
+  },
+  "pomoModeGroupAria": {
+    "message": "Modo Pomodoro"
+  },
+  "pomoFocusMode": {
+    "message": "Enfoque 25m"
+  },
+  "pomoBreakMode": {
+    "message": "Descanso 5m"
+  },
+  "pomoStatusFocusIdle": {
+    "message": "Enfoque zen"
+  },
+  "pomoStatusBreakIdle": {
+    "message": "Descanso breve"
+  },
+  "pomoStatusFocusRun": {
+    "message": "Enfoque activo"
+  },
+  "pomoStatusBreakRun": {
+    "message": "Descansando"
+  },
+  "pomoStatusPaused": {
+    "message": "En pausa"
+  },
+  "pomoStatusComplete": {
+    "message": "¡Sesión completada! 🌸"
+  },
+  "pomoStatusReady": {
+    "message": "Listo para enfocar"
+  },
+  "pomoStatusSakura": {
+    "message": "Pétalos de cerezo 🌸"
+  },
+  "pomoStart": {
+    "message": "Iniciar"
+  },
+  "pomoPause": {
+    "message": "Pausar"
+  },
+  "pomoStartAria": {
+    "message": "Iniciar Pomodoro"
+  },
+  "pomoPauseAria": {
+    "message": "Pausar Pomodoro"
+  },
+  "pomoResetTitle": {
+    "message": "Reiniciar"
+  },
+  "pomoResetAria": {
+    "message": "Reiniciar Pomodoro"
+  },
+  "pomoTestTitle": {
+    "message": "Previsualizar lluvia de pétalos de cerezo"
+  },
+  "pomoTestAria": {
+    "message": "Probar lluvia de cerezo"
+  },
+  "pomoDocFocus": {
+    "message": "Enfoque"
+  },
+  "pomoDocBreak": {
+    "message": "Descanso"
+  },
+  "zenExitTitle": {
+    "message": "Salir del Modo Zen (Esc / Z)"
+  },
+  "zenExitAria": {
+    "message": "Salir del Modo Zen"
+  },
+  "zenExitText": {
+    "message": "Salir de Zen"
+  },
+  "zenToastPrefix": {
+    "message": "Modo Zen · Pulsa"
+  },
+  "zenToastSuffix": {
+    "message": "o mueve el cursor arriba a la derecha para volver"
+  },
+  "greetingMorning": {
+    "message": "Buenos días"
+  },
+  "greetingAfternoon": {
+    "message": "Buenas tardes"
+  },
+  "greetingEvening": {
+    "message": "Buenas noches"
+  },
+  "speciesKoiShort": {
+    "message": "Koi"
+  },
+  "speciesTurtleShort": {
+    "message": "Tortugas"
+  },
+  "speciesWhaleShort": {
+    "message": "T. Ballena"
+  },
+  "speciesHammerShort": {
+    "message": "T. Martillo"
+  },
+  "faunaMulti": {
+    "message": "Fauna ($A1$)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "faunaZero": {
+    "message": "Fauna (0)"
+  },
+  "sliderValuetextNone": {
+    "message": "Densidad $A1$, 0 criaturas activas (sin especies seleccionadas)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sliderValuetextActive": {
+    "message": "Densidad $A1$ ($A2$ criaturas activas)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      },
+      "a2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sliderTitleNone": {
+    "message": "Sin especies activas"
+  },
+  "sliderTitleActive": {
+    "message": "$A1$ criaturas activas (densidad $A2$)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      },
+      "a2": {
+        "content": "$2"
+      }
+    }
+  }
+}

@@ -3,26 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nueva pestaña · Estanque Koi</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="glyph-atlas.js" defer></script>
-  <script src="koi-engine.js" defer></script>
-  <script src="ecosystem.js" defer></script>
-  <script src="productivity.js" defer></script>
-  <script src="ui.js" defer></script>
+  <title data-i18n="pageTitlePond">Nueva pestaña · Estanque Koi</title>
+  <script src="boot.js"></script>
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/topbar.css">
+  <link rel="stylesheet" href="styles/stage.css">
+  <link rel="stylesheet" href="styles/widgets.css">
+  <link rel="stylesheet" href="styles/responsive.css">
+  <script type="module" src="src/main.js"></script>
 </head>
 <body>
   <canvas id="koi-canvas" aria-hidden="true"></canvas>
 
   <div id="perf-badge" class="perf-badge" aria-live="off" hidden>
     <span class="perf-dot" aria-hidden="true"></span>
-    <span id="perf-text">-- FPS · -- ms</span>
+    <span id="perf-text" data-i18n="perfPlaceholder">-- FPS · -- ms</span>
   </div>
 
-  <header class="top-bar" id="top-bar" aria-label="Controles del estanque">
+  <header class="top-bar" id="top-bar" aria-label="Controles del estanque" data-i18n-aria-label="controlsAria">
     <div class="control-pill">
-      <div class="control-group control-fish" title="Cantidad de fauna en el estanque">
-        <button type="button" id="fauna-btn" class="fauna-trigger-btn" aria-expanded="false" aria-controls="fauna-popover" title="Elegir especies y luciérnagas">
+      <div class="control-group control-fish" title="Cantidad de fauna en el estanque" data-i18n-title="fishTitle">
+        <button type="button" id="fauna-btn" class="fauna-trigger-btn" aria-expanded="false" aria-controls="fauna-popover" title="Elegir especies y luciérnagas" data-i18n-title="faunaBtnTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M6.5 12c2.5-4 7.5-4.5 11.5-1.5 1.2.9 2.2 1.5 3.5 1.5-1.3 0-2.3.6-3.5 1.5C14 16.5 9 16 6.5 12Z" />
             <path d="M6.5 12 3 9.2v5.6L6.5 12Z" />
@@ -41,96 +43,97 @@
           max="25"
           step="1"
           value="12"
-          aria-label="Cantidad de criaturas marinas"
+          aria-label="Densidad de fauna"
+          data-i18n-aria-label="fishSliderAria"
         >
         <span id="fish-count-value" class="count-badge">12</span>
       </div>
 
       <span class="pill-divider" aria-hidden="true"></span>
 
-      <div class="control-group solar-selector" role="group" aria-label="Momento del día">
-        <button type="button" class="solar-btn is-active" data-time-mode="auto" title="Ciclo solar automático">
-          <span>Auto</span>
+      <div class="control-group solar-selector" role="group" aria-label="Momento del día" data-i18n-aria-label="solarGroupAria">
+        <button type="button" class="solar-btn is-active" data-time-mode="auto" aria-pressed="true" title="Ciclo solar automático" data-i18n-title="solarAutoTitle">
+          <span data-i18n="solarAuto">Auto</span>
         </button>
-        <button type="button" class="solar-btn" data-time-mode="day" title="Día (07:00 - 17:59)">
+        <button type="button" class="solar-btn" data-time-mode="day" aria-pressed="false" title="Día (07:00 - 17:59)" data-i18n-title="solarDayTitle">
           <span class="swatch swatch-day" aria-hidden="true"></span>
-          <span>Día</span>
+          <span data-i18n="solarDay">Día</span>
         </button>
-        <button type="button" class="solar-btn" data-time-mode="sunset" title="Atardecer (18:00 - 20:29)">
+        <button type="button" class="solar-btn" data-time-mode="sunset" aria-pressed="false" title="Atardecer (18:00 - 20:29)" data-i18n-title="solarSunsetTitle">
           <span class="swatch swatch-sunset" aria-hidden="true"></span>
-          <span>Tarde</span>
+          <span data-i18n="solarSunset">Tarde</span>
         </button>
-        <button type="button" class="solar-btn" data-time-mode="night" title="Noche (20:30 - 06:59)">
+        <button type="button" class="solar-btn" data-time-mode="night" aria-pressed="false" title="Noche (20:30 - 06:59)" data-i18n-title="solarNightTitle">
           <span class="swatch swatch-night" aria-hidden="true"></span>
-          <span>Noche</span>
+          <span data-i18n="solarNight">Noche</span>
         </button>
       </div>
 
       <span class="pill-divider" aria-hidden="true"></span>
 
-      <div class="control-group biome-selector" role="group" aria-label="Hábitat acuático">
-        <button type="button" class="biome-btn is-active" data-biome="pond" title="Estanque zen con nenúfares">
-          <span>Estanque</span>
+      <div class="control-group biome-selector" role="group" aria-label="Hábitat acuático" data-i18n-aria-label="biomeGroupAria">
+        <button type="button" class="biome-btn is-active" data-biome="pond" aria-pressed="true" title="Estanque zen con nenúfares" data-i18n-title="biomePondTitle">
+          <span data-i18n="biomePond">Estanque</span>
         </button>
-        <button type="button" class="biome-btn" data-biome="ocean" title="Mar abierto con corrientes, cardumen, medusas y algas">
+        <button type="button" class="biome-btn" data-biome="ocean" aria-pressed="false" title="Mar abierto con corrientes, cardumen, medusas y algas" data-i18n-title="biomeOceanTitle">
           <span class="swatch swatch-ocean" aria-hidden="true"></span>
-          <span>Mar</span>
+          <span data-i18n="biomeOcean">Mar</span>
         </button>
       </div>
 
       <span class="pill-divider" aria-hidden="true"></span>
 
       <div class="control-group control-toggles">
-        <button type="button" id="rain-btn" class="toggle-btn" aria-pressed="false" title="Activar o desactivar lluvia suave">
+        <button type="button" id="rain-btn" class="toggle-btn" aria-pressed="false" title="Activar o desactivar lluvia suave" data-i18n-title="rainBtnTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M7 15a4 4 0 0 1-.4-7.98A5.5 5.5 0 0 1 17.3 8.2 3.5 3.5 0 0 1 18 15H7Z" />
             <path d="M9 18l-1 3M13 18l-1 3M17 18l-1 3" />
           </svg>
-          <span>Lluvia</span>
+          <span data-i18n="rainBtn">Lluvia</span>
         </button>
       </div>
 
       <span class="pill-divider" aria-hidden="true"></span>
 
       <div class="control-group control-actions">
-        <button type="button" id="feed-btn" class="action-btn" title="Soltar comida múltiple en el estanque">
+        <button type="button" id="feed-btn" class="action-btn" title="Soltar comida múltiple en el estanque" data-i18n-title="feedBtnTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="7" r="1.4" fill="currentColor" stroke="none" />
             <circle cx="7.5" cy="13.5" r="1.4" fill="currentColor" stroke="none" />
             <circle cx="16.5" cy="14" r="1.4" fill="currentColor" stroke="none" />
             <circle cx="12" cy="17.5" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <span>Alimentar</span>
+          <span data-i18n="feedBtn">Alimentar</span>
         </button>
 
-        <button type="button" id="stones-toggle-btn" class="icon-btn" title="Mostrar u ocultar piedras de río" aria-pressed="true" aria-label="Mostrar u ocultar piedras de río">
+        <button type="button" id="stones-toggle-btn" class="icon-btn" title="Mostrar u ocultar piedras de río" aria-pressed="true" aria-label="Mostrar u ocultar piedras de río" data-i18n-title="stonesToggleTitle" data-i18n-aria-label="stonesToggleTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <ellipse cx="9" cy="14" rx="5.5" ry="4" />
             <ellipse cx="16.5" cy="11.5" rx="4" ry="3" />
           </svg>
         </button>
 
-        <button type="button" id="pomo-toggle-btn" class="icon-btn" title="Mostrar u ocultar Pomodoro" aria-pressed="true" aria-label="Mostrar u ocultar Pomodoro">
+        <button type="button" id="pomo-toggle-btn" class="icon-btn" title="Mostrar u ocultar Pomodoro" aria-pressed="true" aria-label="Mostrar u ocultar Pomodoro" data-i18n-title="pomoToggleTitle" data-i18n-aria-label="pomoToggleTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="13" r="7.5" />
             <path d="M12 9v4l2.5 1.5M9.5 3h5" />
           </svg>
         </button>
 
-        <button type="button" id="clock-toggle-btn" class="icon-btn" title="Mostrar u ocultar reloj" aria-pressed="true" aria-label="Mostrar u ocultar reloj">
+        <button type="button" id="clock-toggle-btn" class="icon-btn" title="Mostrar u ocultar reloj" aria-pressed="true" aria-label="Mostrar u ocultar reloj" data-i18n-title="clockToggleTitle" data-i18n-aria-label="clockToggleTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="8.5" />
             <path d="M12 7.5V12l3 2" />
           </svg>
         </button>
 
-        <button type="button" id="perf-btn" class="icon-btn" title="Mostrar u ocultar FPS y tiempo de render" aria-pressed="false" aria-label="Indicador de rendimiento">
+        <button type="button" id="perf-btn" class="icon-btn" title="Mostrar u ocultar FPS y tiempo de render" aria-pressed="false" aria-label="Indicador de rendimiento" data-i18n-title="perfToggleTitle" data-i18n-aria-label="perfToggleAria">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 12h4l2.5-6 4 12 2.5-6H21" />
           </svg>
         </button>
 
-        <button type="button" id="zen-btn" class="icon-btn" title="Modo Zen (Z)" aria-pressed="false" aria-label="Activar Modo Zen">
+        <button type="button" id="zen-btn" class="icon-btn" title="Modo Zen (Z)" aria-pressed="false" aria-label="Activar Modo Zen" data-i18n-title="zenBtnTitle" data-i18n-aria-label="zenBtnAria">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M2.5 12s3.8-6.5 9.5-6.5S21.5 12 21.5 12s-3.8 6.5-9.5 6.5S2.5 12 2.5 12Z" />
             <circle cx="12" cy="12" r="2.7" />
@@ -140,13 +143,13 @@
     </div>
   </header>
 
-  <section id="fauna-popover" class="fauna-popover" aria-label="Selector de especies del estanque" hidden>
+  <section id="fauna-popover" class="fauna-popover" aria-label="Selector de especies del estanque" data-i18n-aria-label="faunaPopoverAria" hidden>
     <div class="fauna-popover-header">
-      <span class="fauna-popover-title">Habitantes del estanque</span>
+      <span class="fauna-popover-title" data-i18n="faunaPopoverTitle">Habitantes del estanque</span>
       <div class="fauna-presets">
-        <button type="button" class="fauna-preset-btn" data-preset="koi">Solo Koi</button>
-        <button type="button" class="fauna-preset-btn" data-preset="ocean">Océano</button>
-        <button type="button" class="fauna-preset-btn" data-preset="all">Todos</button>
+        <button type="button" class="fauna-preset-btn" data-preset="koi" data-i18n="presetKoi">Solo Koi</button>
+        <button type="button" class="fauna-preset-btn" data-preset="ocean" data-i18n="presetOcean">Océano</button>
+        <button type="button" class="fauna-preset-btn" data-preset="all" data-i18n="presetAll">Todos</button>
       </div>
     </div>
 
@@ -154,104 +157,107 @@
       <button type="button" class="species-card is-active" data-species="koi" aria-pressed="true">
         <span class="species-swatch swatch-koi" aria-hidden="true"></span>
         <span class="species-info">
-          <span class="species-name">Peces Koi</span>
-          <span class="species-desc">Clásicos, Tancho y Fantasma</span>
+          <span class="species-name" data-i18n="speciesKoiName">Peces Koi</span>
+          <span class="species-desc" data-i18n="speciesKoiDesc">Clásicos, Tancho y Fantasma</span>
         </span>
       </button>
 
       <button type="button" class="species-card" data-species="turtle" aria-pressed="false">
         <span class="species-swatch swatch-turtle" aria-hidden="true"></span>
         <span class="species-info">
-          <span class="species-name">Tortugas Marinas</span>
-          <span class="species-desc">Caparazón dorado y aleteo lento</span>
+          <span class="species-name" data-i18n="speciesTurtleName">Tortugas Marinas</span>
+          <span class="species-desc" data-i18n="speciesTurtleDesc">Caparazón dorado y aleteo lento</span>
         </span>
       </button>
 
       <button type="button" class="species-card" data-species="whaleShark" aria-pressed="false">
         <span class="species-swatch swatch-whale" aria-hidden="true"></span>
         <span class="species-info">
-          <span class="species-name">Tiburón Ballena</span>
-          <span class="species-desc">Gigante moteado y sereno</span>
+          <span class="species-name" data-i18n="speciesWhaleName">Tiburón Ballena</span>
+          <span class="species-desc" data-i18n="speciesWhaleDesc">Gigante moteado y sereno</span>
         </span>
       </button>
 
       <button type="button" class="species-card" data-species="hammerhead" aria-pressed="false">
         <span class="species-swatch swatch-hammer" aria-hidden="true"></span>
         <span class="species-info">
-          <span class="species-name">Tiburón Martillo</span>
-          <span class="species-desc">Nado ágil con cefalofoil en T</span>
+          <span class="species-name" data-i18n="speciesHammerName">Tiburón Martillo</span>
+          <span class="species-desc" data-i18n="speciesHammerDesc">Nado ágil con cefalofoil en T</span>
         </span>
       </button>
     </div>
 
     <div class="fauna-env-section">
-      <span class="fauna-popover-title">Entorno y vida marina</span>
+      <span class="fauna-popover-title" data-i18n="envSectionTitle">Entorno y vida marina</span>
       <div class="env-chips">
-        <button type="button" id="lilies-btn" class="env-chip is-active" data-env="lilies" aria-pressed="true">Nenúfares</button>
-        <button type="button" class="env-chip" data-env="currents" aria-pressed="false">Corrientes</button>
-        <button type="button" class="env-chip" data-env="plankton" aria-pressed="false">Plancton y Burbujas</button>
-        <button type="button" class="env-chip" data-env="kelp" aria-pressed="false">Algas</button>
-        <button type="button" class="env-chip" data-env="jellyfish" aria-pressed="false">Medusas</button>
-        <button type="button" class="env-chip" data-env="school" aria-pressed="false">Cardumen</button>
+        <button type="button" class="env-chip is-active" data-env="lilies" aria-pressed="true" data-i18n="envLilies">Nenúfares</button>
+        <button type="button" class="env-chip" data-env="currents" aria-pressed="false" data-i18n="envCurrents">Corrientes</button>
+        <button type="button" class="env-chip" data-env="plankton" aria-pressed="false" data-i18n="envPlankton">Plancton y Burbujas</button>
+        <button type="button" class="env-chip" data-env="kelp" aria-pressed="false" data-i18n="envKelp">Algas</button>
+        <button type="button" class="env-chip" data-env="jellyfish" aria-pressed="false" data-i18n="envJellyfish">Medusas</button>
+        <button type="button" class="env-chip" data-env="school" aria-pressed="false" data-i18n="envSchool">Cardumen</button>
       </div>
     </div>
 
     <div class="fauna-fireflies-row">
       <div class="fauna-fireflies-label">
         <span class="species-swatch swatch-firefly" aria-hidden="true"></span>
-        <span>Luciérnagas</span>
+        <span data-i18n="firefliesLabel">Luciérnagas</span>
       </div>
-      <div class="firefly-modes" role="group" aria-label="Modo de luciérnagas">
-        <button type="button" class="firefly-mode-btn is-active" data-fireflies="auto" title="Solo durante la noche">Auto</button>
-        <button type="button" class="firefly-mode-btn" data-fireflies="on" title="Visibles a cualquier hora">Activas</button>
-        <button type="button" class="firefly-mode-btn" data-fireflies="off" title="Ocultas">Off</button>
+      <div class="firefly-modes" role="group" aria-label="Modo de luciérnagas" data-i18n-aria-label="firefliesGroupAria">
+        <button type="button" class="firefly-mode-btn is-active" data-fireflies="auto" aria-pressed="true" title="Solo durante la noche" data-i18n="firefliesAuto" data-i18n-title="firefliesAutoTitle">Auto</button>
+        <button type="button" class="firefly-mode-btn" data-fireflies="on" aria-pressed="false" title="Visibles a cualquier hora" data-i18n="firefliesOn" data-i18n-title="firefliesOnTitle">Activas</button>
+        <button type="button" class="firefly-mode-btn" data-fireflies="off" aria-pressed="false" title="Ocultas" data-i18n="firefliesOff" data-i18n-title="firefliesOffTitle">Off</button>
       </div>
     </div>
   </section>
 
   <main class="center-stage" id="center-stage">
-    <section class="hero-card" id="hero-card" aria-label="Saludo y búsqueda">
+    <section class="hero-card" id="hero-card" aria-label="Saludo y búsqueda" data-i18n-aria-label="heroAria">
       <div class="clock-wrap" id="clock-wrap">
-        <time id="clock" class="clock" datetime="">00:00</time>
+        <time id="clock" class="clock" datetime=""></time>
         <span id="date-label" class="date-label"></span>
       </div>
 
-      <h1 id="greeting" class="greeting">Buenas tardes</h1>
+      <h1 id="greeting" class="greeting"></h1>
 
       <form id="search-form" class="search-form" action="https://www.google.com/search" method="GET" role="search">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="11" cy="11" r="7" />
           <path d="m20 20-3.5-3.5" />
         </svg>
-        <span id="bang-badge" class="bang-badge" hidden title="Clic o Backspace para quitar prefijo"></span>
+        <button type="button" id="bang-badge" class="bang-badge" hidden title="Clic o Backspace para quitar prefijo" data-i18n-title="bangBadgeTitle"></button>
         <input
           id="search-input"
           class="search-input"
           type="search"
           name="q"
+          maxlength="2048"
           placeholder="Buscar en la web, URL o !gh !yt !r !mdn !so !w..."
+          data-i18n-placeholder="searchPlaceholder"
           autocomplete="off"
           spellcheck="false"
           autofocus
           aria-label="Buscar en la web o mediante prefijos"
+          data-i18n-aria-label="searchAria"
         >
-        <button type="submit" class="search-submit" aria-label="Buscar">
+        <button type="submit" class="search-submit" aria-label="Buscar" data-i18n-aria-label="searchSubmitAria">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         </button>
       </form>
 
-      <p class="pond-hint">Clic en el agua para alimentar · Prefijos: <code>!gh</code> <code>!yt</code> <code>!r</code> <code>!mdn</code> <code>!so</code> <code>!w</code></p>
+      <p class="pond-hint"><span data-i18n="pondHintPrefix">Clic en el agua para alimentar · Prefijos:</span> <code>!gh</code> <code>!yt</code> <code>!r</code> <code>!mdn</code> <code>!so</code> <code>!w</code></p>
     </section>
   </main>
 
   <!-- River Stones Shortcut Dock -->
-  <nav id="river-stones-dock" class="river-stones-dock" aria-label="Accesos directos en piedras de río">
+  <nav id="river-stones-dock" class="river-stones-dock" aria-label="Accesos directos en piedras de río" data-i18n-aria-label="dockAria">
     <div id="river-stones-list" class="river-stones-list"></div>
     <div class="stones-controls">
-      <button type="button" id="stone-add-btn" class="stone-ctrl-btn" title="Añadir piedra de río" aria-label="Añadir acceso directo">+</button>
-      <button type="button" id="stone-edit-btn" class="stone-ctrl-btn" title="Editar o eliminar piedras" aria-pressed="false" aria-label="Editar accesos directos">
+      <button type="button" id="stone-add-btn" class="stone-ctrl-btn" title="Añadir piedra de río" aria-label="Añadir acceso directo" data-i18n-title="stoneAddTitle" data-i18n-aria-label="stoneAddAria">+</button>
+      <button type="button" id="stone-edit-btn" class="stone-ctrl-btn" title="Editar o eliminar piedras" aria-pressed="false" aria-label="Editar accesos directos" data-i18n-title="stoneEditTitle" data-i18n-aria-label="stoneEditAria">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
@@ -261,7 +267,7 @@
   </nav>
 
   <!-- Pomodoro Widget -->
-  <aside id="pomodoro-widget" class="pomodoro-widget" aria-label="Temporizador Pomodoro">
+  <aside id="pomodoro-widget" class="pomodoro-widget" aria-label="Temporizador Pomodoro" data-i18n-aria-label="pomoAria">
     <div class="pomo-header">
       <div class="pomo-ring-wrap">
         <svg class="pomo-svg" viewBox="0 0 48 48" aria-hidden="true">
@@ -271,10 +277,10 @@
         <span id="pomo-time" class="pomo-time">25:00</span>
       </div>
       <div class="pomo-summary">
-        <span class="pomo-title">Pomodoro Zen</span>
-        <span id="pomo-status" class="pomo-status">Enfoque zen</span>
+        <span class="pomo-title" data-i18n="pomoTitle">Pomodoro Zen</span>
+        <span id="pomo-status" class="pomo-status" aria-live="polite" aria-atomic="true" data-i18n="pomoStatusFocusIdle">Enfoque zen</span>
       </div>
-      <button type="button" id="pomo-collapse-btn" class="pomo-collapse-btn" aria-expanded="true" title="Colapsar o expandir Pomodoro" aria-label="Colapsar Pomodoro">
+      <button type="button" id="pomo-collapse-btn" class="pomo-collapse-btn" aria-expanded="true" title="Colapsar o expandir Pomodoro" aria-label="Colapsar Pomodoro" data-i18n-title="pomoCollapseTitle" data-i18n-aria-label="pomoCollapseAria">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m6 9 6 6 6-6" />
         </svg>
@@ -282,12 +288,12 @@
     </div>
 
     <div class="pomo-body">
-      <div class="pomo-modes" role="group" aria-label="Modo Pomodoro">
-        <button type="button" class="pomo-mode-btn is-active" data-pomo-mode="focus">Enfoque 25m</button>
-        <button type="button" class="pomo-mode-btn" data-pomo-mode="break">Descanso 5m</button>
+      <div class="pomo-modes" role="group" aria-label="Modo Pomodoro" data-i18n-aria-label="pomoModeGroupAria">
+        <button type="button" class="pomo-mode-btn is-active" data-pomo-mode="focus" aria-pressed="true" data-i18n="pomoFocusMode">Enfoque 25m</button>
+        <button type="button" class="pomo-mode-btn" data-pomo-mode="break" aria-pressed="false" data-i18n="pomoBreakMode">Descanso 5m</button>
       </div>
       <div class="pomo-actions">
-        <button type="button" id="pomo-play-btn" class="pomo-btn pomo-btn-primary" title="Iniciar" aria-label="Iniciar Pomodoro">
+        <button type="button" id="pomo-play-btn" class="pomo-btn pomo-btn-primary" title="Iniciar" aria-label="Iniciar Pomodoro" data-i18n-title="pomoStart" data-i18n-aria-label="pomoStartAria">
           <svg class="icon icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M8 5.5v13l11-6.5-11-6.5Z" />
           </svg>
@@ -296,13 +302,13 @@
             <rect x="13.5" y="5.5" width="4" height="13" rx="1" />
           </svg>
         </button>
-        <button type="button" id="pomo-reset-btn" class="pomo-btn" title="Reiniciar" aria-label="Reiniciar Pomodoro">
+        <button type="button" id="pomo-reset-btn" class="pomo-btn" title="Reiniciar" aria-label="Reiniciar Pomodoro" data-i18n-title="pomoResetTitle" data-i18n-aria-label="pomoResetAria">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
             <path d="M3 3v5h5" />
           </svg>
         </button>
-        <button type="button" id="pomo-test-btn" class="pomo-btn pomo-btn-sakura" title="Previsualizar lluvia de pétalos de cerezo" aria-label="Probar lluvia de cerezo">
+        <button type="button" id="pomo-test-btn" class="pomo-btn pomo-btn-sakura" title="Previsualizar lluvia de pétalos de cerezo" aria-label="Probar lluvia de cerezo" data-i18n-title="pomoTestTitle" data-i18n-aria-label="pomoTestAria">
           🌸
         </button>
       </div>
@@ -312,36 +318,36 @@
   <!-- Modal for adding/editing River Stones -->
   <div id="stone-modal" class="stone-modal" role="dialog" aria-modal="true" aria-labelledby="stone-modal-title" hidden>
     <form id="stone-modal-form" class="stone-modal-card">
-      <h2 id="stone-modal-title" class="stone-modal-title">Nueva piedra de río</h2>
+      <h2 id="stone-modal-title" class="stone-modal-title" data-i18n="stoneNewTitle">Nueva piedra de río</h2>
       <label class="stone-field">
-        <span>Nombre corto</span>
-        <input id="stone-title-input" type="text" maxlength="24" placeholder="Ej. GitHub" required>
+        <span data-i18n="stoneFieldName">Nombre corto</span>
+        <input id="stone-title-input" type="text" maxlength="24" placeholder="Ej. GitHub" data-i18n-placeholder="stoneNamePlaceholder" required>
       </label>
       <label class="stone-field">
-        <span>URL del sitio</span>
-        <input id="stone-url-input" type="text" placeholder="Ej. github.com" required>
+        <span data-i18n="stoneFieldUrl">URL del sitio</span>
+        <input id="stone-url-input" type="text" maxlength="2048" placeholder="Ej. github.com" data-i18n-placeholder="stoneUrlPlaceholder" required>
       </label>
       <div class="stone-modal-actions">
-        <button type="button" id="stone-reset-btn" class="stone-modal-btn stone-btn-ghost">Restaurar</button>
+        <button type="button" id="stone-reset-btn" class="stone-modal-btn stone-btn-ghost" title="Restaurar todos los accesos directos predeterminados" data-i18n="stoneResetAll" data-i18n-title="stoneResetAllTitle">Restaurar todas</button>
         <div class="stone-modal-right">
-          <button type="button" id="stone-cancel-btn" class="stone-modal-btn stone-btn-ghost">Cancelar</button>
-          <button type="submit" class="stone-modal-btn stone-btn-save">Guardar</button>
+          <button type="button" id="stone-cancel-btn" class="stone-modal-btn stone-btn-ghost" data-i18n="stoneCancel">Cancelar</button>
+          <button type="submit" class="stone-modal-btn stone-btn-save" data-i18n="stoneSave">Guardar</button>
         </div>
       </div>
     </form>
   </div>
 
-  <button type="button" id="zen-exit-btn" class="zen-exit-btn" title="Salir del Modo Zen (Esc / Z)" aria-label="Salir del Modo Zen">
+  <button type="button" id="zen-exit-btn" class="zen-exit-btn" title="Salir del Modo Zen (Esc / Z)" aria-label="Salir del Modo Zen" data-i18n-title="zenExitTitle" data-i18n-aria-label="zenExitAria">
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M3 3l18 18" />
       <path d="M10.6 5.6A9.7 9.7 0 0 1 12 5.5c5.7 0 9.5 6.5 9.5 6.5a16.8 16.8 0 0 1-3.1 4" />
       <path d="M6.5 6.9C4 8.7 2.5 12 2.5 12s3.8 6.5 9.5 6.5c1.7 0 3.3-.5 4.7-1.2" />
     </svg>
-    <span>Salir de Zen</span>
+    <span data-i18n="zenExitText">Salir de Zen</span>
   </button>
 
   <div id="zen-toast" class="zen-toast" role="status" aria-live="polite">
-    Modo Zen · Pulsa <kbd>Esc</kbd> o mueve el cursor arriba a la derecha para volver
+    <span data-i18n="zenToastPrefix">Modo Zen · Pulsa</span> <kbd>Esc</kbd> <span data-i18n="zenToastSuffix">o mueve el cursor arriba a la derecha para volver</span>
   </div>
 </body>
 </html>

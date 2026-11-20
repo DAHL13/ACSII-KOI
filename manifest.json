@@ -1,9 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "ASCII Koi Pond New Tab",
+  "name": "__MSG_extName__",
   "version": "2.0.0",
-  "description": "Replace your New Tab page with an interactive luminous ASCII Koi pond & open ocean featuring turtles, sharks, jellyfish, bioluminescence, 2.5D lily pad occlusion, river stones, search bangs, and Pomodoro.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "es",
+  "minimum_chrome_version": "104",
   "permissions": ["topSites", "search", "favicon"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'none'; img-src 'self' data:;"
+  },
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

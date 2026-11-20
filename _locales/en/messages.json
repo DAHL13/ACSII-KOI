@@ -1,0 +1,453 @@
+{
+  "extName": {
+    "message": "ASCII Koi Pond New Tab"
+  },
+  "extDescription": {
+    "message": "Replace your New Tab page with an interactive luminous ASCII Koi pond & open ocean featuring turtles, sharks, jellyfish, bioluminescence, 2.5D lily pad occlusion, river stones, search bangs, and Pomodoro."
+  },
+  "pageTitlePond": {
+    "message": "New Tab · Koi Pond"
+  },
+  "pageTitleOcean": {
+    "message": "New Tab · Open Ocean"
+  },
+  "perfPlaceholder": {
+    "message": "-- FPS · -- ms"
+  },
+  "controlsAria": {
+    "message": "Pond controls"
+  },
+  "fishTitle": {
+    "message": "Fauna density in the pond"
+  },
+  "faunaBtnTitle": {
+    "message": "Choose species and fireflies"
+  },
+  "fishSliderAria": {
+    "message": "Fauna density"
+  },
+  "solarGroupAria": {
+    "message": "Time of day"
+  },
+  "solarAuto": {
+    "message": "Auto"
+  },
+  "solarAutoTitle": {
+    "message": "Automatic solar cycle"
+  },
+  "solarDay": {
+    "message": "Day"
+  },
+  "solarDayTitle": {
+    "message": "Day (07:00 - 17:59)"
+  },
+  "solarSunset": {
+    "message": "Sunset"
+  },
+  "solarSunsetTitle": {
+    "message": "Sunset (18:00 - 20:29)"
+  },
+  "solarNight": {
+    "message": "Night"
+  },
+  "solarNightTitle": {
+    "message": "Night (20:30 - 06:59)"
+  },
+  "biomeGroupAria": {
+    "message": "Aquatic habitat"
+  },
+  "biomePond": {
+    "message": "Pond"
+  },
+  "biomePondTitle": {
+    "message": "Zen pond with lily pads"
+  },
+  "biomeOcean": {
+    "message": "Ocean"
+  },
+  "biomeOceanTitle": {
+    "message": "Open ocean with currents, baitfish, jellyfish, and kelp"
+  },
+  "rainBtn": {
+    "message": "Rain"
+  },
+  "rainBtnTitle": {
+    "message": "Toggle soft rain"
+  },
+  "feedBtn": {
+    "message": "Feed"
+  },
+  "feedBtnTitle": {
+    "message": "Drop multiple food pellets"
+  },
+  "stonesToggleTitle": {
+    "message": "Show or hide river stones"
+  },
+  "pomoToggleTitle": {
+    "message": "Show or hide Pomodoro"
+  },
+  "clockToggleTitle": {
+    "message": "Show or hide clock"
+  },
+  "perfToggleTitle": {
+    "message": "Show or hide FPS and frame render time"
+  },
+  "perfToggleAria": {
+    "message": "Performance indicator"
+  },
+  "zenBtnTitle": {
+    "message": "Zen Mode (Z)"
+  },
+  "zenBtnAria": {
+    "message": "Enable Zen Mode"
+  },
+  "faunaPopoverAria": {
+    "message": "Pond species selector"
+  },
+  "faunaPopoverTitle": {
+    "message": "Pond inhabitants"
+  },
+  "presetKoi": {
+    "message": "Koi Only"
+  },
+  "presetOcean": {
+    "message": "Ocean"
+  },
+  "presetAll": {
+    "message": "All"
+  },
+  "speciesKoiName": {
+    "message": "Koi Fish"
+  },
+  "speciesKoiDesc": {
+    "message": "Classic, Tancho, and Ghost Butterfly"
+  },
+  "speciesTurtleName": {
+    "message": "Sea Turtles"
+  },
+  "speciesTurtleDesc": {
+    "message": "Golden scutes and calm rowing"
+  },
+  "speciesWhaleName": {
+    "message": "Whale Shark"
+  },
+  "speciesWhaleDesc": {
+    "message": "Spotted gentle giant"
+  },
+  "speciesHammerName": {
+    "message": "Hammerhead Shark"
+  },
+  "speciesHammerDesc": {
+    "message": "Agile swimmer with T-shaped cephalofoil"
+  },
+  "envSectionTitle": {
+    "message": "Environment and marine life"
+  },
+  "envLilies": {
+    "message": "Lily Pads"
+  },
+  "envCurrents": {
+    "message": "Currents"
+  },
+  "envPlankton": {
+    "message": "Plankton & Bubbles"
+  },
+  "envKelp": {
+    "message": "Kelp"
+  },
+  "envJellyfish": {
+    "message": "Jellyfish"
+  },
+  "envSchool": {
+    "message": "Baitfish School"
+  },
+  "firefliesLabel": {
+    "message": "Fireflies"
+  },
+  "firefliesGroupAria": {
+    "message": "Fireflies mode"
+  },
+  "firefliesAuto": {
+    "message": "Auto"
+  },
+  "firefliesAutoTitle": {
+    "message": "Visible at night only"
+  },
+  "firefliesOn": {
+    "message": "On"
+  },
+  "firefliesOnTitle": {
+    "message": "Visible at any time"
+  },
+  "firefliesOff": {
+    "message": "Off"
+  },
+  "firefliesOffTitle": {
+    "message": "Hidden"
+  },
+  "heroAria": {
+    "message": "Greeting and search"
+  },
+  "searchAria": {
+    "message": "Search the web or use search bangs"
+  },
+  "searchPlaceholder": {
+    "message": "Search the web, URL, or !gh !yt !r !mdn !so !w..."
+  },
+  "searchInLabel": {
+    "message": "Search $A1$...",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "searchSubmitAria": {
+    "message": "Search"
+  },
+  "bangBadgeTitle": {
+    "message": "Click or press Backspace to clear bang"
+  },
+  "bangRemoveAria": {
+    "message": "Remove $A1$ prefix",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pondHintPrefix": {
+    "message": "Click water to feed · Bangs:"
+  },
+  "dockAria": {
+    "message": "River stone shortcuts"
+  },
+  "stoneAddTitle": {
+    "message": "Add river stone"
+  },
+  "stoneAddAria": {
+    "message": "Add shortcut"
+  },
+  "stoneEditTitle": {
+    "message": "Edit or remove stones"
+  },
+  "stoneEditAria": {
+    "message": "Edit shortcuts"
+  },
+  "stoneNewTitle": {
+    "message": "New river stone"
+  },
+  "stoneEditModalTitle": {
+    "message": "Edit river stone"
+  },
+  "stoneEditOneTitle": {
+    "message": "Edit shortcut"
+  },
+  "stoneDeleteOneTitle": {
+    "message": "Delete shortcut"
+  },
+  "stoneEditOneAria": {
+    "message": "Edit $A1$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "stoneDeleteOneAria": {
+    "message": "Delete $A1$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "stoneFieldName": {
+    "message": "Short name"
+  },
+  "stoneNamePlaceholder": {
+    "message": "e.g. GitHub"
+  },
+  "stoneFieldUrl": {
+    "message": "Site URL"
+  },
+  "stoneUrlPlaceholder": {
+    "message": "e.g. github.com"
+  },
+  "stoneInvalidUrl": {
+    "message": "Enter a valid http:// or https:// URL (e.g. github.com or localhost:3000)."
+  },
+  "stoneResetAll": {
+    "message": "Reset all"
+  },
+  "stoneResetAllTitle": {
+    "message": "Restore all default shortcuts"
+  },
+  "stoneConfirmReset": {
+    "message": "Confirm?"
+  },
+  "stoneCancel": {
+    "message": "Cancel"
+  },
+  "stoneSave": {
+    "message": "Save"
+  },
+  "stoneDefaultSite": {
+    "message": "Site"
+  },
+  "pomoAria": {
+    "message": "Pomodoro timer"
+  },
+  "pomoTitle": {
+    "message": "Zen Pomodoro"
+  },
+  "pomoCollapseTitle": {
+    "message": "Collapse or expand Pomodoro"
+  },
+  "pomoCollapseAria": {
+    "message": "Collapse Pomodoro"
+  },
+  "pomoModeGroupAria": {
+    "message": "Pomodoro mode"
+  },
+  "pomoFocusMode": {
+    "message": "Focus 25m"
+  },
+  "pomoBreakMode": {
+    "message": "Break 5m"
+  },
+  "pomoStatusFocusIdle": {
+    "message": "Zen focus"
+  },
+  "pomoStatusBreakIdle": {
+    "message": "Short break"
+  },
+  "pomoStatusFocusRun": {
+    "message": "Focusing"
+  },
+  "pomoStatusBreakRun": {
+    "message": "Resting"
+  },
+  "pomoStatusPaused": {
+    "message": "Paused"
+  },
+  "pomoStatusComplete": {
+    "message": "Session complete! 🌸"
+  },
+  "pomoStatusReady": {
+    "message": "Ready to focus"
+  },
+  "pomoStatusSakura": {
+    "message": "Cherry blossoms 🌸"
+  },
+  "pomoStart": {
+    "message": "Start"
+  },
+  "pomoPause": {
+    "message": "Pause"
+  },
+  "pomoStartAria": {
+    "message": "Start Pomodoro"
+  },
+  "pomoPauseAria": {
+    "message": "Pause Pomodoro"
+  },
+  "pomoResetTitle": {
+    "message": "Reset"
+  },
+  "pomoResetAria": {
+    "message": "Reset Pomodoro"
+  },
+  "pomoTestTitle": {
+    "message": "Preview cherry blossom shower"
+  },
+  "pomoTestAria": {
+    "message": "Preview cherry blossoms"
+  },
+  "pomoDocFocus": {
+    "message": "Focus"
+  },
+  "pomoDocBreak": {
+    "message": "Break"
+  },
+  "zenExitTitle": {
+    "message": "Exit Zen Mode (Esc / Z)"
+  },
+  "zenExitAria": {
+    "message": "Exit Zen Mode"
+  },
+  "zenExitText": {
+    "message": "Exit Zen"
+  },
+  "zenToastPrefix": {
+    "message": "Zen Mode · Press"
+  },
+  "zenToastSuffix": {
+    "message": "or move cursor to top-right to return"
+  },
+  "greetingMorning": {
+    "message": "Good morning"
+  },
+  "greetingAfternoon": {
+    "message": "Good afternoon"
+  },
+  "greetingEvening": {
+    "message": "Good evening"
+  },
+  "speciesKoiShort": {
+    "message": "Koi"
+  },
+  "speciesTurtleShort": {
+    "message": "Turtles"
+  },
+  "speciesWhaleShort": {
+    "message": "Whale Shark"
+  },
+  "speciesHammerShort": {
+    "message": "Hammerhead"
+  },
+  "faunaMulti": {
+    "message": "Fauna ($A1$)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "faunaZero": {
+    "message": "Fauna (0)"
+  },
+  "sliderValuetextNone": {
+    "message": "Density $A1$, 0 active creatures (no species selected)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "sliderValuetextActive": {
+    "message": "Density $A1$ ($A2$ active creatures)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      },
+      "a2": {
+        "content": "$2"
+      }
+    }
+  },
+  "sliderTitleNone": {
+    "message": "No active species"
+  },
+  "sliderTitleActive": {
+    "message": "$A1$ active creatures (density $A2$)",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      },
+      "a2": {
+        "content": "$2"
+      }
+    }
+  }
+}

@@ -1,0 +1,113 @@
+@property --bg-base {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #05080f;
+}
+
+@property --bg-radial-1 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(18, 36, 62, 0.36);
+}
+
+@property --bg-radial-2 {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(9, 18, 32, 0.22);
+}
+
+@property --bg-radial-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(56, 189, 248, 0.05);
+}
+
+:root {
+  --bg-base: #05080f;
+  --bg-radial-1: rgba(18, 36, 62, 0.36);
+  --bg-radial-2: rgba(9, 18, 32, 0.22);
+  --bg-radial-accent: rgba(56, 189, 248, 0.05);
+  --surface-glass: rgba(10, 16, 28, 0.56);
+  --surface-glass-hover: rgba(15, 24, 40, 0.72);
+  --surface-pill: rgba(9, 14, 24, 0.54);
+  --border-glass: rgba(190, 220, 255, 0.13);
+  --border-glass-focus: rgba(125, 211, 252, 0.48);
+  --text-primary: #eef4ff;
+  --text-secondary: rgba(210, 226, 248, 0.80);
+  --text-muted: rgba(176, 202, 234, 0.68);
+  --accent: #7dd3fc;
+  --accent-soft: rgba(125, 211, 252, 0.16);
+  --accent-glow: rgba(125, 211, 252, 0.22);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", "Fira Code", Consolas, "SFMono-Regular", ui-monospace, monospace;
+}
+
+/* Día (07:00 - 17:59): Azul petróleo profundo #081424 */
+html[data-solar="day"] {
+  --bg-base: #081424;
+  --bg-radial-1: rgba(24, 72, 108, 0.42);
+  --bg-radial-2: rgba(12, 34, 58, 0.28);
+  --bg-radial-accent: rgba(125, 211, 252, 0.11);
+  --surface-glass: rgba(10, 24, 40, 0.52);
+  --surface-glass-hover: rgba(14, 34, 56, 0.68);
+  --surface-pill: rgba(9, 22, 38, 0.5);
+  --border-glass: rgba(186, 230, 253, 0.17);
+  --border-glass-focus: rgba(103, 232, 249, 0.55);
+  --text-primary: #f0f9ff;
+  --text-secondary: rgba(214, 238, 254, 0.84);
+  --text-muted: rgba(196, 228, 250, 0.70);
+  --accent: #67e8f9;
+  --accent-soft: rgba(103, 232, 249, 0.18);
+  --accent-glow: rgba(103, 232, 249, 0.26);
+}
+
+/* Atardecer (18:00 - 20:29): Índigo oscuro con reflejos ámbar y magenta sutiles */
+html[data-solar="sunset"] {
+  --bg-base: #0d0b1a;
+  --bg-radial-1: rgba(74, 36, 72, 0.36);
+  --bg-radial-2: rgba(34, 24, 58, 0.28);
+  --bg-radial-accent: rgba(245, 158, 11, 0.12);
+  --surface-glass: rgba(20, 15, 32, 0.56);
+  --surface-glass-hover: rgba(30, 21, 46, 0.72);
+  --surface-pill: rgba(18, 13, 28, 0.54);
+  --border-glass: rgba(251, 207, 232, 0.15);
+  --border-glass-focus: rgba(251, 191, 36, 0.52);
+  --text-primary: #fdf4f5;
+  --text-secondary: rgba(246, 222, 228, 0.82);
+  --text-muted: rgba(232, 200, 214, 0.70);
+  --accent: #fbbf24;
+  --accent-soft: rgba(251, 191, 36, 0.18);
+  --accent-glow: rgba(244, 114, 182, 0.24);
+}
+
+/* Noche (20:30 - 06:59): Fondo abisal #05080f */
+html[data-solar="night"] {
+  --bg-base: #05080f;
+  --bg-radial-1: rgba(14, 28, 50, 0.34);
+  --bg-radial-2: rgba(7, 14, 26, 0.24);
+  --bg-radial-accent: rgba(163, 230, 53, 0.04);
+  --surface-glass: rgba(8, 13, 24, 0.58);
+  --surface-glass-hover: rgba(13, 20, 36, 0.74);
+  --surface-pill: rgba(8, 12, 22, 0.55);
+  --border-glass: rgba(190, 220, 255, 0.12);
+  --border-glass-focus: rgba(163, 230, 53, 0.45);
+  --text-primary: #eef4ff;
+  --text-secondary: rgba(206, 224, 246, 0.80);
+  --text-muted: rgba(176, 202, 234, 0.68);
+  --accent: #bef264;
+  --accent-soft: rgba(190, 242, 100, 0.15);
+  --accent-glow: rgba(190, 242, 100, 0.2);
+}
+
+html[data-biome="ocean"] {
+  --bg-radial-1: rgba(12, 48, 72, 0.42);
+  --bg-radial-2: rgba(6, 24, 42, 0.28);
+  --bg-radial-accent: rgba(0, 245, 212, 0.08);
+}
+
+html[data-biome="ocean"][data-solar="night"] {
+  --accent: #2dd4bf;
+  --accent-soft: rgba(45, 212, 191, 0.16);
+  --accent-glow: rgba(45, 212, 191, 0.22);
+  --border-glass-focus: rgba(45, 212, 191, 0.48);
+}

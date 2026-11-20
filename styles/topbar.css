@@ -1,0 +1,209 @@
+/* --- Top Discrete Control Pill --- */
+.top-bar {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: calc(100vw - 24px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.control-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-pill);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.control-pill::-webkit-scrollbar {
+  display: none;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.pill-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-glass);
+  flex-shrink: 0;
+}
+
+/* Range Slider */
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 72px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  outline: none;
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid rgba(5, 8, 15, 0.88);
+  box-shadow: 0 0 10px var(--accent-glow);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.16);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid rgba(5, 8, 15, 0.88);
+  box-shadow: 0 0 10px var(--accent-glow);
+  cursor: pointer;
+}
+
+.count-badge {
+  min-width: 22px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.solar-selector,
+.biome-selector,
+.control-toggles {
+  gap: 4px;
+}
+
+.solar-btn,
+.biome-btn,
+.toggle-btn,
+.action-btn,
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.solar-btn:hover,
+.biome-btn:hover,
+.toggle-btn:hover,
+.action-btn:hover,
+.icon-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.solar-btn:active,
+.biome-btn:active,
+.toggle-btn:active,
+.action-btn:active,
+.icon-btn:active {
+  transform: scale(0.96);
+}
+
+.solar-btn.is-active,
+.biome-btn.is-active,
+.toggle-btn[aria-pressed="true"] {
+  color: var(--text-primary);
+  background: var(--accent-soft);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.swatch-ocean {
+  background: linear-gradient(135deg, #00f5d4, #0ea5e9);
+  box-shadow: 0 0 6px rgba(0, 245, 212, 0.7);
+}
+
+.swatch-day {
+  background: linear-gradient(135deg, #bae6fd, #38bdf8);
+  box-shadow: 0 0 6px rgba(103, 232, 249, 0.7);
+}
+
+.swatch-sunset {
+  background: linear-gradient(135deg, #fbbf24, #f472b6);
+  box-shadow: 0 0 6px rgba(244, 114, 182, 0.7);
+}
+
+.swatch-night {
+  background: linear-gradient(135deg, #bef264, #38bdf8);
+  box-shadow: 0 0 6px rgba(190, 242, 100, 0.65);
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.09);
+  color: var(--text-primary);
+}
+
+.action-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--border-glass-focus);
+}
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.icon-btn[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
