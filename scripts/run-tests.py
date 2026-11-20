@@ -59,7 +59,9 @@ def dump_dom(browser: str, url: str, budget_ms: int = 1500, lang: str = 'es-ES',
             '--dump-dom',
             url,
         ]
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=90)
+        env = os.environ.copy()
+        env['LANGUAGE'] = lang.replace('-', '_')
+        res = subprocess.run(cmd, env=env, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=90)
         if not res.stdout.strip():
             raise RuntimeError(f'Empty DOM dump for {url}. stderr:\n{res.stderr}')
         return res.stdout
@@ -161,12 +163,12 @@ def main() -> int:
         total_fail += u_fail
 
         matrix = [
-            ('es', 'es-ES', '1280,800', ''),
+            ('es', 'es-ES', '1280,800', '?lang=es'),
         ]
         if not args.single:
             matrix.extend([
                 ('en', 'en-US', '1280,800', '?lang=en'),
-                ('es', 'es-ES', '800,600', ''),
+                ('es', 'es-ES', '800,600', '?lang=es'),
             ])
 
         for expected_lang, cli_lang, viewport, query in matrix:
