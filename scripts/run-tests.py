@@ -49,6 +49,7 @@ def dump_dom(browser: str, url: str, budget_ms: int = 5000) -> str:
             browser,
             '--headless=new',
             '--disable-gpu',
+            '--disable-dev-shm-usage',
             '--no-sandbox',
             f'--user-data-dir={profile}',
             '--window-size=1280,800',
@@ -56,7 +57,7 @@ def dump_dom(browser: str, url: str, budget_ms: int = 5000) -> str:
             '--dump-dom',
             url,
         ]
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=45)
+        res = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=90)
         if not res.stdout.strip():
             raise RuntimeError(f'Empty DOM dump for {url}. stderr:\n{res.stderr}')
         return res.stdout
@@ -64,8 +65,8 @@ def dump_dom(browser: str, url: str, budget_ms: int = 5000) -> str:
         shutil.rmtree(profile, ignore_errors=True)
 
 
-def run_test_suite(browser: str, base_url: str, route: str, label: str) -> tuple[int, int]:
-    dom = dump_dom(browser, f'{base_url}{route}', budget_ms=6000)
+def run_test_suite(browser: str, base_url: str, route: str, label: str, budget_ms: int = 1500) -> tuple[int, int]:
+    dom = dump_dom(browser, f'{base_url}{route}', budget_ms=budget_ms)
     m_status = re.search(r'<div[^>]*id="test-report"[^>]*>', dom)
     if not m_status:
         raise RuntimeError(f'{label}: #test-report not found in DOM')
@@ -92,7 +93,7 @@ def run_test_suite(browser: str, base_url: str, route: str, label: str) -> tuple
 
 
 def run_index_smoke(browser: str, base_url: str) -> bool:
-    dom = dump_dom(browser, f'{base_url}/index.html', budget_ms=3000)
+    dom = dump_dom(browser, f'{base_url}/index.html', budget_ms=300)
     clock_m = re.search(r'<time[^>]*id="clock"[^>]*>(.*?)</time>', dom, re.S)
     greet_m = re.search(r'<h1[^>]*id="greeting"[^>]*>(.*?)</h1>', dom, re.S)
     stones = re.findall(r'class="river-stone"', dom)
@@ -124,8 +125,8 @@ def main() -> int:
 
     base_url = f'http://127.0.0.1:{port}'
     try:
-        u_pass, u_fail = run_test_suite(browser, base_url, '/tests/unit.html', 'Unit Tests')
-        ui_pass, ui_fail = run_test_suite(browser, base_url, '/tests/ui.html', 'UI Integration Tests')
+        u_pass, u_fail = run_test_suite(browser, base_url, '/tests/unit.html', 'Unit Tests', budget_ms=1500)
+        ui_pass, ui_fail = run_test_suite(browser, base_url, '/tests/ui.html', 'UI Integration Tests', budget_ms=500)
         smoke_ok = run_index_smoke(browser, base_url)
     finally:
         server.shutdown()
