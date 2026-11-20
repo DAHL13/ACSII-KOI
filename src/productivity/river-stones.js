@@ -1,5 +1,6 @@
 import { STONES_STORAGE_KEY } from '../core/constants.js';
 import { t } from '../core/i18n.js';
+import { syncPushKey, syncRemoveKey } from '../core/storage.js';
 import { createStoneId, extractHostname, sanitizeHttpUrl, shortenTitle } from './url-utils.js';
 
 const MAX_STONES = 8;
@@ -44,6 +45,7 @@ export class RiverStonesManager {
     this.stones = [];
     this.editMode = false;
     this.editingId = null;
+    this.draggingId = null;
     this.lastTriggerEl = null;
     this.confirmResetPending = false;
     this.confirmResetTimer = null;
@@ -67,6 +69,7 @@ export class RiverStonesManager {
       this.editMode = !this.editMode;
       this.dockEl.classList.toggle('is-editing', this.editMode);
       this.editBtn.setAttribute('aria-pressed', String(this.editMode));
+      this.render();
     });
 
     this.cancelBtn.addEventListener('click', () => {
@@ -116,6 +119,7 @@ export class RiverStonesManager {
       try {
         localStorage.removeItem(STONES_STORAGE_KEY);
       } catch (_) {}
+      syncRemoveKey(STONES_STORAGE_KEY);
       this.closeModal();
       this.editMode = false;
       this.dockEl.classList.remove('is-editing');
@@ -209,6 +213,51 @@ export class RiverStonesManager {
     try {
       localStorage.setItem(STONES_STORAGE_KEY, JSON.stringify(this.stones));
     } catch (_) {}
+    syncPushKey(STONES_STORAGE_KEY, this.stones);
+  }
+
+  setStones(nextStones) {
+    if (!Array.isArray(nextStones)) {
+      this.loadFromTopSitesOrDefaults();
+      return;
+    }
+    this.stones = nextStones.slice(0, MAX_STONES);
+    this.render();
+  }
+
+  moveStone(id, delta, restoreFocusDir = null) {
+    const idx = this.stones.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+    const nextIdx = idx + delta;
+    if (nextIdx < 0 || nextIdx >= this.stones.length) return false;
+    const updated = this.stones.slice();
+    const [item] = updated.splice(idx, 1);
+    updated.splice(nextIdx, 0, item);
+    this.stones = updated;
+    this.saveStones();
+    this.render();
+
+    if (restoreFocusDir) {
+      const btn = this.listEl.querySelector(
+        `[data-stone-id="${id}"] .stone-mini-${restoreFocusDir}`
+      );
+      if (btn && !btn.disabled) btn.focus();
+    }
+    return true;
+  }
+
+  reorderStone(fromId, toId) {
+    if (!fromId || !toId || fromId === toId) return false;
+    const fromIdx = this.stones.findIndex((s) => s.id === fromId);
+    const toIdx = this.stones.findIndex((s) => s.id === toId);
+    if (fromIdx === -1 || toIdx === -1) return false;
+    const updated = this.stones.slice();
+    const [item] = updated.splice(fromIdx, 1);
+    updated.splice(toIdx, 0, item);
+    this.stones = updated;
+    this.saveStones();
+    this.render();
+    return true;
   }
 
   loadFromTopSitesOrDefaults() {
@@ -299,6 +348,47 @@ export class RiverStonesManager {
 
       const wrapper = document.createElement('div');
       wrapper.className = 'river-stone-wrap';
+      wrapper.dataset.stoneId = stone.id;
+      wrapper.draggable = this.editMode;
+
+      wrapper.addEventListener('dragstart', (e) => {
+        if (!this.editMode) {
+          e.preventDefault();
+          return;
+        }
+        this.draggingId = stone.id;
+        wrapper.classList.add('is-dragging');
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', stone.id);
+        }
+      });
+
+      wrapper.addEventListener('dragover', (e) => {
+        if (!this.editMode || !this.draggingId || this.draggingId === stone.id) return;
+        e.preventDefault();
+        wrapper.classList.add('is-drop-target');
+      });
+
+      wrapper.addEventListener('dragleave', () => {
+        wrapper.classList.remove('is-drop-target');
+      });
+
+      wrapper.addEventListener('drop', (e) => {
+        e.preventDefault();
+        wrapper.classList.remove('is-drop-target');
+        const fromId = (e.dataTransfer && e.dataTransfer.getData('text/plain')) || this.draggingId;
+        this.draggingId = null;
+        if (fromId && fromId !== stone.id) {
+          this.reorderStone(fromId, stone.id);
+        }
+      });
+
+      wrapper.addEventListener('dragend', () => {
+        this.draggingId = null;
+        wrapper.classList.remove('is-dragging');
+        this.listEl.querySelectorAll('.is-drop-target').forEach((el) => el.classList.remove('is-drop-target'));
+      });
 
       const link = document.createElement('a');
       link.className = 'river-stone';
@@ -364,6 +454,32 @@ export class RiverStonesManager {
       const actions = document.createElement('div');
       actions.className = 'stone-edit-actions';
 
+      const moveLeft = document.createElement('button');
+      moveLeft.type = 'button';
+      moveLeft.className = 'stone-mini-btn stone-mini-left';
+      moveLeft.title = t('stoneMoveLeftTitle');
+      moveLeft.setAttribute('aria-label', t('stoneMoveLeftAria', stone.title));
+      moveLeft.textContent = '‹';
+      moveLeft.disabled = index === 0;
+      moveLeft.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.moveStone(stone.id, -1, 'left');
+      });
+
+      const moveRight = document.createElement('button');
+      moveRight.type = 'button';
+      moveRight.className = 'stone-mini-btn stone-mini-right';
+      moveRight.title = t('stoneMoveRightTitle');
+      moveRight.setAttribute('aria-label', t('stoneMoveRightAria', stone.title));
+      moveRight.textContent = '›';
+      moveRight.disabled = index === this.stones.length - 1;
+      moveRight.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.moveStone(stone.id, 1, 'right');
+      });
+
       const editOne = document.createElement('button');
       editOne.type = 'button';
       editOne.className = 'stone-mini-btn';
@@ -388,6 +504,8 @@ export class RiverStonesManager {
         this.deleteStone(stone.id);
       });
 
+      actions.appendChild(moveLeft);
+      actions.appendChild(moveRight);
       actions.appendChild(editOne);
       actions.appendChild(delOne);
 

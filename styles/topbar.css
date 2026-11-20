@@ -171,6 +171,16 @@
   box-shadow: 0 0 6px rgba(0, 245, 212, 0.7);
 }
 
+.swatch-reef {
+  background: linear-gradient(135deg, #2dd4bf, #fb7185);
+  box-shadow: 0 0 6px rgba(251, 113, 133, 0.7);
+}
+
+.swatch-winter {
+  background: linear-gradient(135deg, #f8fafc, #67e8f9);
+  box-shadow: 0 0 6px rgba(186, 230, 253, 0.75);
+}
+
 .swatch-day {
   background: linear-gradient(135deg, #bae6fd, #38bdf8);
   box-shadow: 0 0 6px rgba(103, 232, 249, 0.7);

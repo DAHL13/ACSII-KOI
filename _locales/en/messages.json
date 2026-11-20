@@ -3,7 +3,7 @@
     "message": "ASCII Koi Pond New Tab"
   },
   "extDescription": {
-    "message": "Replace your New Tab page with an interactive luminous ASCII Koi pond & open ocean featuring turtles, sharks, jellyfish, bioluminescence, 2.5D lily pad occlusion, river stones, search bangs, and Pomodoro."
+    "message": "Replace your New Tab page with an interactive luminous ASCII Koi pond, coral reef, winter pond & open ocean featuring turtles, sharks, manta rays, jellyfish, bioluminescence, river stones, bangs, and Pomodoro."
   },
   "pageTitlePond": {
     "message": "New Tab · Koi Pond"
@@ -11,8 +11,17 @@
   "pageTitleOcean": {
     "message": "New Tab · Open Ocean"
   },
+  "pageTitleReef": {
+    "message": "New Tab · Coral Reef"
+  },
+  "pageTitleWinter": {
+    "message": "New Tab · Winter Pond"
+  },
   "perfPlaceholder": {
     "message": "-- FPS · -- ms"
+  },
+  "perfEcoTag": {
+    "message": "ECO"
   },
   "controlsAria": {
     "message": "Pond controls"
@@ -68,17 +77,29 @@
   "biomeOceanTitle": {
     "message": "Open ocean with currents, baitfish, jellyfish, and kelp"
   },
+  "biomeReef": {
+    "message": "Reef"
+  },
+  "biomeReefTitle": {
+    "message": "Vibrant coral reef with manta rays and schooling fish"
+  },
+  "biomeWinter": {
+    "message": "Winter"
+  },
+  "biomeWinterTitle": {
+    "message": "Winter pond with soft snow and giant golden carp"
+  },
   "rainBtn": {
     "message": "Rain"
   },
   "rainBtnTitle": {
-    "message": "Toggle soft rain"
+    "message": "Toggle soft rain (R)"
   },
   "feedBtn": {
     "message": "Feed"
   },
   "feedBtnTitle": {
-    "message": "Drop multiple food pellets"
+    "message": "Drop multiple food pellets (F)"
   },
   "stonesToggleTitle": {
     "message": "Show or hide river stones"
@@ -101,6 +122,12 @@
   "zenBtnAria": {
     "message": "Enable Zen Mode"
   },
+  "settingsBtnTitle": {
+    "message": "Settings, custom bangs, and backup"
+  },
+  "settingsBtnAria": {
+    "message": "Open settings"
+  },
   "faunaPopoverAria": {
     "message": "Pond species selector"
   },
@@ -112,6 +139,9 @@
   },
   "presetOcean": {
     "message": "Ocean"
+  },
+  "presetReef": {
+    "message": "Reef"
   },
   "presetAll": {
     "message": "All"
@@ -140,6 +170,18 @@
   "speciesHammerDesc": {
     "message": "Agile swimmer with T-shaped cephalofoil"
   },
+  "speciesMantaName": {
+    "message": "Manta Ray"
+  },
+  "speciesMantaDesc": {
+    "message": "Wide undulating wings glide"
+  },
+  "speciesCarpName": {
+    "message": "Giant Carp"
+  },
+  "speciesCarpDesc": {
+    "message": "Golden veil fins and luminous scales"
+  },
   "envSectionTitle": {
     "message": "Environment and marine life"
   },
@@ -160,6 +202,9 @@
   },
   "envSchool": {
     "message": "Baitfish School"
+  },
+  "envSnow": {
+    "message": "Snowfall"
   },
   "firefliesLabel": {
     "message": "Fireflies"
@@ -216,8 +261,17 @@
       }
     }
   },
+  "bangSuggestAria": {
+    "message": "Bang prefix suggestions"
+  },
   "pondHintPrefix": {
-    "message": "Click water to feed · Bangs:"
+    "message": "Click water or press F to feed · Bangs:"
+  },
+  "dailyFocusPlaceholder": {
+    "message": "What is your main focus today?"
+  },
+  "dailyFocusAria": {
+    "message": "Daily focus note"
   },
   "dockAria": {
     "message": "River stone shortcuts"
@@ -229,7 +283,7 @@
     "message": "Add shortcut"
   },
   "stoneEditTitle": {
-    "message": "Edit or remove stones"
+    "message": "Edit or reorder stones"
   },
   "stoneEditAria": {
     "message": "Edit shortcuts"
@@ -245,6 +299,28 @@
   },
   "stoneDeleteOneTitle": {
     "message": "Delete shortcut"
+  },
+  "stoneMoveLeftTitle": {
+    "message": "Move left"
+  },
+  "stoneMoveRightTitle": {
+    "message": "Move right"
+  },
+  "stoneMoveLeftAria": {
+    "message": "Move $A1$ left",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "stoneMoveRightAria": {
+    "message": "Move $A1$ right",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
   },
   "stoneEditOneAria": {
     "message": "Edit $A1$",
@@ -370,6 +446,119 @@
   "pomoDocBreak": {
     "message": "Break"
   },
+  "settingsTitle": {
+    "message": "Pond settings"
+  },
+  "settingsClose": {
+    "message": "Close"
+  },
+  "settingsSectionGeneral": {
+    "message": "Appearance & performance"
+  },
+  "settingsUserName": {
+    "message": "Your name (greeting)"
+  },
+  "settingsUserNamePlaceholder": {
+    "message": "e.g. Alex"
+  },
+  "settingsClockFormat": {
+    "message": "Clock format"
+  },
+  "settingsClock24": {
+    "message": "24-hour"
+  },
+  "settingsClock12": {
+    "message": "12-hour"
+  },
+  "settingsShowFocus": {
+    "message": "Show daily focus prompt under search"
+  },
+  "settingsEcoMode": {
+    "message": "Power saver / adaptive quality"
+  },
+  "ecoAuto": {
+    "message": "Auto"
+  },
+  "ecoAutoTitle": {
+    "message": "Enables Eco automatically if frame time stays slow"
+  },
+  "ecoOn": {
+    "message": "Eco"
+  },
+  "ecoOnTitle": {
+    "message": "Caps frame rate at 30 FPS and disables glyph glow"
+  },
+  "ecoOff": {
+    "message": "High"
+  },
+  "ecoOffTitle": {
+    "message": "Full frame rate and ASCII glow always enabled"
+  },
+  "settingsShortcutsTitle": {
+    "message": "Keyboard shortcuts"
+  },
+  "settingsShortcutsBody": {
+    "message": "/ Search · F Feed · R Rain · P Pomodoro · Z Zen · Esc Close"
+  },
+  "settingsSectionBangs": {
+    "message": "Custom bangs (HTTPS only)"
+  },
+  "bangPrefixLabel": {
+    "message": "Prefix"
+  },
+  "bangPrefixPlaceholder": {
+    "message": "!npm"
+  },
+  "bangNameLabel": {
+    "message": "Label"
+  },
+  "bangNamePlaceholder": {
+    "message": "npm"
+  },
+  "bangUrlLabel": {
+    "message": "HTTPS template (optional {q})"
+  },
+  "bangUrlPlaceholder": {
+    "message": "https://www.npmjs.com/search?q={q}"
+  },
+  "bangAddBtn": {
+    "message": "Add"
+  },
+  "bangDeleteAria": {
+    "message": "Remove $A1$ prefix",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "bangInvalidError": {
+    "message": "Invalid/reserved prefix or invalid HTTPS URL (e.g. !npm + https://www.npmjs.com/search?q={q})."
+  },
+  "bangEmptyList": {
+    "message": "No custom bangs yet. The 6 built-in prefixes remain active."
+  },
+  "settingsSectionBackup": {
+    "message": "Sync & JSON backup"
+  },
+  "backupSyncHint": {
+    "message": "Preferences, river stones, bangs, and daily focus sync across devices using your browser profile."
+  },
+  "backupExportBtn": {
+    "message": "Export JSON"
+  },
+  "backupImportBtn": {
+    "message": "Import JSON"
+  },
+  "backupExportOk": {
+    "message": "Backup downloaded."
+  },
+  "backupImportOk": {
+    "message": "Configuration imported and applied."
+  },
+  "backupImportErr": {
+    "message": "Invalid or incompatible JSON backup file."
+  },
   "zenExitTitle": {
     "message": "Exit Zen Mode (Esc / Z)"
   },
@@ -394,6 +583,17 @@
   "greetingEvening": {
     "message": "Good evening"
   },
+  "greetingWithName": {
+    "message": "$A1$, $A2$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      },
+      "a2": {
+        "content": "$2"
+      }
+    }
+  },
   "speciesKoiShort": {
     "message": "Koi"
   },
@@ -405,6 +605,12 @@
   },
   "speciesHammerShort": {
     "message": "Hammerhead"
+  },
+  "speciesMantaShort": {
+    "message": "Manta Ray"
+  },
+  "speciesCarpShort": {
+    "message": "Giant Carp"
   },
   "faunaMulti": {
     "message": "Fauna ($A1$)",

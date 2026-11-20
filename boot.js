@@ -17,9 +17,10 @@
       else phase = 'night';
     }
 
+    const validBiomes = { pond: true, ocean: true, reef: true, winter: true };
     const root = document.documentElement;
     root.setAttribute('data-solar', phase);
-    root.setAttribute('data-biome', prefs.biome === 'ocean' ? 'ocean' : 'pond');
+    root.setAttribute('data-biome', validBiomes[prefs.biome] ? prefs.biome : 'pond');
     if (prefs.zenMode) {
       root.setAttribute('data-zen', 'true');
     }

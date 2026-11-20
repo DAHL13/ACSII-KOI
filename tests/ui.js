@@ -48,8 +48,10 @@ async function main() {
     document.body.insertBefore(document.importNode(node, true), reportEl);
   }
 
-  await import('../src/main.js');
+  const { destroyApp } = await import('../src/main.js');
   await new Promise((r) => requestAnimationFrame(() => r()));
+
+  try {
 
   await check('Startup DOM hydration & dead element cleanup', () => {
     assert(document.getElementById('clock').textContent.trim().length > 0, 'Clock must be populated');
@@ -161,6 +163,109 @@ async function main() {
     assertEqual(document.getElementById('fish-count-value').textContent, '21');
   });
 
+  await check('Reef & Winter biomes, new species (mantaRay, giantCarp), and snow chip', () => {
+    document.querySelector('.biome-btn[data-biome="reef"]').click();
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'reef');
+    assertEqual(document.title, t('pageTitleReef'));
+
+    document.querySelector('.biome-btn[data-biome="winter"]').click();
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'winter');
+    assertEqual(document.title, t('pageTitleWinter'));
+    assertEqual(document.querySelector('.env-chip[data-env="snow"]').getAttribute('aria-pressed'), 'true');
+
+    document.querySelector('.species-card[data-species="mantaRay"]').click();
+    document.querySelector('.species-card[data-species="giantCarp"]').click();
+    assert(Number(document.getElementById('fish-count-value').textContent) > 0);
+  });
+
+  await check('Settings modal: username greeting, 12h clock, daily focus, eco mode, and custom bangs', () => {
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    settingsBtn.focus();
+    settingsBtn.click();
+    assertEqual(settingsModal.hidden, false);
+    assertEqual(document.getElementById('top-bar').inert, true);
+
+    const closeBtn = document.getElementById('settings-close-btn');
+    const importBtn = document.getElementById('backup-import-btn');
+    importBtn.focus();
+    settingsModal.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    assertEqual(document.activeElement, closeBtn, 'Tab from last control in settings modal must wrap to closeBtn');
+
+    const userInput = document.getElementById('settings-username');
+    userInput.value = 'Kai';
+    userInput.dispatchEvent(new Event('input'));
+    assert(document.getElementById('greeting').textContent.includes('Kai'), 'Greeting must display custom user name');
+
+    document.querySelector('.clock-format-btn[data-clock-format="12h"]').click();
+    const clk = document.getElementById('clock').textContent;
+    assert(clk.includes('AM') || clk.includes('PM'), `Expected 12h AM/PM clock, got ${clk}`);
+
+    const focusCheckbox = document.getElementById('settings-show-focus');
+    focusCheckbox.checked = false;
+    focusCheckbox.dispatchEvent(new Event('change'));
+    assertEqual(document.getElementById('daily-focus-wrap').hidden, true);
+    focusCheckbox.checked = true;
+    focusCheckbox.dispatchEvent(new Event('change'));
+    assertEqual(document.getElementById('daily-focus-wrap').hidden, false);
+
+    document.querySelector('.eco-mode-btn[data-eco-mode="on"]').click();
+    assertEqual(document.querySelector('.eco-mode-btn[data-eco-mode="on"]').getAttribute('aria-pressed'), 'true');
+
+    document.getElementById('bang-prefix-input').value = '!npm';
+    document.getElementById('bang-name-input').value = 'npm';
+    document.getElementById('bang-url-input').value = 'https://www.npmjs.com/search?q={q}';
+    document.getElementById('bang-add-form').dispatchEvent(new Event('submit', { cancelable: true }));
+    assert(document.getElementById('custom-bang-list').textContent.includes('!npm'));
+
+    closeBtn.click();
+    assertEqual(settingsModal.hidden, true);
+    assertEqual(document.getElementById('top-bar').inert, false);
+    assertEqual(document.activeElement, settingsBtn);
+  });
+
+  await check('Search bang autocomplete & global keyboard shortcuts (/, F, R, P)', () => {
+    const searchInput = document.getElementById('search-input');
+    const suggestions = document.getElementById('bang-suggestions');
+    searchInput.value = '!np';
+    searchInput.dispatchEvent(new Event('input'));
+    assertEqual(suggestions.hidden, false);
+    searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    assertEqual(document.getElementById('bang-badge').textContent, 'npm');
+    document.getElementById('bang-badge').click();
+
+    searchInput.blur();
+    document.body.focus();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true }));
+    assertEqual(document.activeElement, searchInput, 'Shortcut / should focus search input');
+
+    searchInput.blur();
+    const rainBefore = document.getElementById('rain-btn').getAttribute('aria-pressed');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }));
+    assert(document.getElementById('rain-btn').getAttribute('aria-pressed') !== rainBefore, 'Shortcut R should toggle rain');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', bubbles: true }));
+    assertEqual(document.getElementById('pomo-play-btn').classList.contains('is-running'), true);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', bubbles: true }));
+    assertEqual(document.getElementById('pomo-play-btn').classList.contains('is-running'), false);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', bubbles: true }));
+  });
+
+  await check('River stone reorder controls & responsive overflow check', () => {
+    const firstTitleBefore = document.querySelector('#river-stones-list .stone-title').textContent;
+    const editBtn = document.getElementById('stone-edit-btn');
+    editBtn.click();
+    document.querySelector('#river-stones-list .stone-mini-right').click();
+    const secondTitleAfter = document.querySelectorAll('#river-stones-list .stone-title')[1].textContent;
+    assertEqual(secondTitleAfter, firstTitleBefore, 'Clicking move-right must swap stone into second position');
+    editBtn.click();
+
+    assert(
+      document.documentElement.scrollWidth <= window.innerWidth + 1,
+      `Horizontal overflow detected: scrollWidth=${document.documentElement.scrollWidth} > innerWidth=${window.innerWidth}`
+    );
+  });
+
   let passed = 0;
   let failed = 0;
   for (const r of results) {
@@ -189,6 +294,9 @@ async function main() {
   reportEl.dataset.fail = String(failed);
   summaryEl.textContent = `PASS=${passed}\nFAIL=${failed}`;
   document.title = `UI:${failed === 0 ? 'PASS' : 'FAIL'}:${passed}/${passed + failed}`;
+  } finally {
+    destroyApp();
+  }
 }
 
 main().catch((err) => {

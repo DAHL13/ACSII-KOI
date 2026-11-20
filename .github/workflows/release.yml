@@ -32,11 +32,14 @@ jobs:
             sudo apt-get install -y chromium-browser
           fi
 
+      - name: Verify i18n parity and package structure
+        run: python scripts/package.py --check
+
       - name: Run headless unit, UI integration, and smoke tests
         run: python scripts/run-tests.py
 
-      - name: Build MV3 release package
-        run: python scripts/package.py
+      - name: Build MV3 release packages (Chrome + Firefox)
+        run: python scripts/package.py --target all
 
       - name: Publish GitHub Release
         env:

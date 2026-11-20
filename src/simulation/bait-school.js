@@ -1,6 +1,60 @@
 import { angleDiff, clamp, randRange } from '../core/math.js';
 
 export const BAIT_POOL_SIZE = 45;
+const GRID_CELL_SIZE = 80;
+
+export class SpatialHashGrid {
+  constructor(width, height, cellSize = GRID_CELL_SIZE, capacity = BAIT_POOL_SIZE) {
+    this.cellSize = cellSize;
+    this.capacity = capacity;
+    this.next = new Int16Array(capacity);
+    this.cols = 1;
+    this.rows = 1;
+    this.heads = new Int16Array(1);
+    this.resize(width, height);
+  }
+
+  resize(width, height) {
+    this.cols = Math.max(1, Math.ceil(Math.max(1, width) / this.cellSize));
+    this.rows = Math.max(1, Math.ceil(Math.max(1, height) / this.cellSize));
+    const total = this.cols * this.rows;
+    if (this.heads.length < total) {
+      this.heads = new Int16Array(total);
+    }
+    this.clear();
+  }
+
+  clear() {
+    this.heads.fill(-1);
+  }
+
+  insert(index, x, y) {
+    const col = clamp(Math.floor(x / this.cellSize), 0, this.cols - 1);
+    const row = clamp(Math.floor(y / this.cellSize), 0, this.rows - 1);
+    const cell = row * this.cols + col;
+    this.next[index] = this.heads[cell];
+    this.heads[cell] = index;
+  }
+
+  forEachNeighbor(x, y, visitor) {
+    const col = clamp(Math.floor(x / this.cellSize), 0, this.cols - 1);
+    const row = clamp(Math.floor(y / this.cellSize), 0, this.rows - 1);
+    const minC = Math.max(0, col - 1);
+    const maxC = Math.min(this.cols - 1, col + 1);
+    const minR = Math.max(0, row - 1);
+    const maxR = Math.min(this.rows - 1, row + 1);
+    for (let r = minR; r <= maxR; r++) {
+      const rowOffset = r * this.cols;
+      for (let c = minC; c <= maxC; c++) {
+        let idx = this.heads[rowOffset + c];
+        while (idx !== -1) {
+          visitor(idx);
+          idx = this.next[idx];
+        }
+      }
+    }
+  }
+}
 
 export class BaitSchool {
   constructor(width, height) {
@@ -18,10 +72,12 @@ export class BaitSchool {
         neon: i % 3 === 0
       };
     }
+    this.grid = new SpatialHashGrid(width, height, GRID_CELL_SIZE, BAIT_POOL_SIZE);
     this.init(width, height);
   }
 
   init(width, height) {
+    this.grid.resize(width, height);
     const cx = randRange(width * 0.2, width * 0.8);
     const cy = randRange(height * 0.2, height * 0.8);
     const baseAngle = randRange(0, Math.PI * 2);
@@ -40,6 +96,7 @@ export class BaitSchool {
   }
 
   resize(width, height) {
+    this.grid.resize(width, height);
     const maxX = Math.max(20, width - 20);
     const maxY = Math.max(20, height - 20);
     for (let i = 0; i < BAIT_POOL_SIZE; i++) {
@@ -51,6 +108,24 @@ export class BaitSchool {
 
   update(dt, width, height, predators, mouse, obstacleRect, stonesRect) {
     const margin = 55;
+    const grid = this.grid;
+    const neededCols = Math.max(1, Math.ceil(Math.max(1, width) / GRID_CELL_SIZE));
+    const neededRows = Math.max(1, Math.ceil(Math.max(1, height) / GRID_CELL_SIZE));
+    if (neededCols !== grid.cols || neededRows !== grid.rows) {
+      grid.resize(width, height);
+    } else {
+      grid.clear();
+    }
+
+    for (let i = 0; i < BAIT_POOL_SIZE; i++) {
+      grid.insert(i, this.items[i].x, this.items[i].y);
+    }
+
+    const heads = grid.heads;
+    const next = grid.next;
+    const cols = grid.cols;
+    const rows = grid.rows;
+
     for (let i = 0; i < BAIT_POOL_SIZE; i++) {
       const b = this.items[i];
       let sepX = 0;
@@ -62,26 +137,41 @@ export class BaitSchool {
       let aliCount = 0;
       let cohCount = 0;
 
-      for (let j = 0; j < BAIT_POOL_SIZE; j++) {
-        if (i === j) continue;
-        const o = this.items[j];
-        const dx = o.x - b.x;
-        const dy = o.y - b.y;
-        const dSq = dx * dx + dy * dy;
-        if (dSq < 1) continue;
+      const cellCol = clamp(Math.floor(b.x / GRID_CELL_SIZE), 0, cols - 1);
+      const cellRow = clamp(Math.floor(b.y / GRID_CELL_SIZE), 0, rows - 1);
+      const minC = Math.max(0, cellCol - 1);
+      const maxC = Math.min(cols - 1, cellCol + 1);
+      const minR = Math.max(0, cellRow - 1);
+      const maxR = Math.min(rows - 1, cellRow + 1);
 
-        if (dSq < 484) {
-          const d = Math.sqrt(dSq);
-          sepX -= (dx / d) * ((22 - d) / 22);
-          sepY -= (dy / d) * ((22 - d) / 22);
-        }
-        if (dSq < 6400) {
-          aliX += o.vx;
-          aliY += o.vy;
-          aliCount++;
-          cohX += o.x;
-          cohY += o.y;
-          cohCount++;
+      for (let r = minR; r <= maxR; r++) {
+        const rowOffset = r * cols;
+        for (let c = minC; c <= maxC; c++) {
+          let j = heads[rowOffset + c];
+          while (j !== -1) {
+            if (j !== i) {
+              const o = this.items[j];
+              const dx = o.x - b.x;
+              const dy = o.y - b.y;
+              const dSq = dx * dx + dy * dy;
+              if (dSq >= 1) {
+                if (dSq < 484) {
+                  const d = Math.sqrt(dSq);
+                  sepX -= (dx / d) * ((22 - d) / 22);
+                  sepY -= (dy / d) * ((22 - d) / 22);
+                }
+                if (dSq < 6400) {
+                  aliX += o.vx;
+                  aliY += o.vy;
+                  aliCount++;
+                  cohX += o.x;
+                  cohY += o.y;
+                  cohCount++;
+                }
+              }
+            }
+            j = next[j];
+          }
         }
       }
 

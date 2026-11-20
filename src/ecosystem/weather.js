@@ -5,8 +5,11 @@ import { ObjectPool } from '../core/object-pool.js';
 const RAIN_POOL_SIZE = 150;
 const RAIN_RIPPLE_POOL_SIZE = 60;
 const PETAL_POOL_SIZE = 90;
+const SNOW_POOL_SIZE = 110;
 const PETAL_CHARS = ['✿', '❀', '*', '~', '·'];
 const PETAL_COLORS = ['sakuraLight', 'sakuraDeep', 'sakuraPale'];
+const SNOW_CHARS = ['❄', '*', '·'];
+const SNOW_COLORS = ['snowWhite', 'snowBlue'];
 
 export class WeatherLayer {
   constructor(width, height, options = {}) {
@@ -56,6 +59,24 @@ export class WeatherLayer {
       colorKey: 'sakuraLight',
       scale: 1
     }));
+
+    this.snowPool = new Array(SNOW_POOL_SIZE);
+    for (let i = 0; i < SNOW_POOL_SIZE; i++) {
+      this.snowPool[i] = {
+        active: false,
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+        swayPhase: 0,
+        swayFreq: 1.5,
+        swayAmp: 12,
+        impactY: 0,
+        char: '❄',
+        colorKey: 'snowWhite',
+        alpha: 0.7
+      };
+    }
   }
 
   resize(width, height) {
@@ -88,6 +109,32 @@ export class WeatherLayer {
         this.resetRainDrop(this.rainPool[i], true);
       } else {
         this.rainPool[i].active = false;
+      }
+    }
+  }
+
+  resetSnowFlake(flake, randomY) {
+    flake.active = true;
+    flake.x = randRange(-20, this.width + 20);
+    flake.impactY = randRange(this.height * 0.16, this.height * 0.96);
+    flake.y = randomY ? randRange(-40, flake.impactY) : randRange(-90, -10);
+    flake.vx = randRange(-8, 10);
+    flake.vy = randRange(28, 56);
+    flake.swayPhase = randRange(0, Math.PI * 2);
+    flake.swayFreq = randRange(1.0, 2.2);
+    flake.swayAmp = randRange(10, 24);
+    flake.char = SNOW_CHARS[Math.floor(Math.random() * SNOW_CHARS.length)];
+    flake.colorKey = SNOW_COLORS[Math.floor(Math.random() * SNOW_COLORS.length)];
+    flake.alpha = randRange(0.35, 0.85);
+  }
+
+  seedSnow(enabled) {
+    const activeTarget = Math.min(SNOW_POOL_SIZE, Math.max(40, Math.floor(this.width / 16)));
+    for (let i = 0; i < SNOW_POOL_SIZE; i++) {
+      if (enabled && i < activeTarget) {
+        this.resetSnowFlake(this.snowPool[i], true);
+      } else {
+        this.snowPool[i].active = false;
       }
     }
   }
@@ -147,7 +194,7 @@ export class WeatherLayer {
     return best;
   }
 
-  update(dt, time, rainEnabled, getFlowAt) {
+  update(dt, time, rainEnabled, getFlowAt, snowEnabled = false) {
     for (let i = 0; i < RAIN_POOL_SIZE; i++) {
       const d = this.rainPool[i];
       if (!d.active) continue;
@@ -222,6 +269,25 @@ export class WeatherLayer {
         }
       }
     }
+
+    for (let i = 0; i < SNOW_POOL_SIZE; i++) {
+      const f = this.snowPool[i];
+      if (!f.active) continue;
+      f.x += (f.vx + Math.sin(time * f.swayFreq + f.swayPhase) * f.swayAmp) * dt;
+      f.y += f.vy * dt;
+      if (f.x < -20) f.x += this.width + 40;
+      if (f.x > this.width + 20) f.x -= this.width + 40;
+      if (f.y >= f.impactY) {
+        if (Math.random() < 0.22 && f.x >= 0 && f.x <= this.width) {
+          this.spawnRainRipple(f.x, f.impactY);
+        }
+        if (snowEnabled) {
+          this.resetSnowFlake(f, false);
+        } else {
+          f.active = false;
+        }
+      }
+    }
   }
 
   renderSurface(ctx, atlas, theme) {
@@ -277,6 +343,13 @@ export class WeatherLayer {
       const entryFade = Math.min(1, p.age * 2.5);
       ctx.globalAlpha = 0.92 * entryFade;
       atlas.drawGlyph(ctx, p.char, p.colorKey, true, p.x, p.y, p.scale);
+    }
+
+    for (let i = 0; i < SNOW_POOL_SIZE; i++) {
+      const f = this.snowPool[i];
+      if (!f.active) continue;
+      ctx.globalAlpha = f.alpha;
+      atlas.drawGlyph(ctx, f.char, f.colorKey, f.char === '❄', f.x, f.y);
     }
   }
 }

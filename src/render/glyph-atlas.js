@@ -1,6 +1,6 @@
 export const ATLAS_CHARS = [
   '@', '#', '%', '*', '+', ':', '.', '~', '|', '/', "'", '(', ')', '·', 'o', '✿', '❀',
-  '≈', '-', '>', '<', '°'
+  '≈', '-', '>', '<', '°', '❄'
 ];
 
 export const PALETTE_COLORS = {
@@ -81,7 +81,24 @@ export const PALETTE_COLORS = {
   jellyTentacle: '#818cf8',
   kelpDark: '#113b36',
   kelpMid: '#1b5e50',
-  kelpTip: '#2e8b72'
+  kelpTip: '#2e8b72',
+
+  mantaBack: '#1e293b',
+  mantaWing: '#334155',
+  mantaEdge: '#94a3b8',
+  mantaSpot: '#e2e8f0',
+
+  carpGoldDeep: '#f59e0b',
+  carpGoldBright: '#fde047',
+  carpFinAmber: '#fdba74',
+  carpCream: '#fef3c7',
+
+  reefCoral: '#fb7185',
+  reefAmber: '#f59e0b',
+  reefTeal: '#2dd4bf',
+  snowWhite: '#f8fafc',
+  snowBlue: '#bae6fd',
+  iceCyan: '#67e8f9'
 };
 
 const LOGICAL_CELL = 22;
@@ -98,6 +115,7 @@ export class GlyphAtlas {
     this.canvas = null;
     this.actx = null;
     this.rows = INITIAL_ROWS;
+    this.glowEnabled = true;
     this.capacity = ATLAS_COLS * INITIAL_ROWS;
     this.nextSlot = 0;
 
@@ -146,6 +164,7 @@ export class GlyphAtlas {
     this.cellStepLogical = cellStepLogical;
 
     this.rows = INITIAL_ROWS;
+    this.glowEnabled = true;
     this.capacity = ATLAS_COLS * INITIAL_ROWS;
     this.nextSlot = 0;
     this.slotLookup.fill(-1);
@@ -204,15 +223,20 @@ export class GlyphAtlas {
     return slot;
   }
 
+  setGlowEnabled(enabled) {
+    this.glowEnabled = Boolean(enabled);
+  }
+
   drawGlyph(ctx, char, colorKey, isGlowing, x, y, scale = 1) {
     const cIdx = this.charIndex[char];
     const rIdx = this.colorIndex[colorKey];
     if (cIdx === undefined || rIdx === undefined) return;
 
-    const key = ((rIdx * this.charCount + cIdx) << 1) | (isGlowing ? 1 : 0);
+    const effectiveGlow = Boolean(isGlowing && this.glowEnabled);
+    const key = ((rIdx * this.charCount + cIdx) << 1) | (effectiveGlow ? 1 : 0);
     let slot = this.slotLookup[key];
     if (slot === -1) {
-      slot = this.rasterizeGlyph(char, rIdx, isGlowing, key);
+      slot = this.rasterizeGlyph(char, rIdx, effectiveGlow, key);
     }
 
     const col = slot & 31;

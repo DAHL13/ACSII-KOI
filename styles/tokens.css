@@ -111,3 +111,29 @@ html[data-biome="ocean"][data-solar="night"] {
   --accent-glow: rgba(45, 212, 191, 0.22);
   --border-glass-focus: rgba(45, 212, 191, 0.48);
 }
+
+html[data-biome="reef"] {
+  --bg-radial-1: rgba(14, 72, 82, 0.42);
+  --bg-radial-2: rgba(48, 22, 54, 0.28);
+  --bg-radial-accent: rgba(251, 113, 133, 0.10);
+}
+
+html[data-biome="reef"][data-solar="night"] {
+  --accent: #fb7185;
+  --accent-soft: rgba(251, 113, 133, 0.16);
+  --accent-glow: rgba(251, 113, 133, 0.24);
+  --border-glass-focus: rgba(251, 113, 133, 0.5);
+}
+
+html[data-biome="winter"] {
+  --bg-radial-1: rgba(28, 56, 92, 0.42);
+  --bg-radial-2: rgba(12, 24, 46, 0.3);
+  --bg-radial-accent: rgba(186, 230, 253, 0.11);
+}
+
+html[data-biome="winter"][data-solar="night"] {
+  --accent: #bae6fd;
+  --accent-soft: rgba(186, 230, 253, 0.16);
+  --accent-glow: rgba(103, 232, 249, 0.25);
+  --border-glass-focus: rgba(186, 230, 253, 0.52);
+}

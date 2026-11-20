@@ -1,23 +1,46 @@
-import { DEFAULT_PREFS, POMO_STORAGE_KEY, PREFS_STORAGE_KEY, STONES_STORAGE_KEY } from '../src/core/constants.js';
+import {
+  DEFAULT_PREFS,
+  POMO_STORAGE_KEY,
+  PREFS_STORAGE_KEY,
+  STONES_STORAGE_KEY
+} from '../src/core/constants.js';
 import { t } from '../src/core/i18n.js';
 import { angleDiff, clamp, clampInt, dampFactor, lerp, lerpAngle } from '../src/core/math.js';
 import { ObjectPool } from '../src/core/object-pool.js';
-import { loadPrefs, savePrefs, subscribePrefsChanges } from '../src/core/storage.js';
+import {
+  exportAllConfig,
+  importAllConfig,
+  loadCustomBangs,
+  loadDailyFocus,
+  loadPrefs,
+  saveCustomBangs,
+  saveDailyFocus,
+  savePrefs,
+  subscribePrefsChanges,
+  subscribeSyncChanges,
+  syncPullAll
+} from '../src/core/storage.js';
 import { PondEcosystem, SOLAR_KEYS } from '../src/ecosystem/ecosystem.js';
 import { PomodoroController } from '../src/productivity/pomodoro.js';
 import { RiverStonesManager } from '../src/productivity/river-stones.js';
 import { SmartSearchController } from '../src/productivity/smart-search.js';
 import {
+  buildBangQueryUrl,
   createStoneId,
   extractHostname,
   getBangSearchUrl,
   isValidIpv4,
+  mergeBangs,
   resolveDirectUrl,
+  sanitizeCustomBang,
   sanitizeHttpUrl,
   shortenTitle
 } from '../src/productivity/url-utils.js';
 import { ATLAS_CHARS, GlyphAtlas } from '../src/render/glyph-atlas.js';
+import { BaitSchool, SpatialHashGrid } from '../src/simulation/bait-school.js';
 import { KoiPondEngine } from '../src/simulation/engine.js';
+import { GiantCarp } from '../src/simulation/species/carp.js';
+import { MantaRay } from '../src/simulation/species/manta.js';
 
 const reportEl = document.getElementById('test-report');
 const summaryEl = document.getElementById('test-summary');
@@ -439,6 +462,193 @@ test('PomodoroController handles start/pause/reset, session completion sakura sh
   pomo.destroy();
   sandboxEl.innerHTML = '';
 });
+
+test('custom bangs validate HTTPS, prevent built-in overwrite, and format {q} templates', () => {
+  assertEqual(sanitizeCustomBang({ prefix: '!gh', label: 'Fake', url: 'https://evil.com' }), null);
+  assertEqual(sanitizeCustomBang({ prefix: '!npm', label: 'npm', url: 'http://npmjs.com/search?q=' }), null);
+  assertEqual(sanitizeCustomBang({ prefix: '!bad!', label: 'x', url: 'https://example.com/?q=' }), null);
+
+  const ok = sanitizeCustomBang({ prefix: 'npm', label: 'npm', url: 'npmjs.com/search?q={q}' });
+  assert(ok && ok.prefix === '!npm' && ok.url === 'https://npmjs.com/search?q={q}', 'Expected normalized https template');
+
+  const merged = mergeBangs([ok]);
+  assertEqual(merged['!npm'].label, 'npm');
+  assertEqual(buildBangQueryUrl(ok, 'ascii koi'), 'https://npmjs.com/search?q=ascii%20koi');
+});
+
+test('exportAllConfig, importAllConfig, and chrome.storage.sync bridge sanitize and sync state', () => {
+  localStorage.clear();
+  savePrefs({ ...DEFAULT_PREFS, userName: 'Alex', clockFormat: '12h', ecoMode: 'on' });
+  saveDailyFocus('Terminar auditoría');
+  saveCustomBangs([{ prefix: '!docs', label: 'Docs', url: 'https://devdocs.io/#q={q}' }]);
+
+  const exported = exportAllConfig();
+  assertEqual(exported.schemaVersion, 1);
+  assertEqual(exported.prefs.userName, 'Alex');
+  assertEqual(exported.customBangs.length, 1);
+
+  localStorage.clear();
+  assertEqual(importAllConfig('{"bad":true}').ok, false);
+  assertEqual(importAllConfig('{invalid').ok, false);
+
+  const imported = importAllConfig(JSON.stringify({
+    schemaVersion: 1,
+    prefs: { biome: 'winter', userName: 'Ada', fishCount: 20, ecoMode: 'on' },
+    stones: [
+      { id: '1', title: 'Bad', url: 'javascript:alert(1)' },
+      { id: '2', title: 'Rust', url: 'https://rust-lang.org' }
+    ],
+    customBangs: [{ prefix: '!mdn', label: 'X', url: 'https://evil.com' }, { prefix: '!crates', label: 'Crates', url: 'https://crates.io/search?q=' }],
+    dailyFocus: 'Deploy v2.1'
+  }));
+  assertEqual(imported.ok, true);
+  assertEqual(loadPrefs().biome, 'winter');
+  assertEqual(loadCustomBangs().length, 1);
+  assertEqual(loadCustomBangs()[0].prefix, '!crates');
+  assertEqual(loadDailyFocus(), 'Deploy v2.1');
+  assertEqual(exportAllConfig().stones.length, 1, 'Unsafe stone URL must be stripped on import');
+
+  const origChrome = window.chrome;
+  try {
+    const store = {};
+    const listeners = [];
+    window.chrome = {
+      runtime: {},
+      storage: {
+        sync: {
+          set: (obj) => Object.assign(store, obj),
+          remove: (k) => delete store[k],
+          get: (_keys, cb) => cb({ ...store, [DAILY_FOCUS_STORAGE_KEY_MOCK]: undefined })
+        },
+        onChanged: {
+          addListener: (fn) => listeners.push(fn),
+          removeListener: (fn) => {
+            const idx = listeners.indexOf(fn);
+            if (idx !== -1) listeners.splice(idx, 1);
+          }
+        }
+      }
+    };
+    saveDailyFocus('Synced task');
+    assertEqual(store['ascii_koi_daily_focus_v1'], 'Synced task');
+
+    let pulledFocus = '';
+    syncPullAll({ onDailyFocus: (v) => { pulledFocus = v; } });
+    assertEqual(pulledFocus, 'Synced task');
+
+    let changedName = '';
+    const unsub = subscribeSyncChanges({ onPrefs: (p) => { changedName = p.userName; } });
+    listeners.forEach((fn) => fn({ [PREFS_STORAGE_KEY]: { newValue: { userName: 'Nori' } } }, 'sync'));
+    assertEqual(changedName, 'Nori');
+    unsub();
+  } finally {
+    window.chrome = origChrome;
+  }
+});
+
+test('SpatialHashGrid, MantaRay, GiantCarp, reef/winter biomes, snow pool, and Eco adaptive hysteresis', () => {
+  const grid = new SpatialHashGrid(800, 600, 80, 4);
+  grid.insert(0, 100, 100);
+  grid.insert(1, 130, 130);
+  grid.insert(2, 700, 500);
+  const found = [];
+  grid.forEachNeighbor(110, 110, (idx) => found.push(idx));
+  assert(found.includes(0) && found.includes(1) && !found.includes(2), 'Spatial grid must return local neighbors only');
+
+  const school = new BaitSchool(800, 600);
+  school.update(0.016, 800, 600, [], { active: false, energy: 0 }, null, null);
+  assert(Number.isFinite(school.items[0].x) && Number.isFinite(school.items[0].y));
+
+  const atlas = new GlyphAtlas(1);
+  const eco = new PondEcosystem(800, 600, { biome: 'reef', snowEnabled: true, liliesEnabled: false });
+  assertEqual(eco.getTheme().causticKey, 'reefTeal');
+  eco.setBiome('winter');
+  assertEqual(eco.getTheme().causticKey, 'snowBlue');
+  eco.update(0.05);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 800;
+  canvas.height = 600;
+  const engine = new KoiPondEngine(canvas, atlas, eco, {
+    fishCount: 16,
+    species: { mantaRay: true, giantCarp: true },
+    ecoMode: 'auto'
+  });
+  assert(engine.creatures.some((c) => c instanceof MantaRay), 'Expected MantaRay instance');
+  assert(engine.creatures.some((c) => c instanceof GiantCarp), 'Expected GiantCarp instance');
+  engine.update(0.016);
+  engine.render();
+
+  assertEqual(engine.isEcoActive(), false);
+  assertEqual(atlas.glowEnabled, true);
+  engine.evaluateAdaptiveQuality(30, 3.2);
+  assertEqual(engine.isEcoActive(), true, 'Sustained >24ms frames must enable adaptive Eco');
+  assertEqual(atlas.glowEnabled, false, 'Eco mode must disable atlas glow');
+  engine.evaluateAdaptiveQuality(8, 6.2);
+  assertEqual(engine.isEcoActive(), false, 'Sustained <11ms frames must restore quality');
+  assertEqual(atlas.glowEnabled, true);
+
+  engine.setEcoMode('on');
+  assertEqual(engine.isEcoActive(), true);
+  engine.destroy();
+});
+
+test('RiverStonesManager moveStone & reorderStone and SmartSearchController autocomplete listbox', () => {
+  localStorage.clear();
+  sandboxEl.innerHTML = `
+    <div id="dock2"><div id="list2"></div><button id="add2">+</button><button id="edit2">E</button></div>
+    <div id="modal2" hidden><form id="form2"><h2 id="mt2"></h2><input id="st2"><input id="su2"><button id="ca2" type="button"></button><button id="re2" type="button">Reset</button></form></div>
+    <form id="sf2"><button id="bb2" type="button" hidden></button><input id="si2" type="search"><ul id="bs2" role="listbox" hidden></ul></form>
+  `;
+  const mgr = new RiverStonesManager({
+    dockEl: document.getElementById('dock2'),
+    listEl: document.getElementById('list2'),
+    addBtn: document.getElementById('add2'),
+    editBtn: document.getElementById('edit2'),
+    modalEl: document.getElementById('modal2'),
+    modalForm: document.getElementById('form2'),
+    modalTitleEl: document.getElementById('mt2'),
+    titleInput: document.getElementById('st2'),
+    urlInput: document.getElementById('su2'),
+    cancelBtn: document.getElementById('ca2'),
+    resetBtn: document.getElementById('re2'),
+    engine: null
+  });
+  const firstId = mgr.stones[0].id;
+  const secondId = mgr.stones[1].id;
+  assertEqual(mgr.moveStone(firstId, 1), true);
+  assertEqual(mgr.stones[1].id, firstId);
+  assertEqual(mgr.reorderStone(firstId, secondId), true);
+  assertEqual(mgr.stones[0].id, firstId);
+  mgr.destroy();
+
+  const searchInput = document.getElementById('si2');
+  const suggestionsEl = document.getElementById('bs2');
+  const badgeEl = document.getElementById('bb2');
+  const navigated = [];
+  const sc = new SmartSearchController({
+    form: document.getElementById('sf2'),
+    input: searchInput,
+    badgeEl,
+    suggestionsEl,
+    customBangs: [{ prefix: '!npm', label: 'npm', url: 'https://www.npmjs.com/search?q={q}' }],
+    navigate: (u) => navigated.push(u)
+  });
+
+  searchInput.value = '!n';
+  searchInput.dispatchEvent(new Event('input'));
+  assertEqual(suggestionsEl.hidden, false, 'Typing !n should open autocomplete listbox');
+  searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
+  assertEqual(sc.activeBang?.prefix, '!npm', 'Enter on selected suggestion applies custom bang');
+  assertEqual(suggestionsEl.hidden, true);
+  searchInput.value = 'eslint';
+  document.getElementById('sf2').dispatchEvent(new Event('submit', { cancelable: true }));
+  assertEqual(navigated[0], 'https://www.npmjs.com/search?q=eslint');
+
+  sandboxEl.innerHTML = '';
+});
+
+const DAILY_FOCUS_STORAGE_KEY_MOCK = 'unused_extra_key';
 
 async function runAll() {
   let passed = 0;

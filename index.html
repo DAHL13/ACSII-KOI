@@ -9,7 +9,10 @@
   <link rel="stylesheet" href="styles/base.css">
   <link rel="stylesheet" href="styles/topbar.css">
   <link rel="stylesheet" href="styles/stage.css">
-  <link rel="stylesheet" href="styles/widgets.css">
+  <link rel="stylesheet" href="styles/stones.css">
+  <link rel="stylesheet" href="styles/pomodoro.css">
+  <link rel="stylesheet" href="styles/fauna-popover.css">
+  <link rel="stylesheet" href="styles/settings.css">
   <link rel="stylesheet" href="styles/responsive.css">
   <script type="module" src="src/main.js"></script>
 </head>
@@ -79,12 +82,20 @@
           <span class="swatch swatch-ocean" aria-hidden="true"></span>
           <span data-i18n="biomeOcean">Mar</span>
         </button>
+        <button type="button" class="biome-btn" data-biome="reef" aria-pressed="false" title="Arrecife coralino vibrante con mantarrayas y cardumen" data-i18n-title="biomeReefTitle">
+          <span class="swatch swatch-reef" aria-hidden="true"></span>
+          <span data-i18n="biomeReef">Arrecife</span>
+        </button>
+        <button type="button" class="biome-btn" data-biome="winter" aria-pressed="false" title="Estanque invernal con nieve suave y carpas doradas" data-i18n-title="biomeWinterTitle">
+          <span class="swatch swatch-winter" aria-hidden="true"></span>
+          <span data-i18n="biomeWinter">Invierno</span>
+        </button>
       </div>
 
       <span class="pill-divider" aria-hidden="true"></span>
 
       <div class="control-group control-toggles">
-        <button type="button" id="rain-btn" class="toggle-btn" aria-pressed="false" title="Activar o desactivar lluvia suave" data-i18n-title="rainBtnTitle">
+        <button type="button" id="rain-btn" class="toggle-btn" aria-pressed="false" title="Activar o desactivar lluvia suave (R)" data-i18n-title="rainBtnTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M7 15a4 4 0 0 1-.4-7.98A5.5 5.5 0 0 1 17.3 8.2 3.5 3.5 0 0 1 18 15H7Z" />
             <path d="M9 18l-1 3M13 18l-1 3M17 18l-1 3" />
@@ -96,7 +107,7 @@
       <span class="pill-divider" aria-hidden="true"></span>
 
       <div class="control-group control-actions">
-        <button type="button" id="feed-btn" class="action-btn" title="Soltar comida múltiple en el estanque" data-i18n-title="feedBtnTitle">
+        <button type="button" id="feed-btn" class="action-btn" title="Soltar comida múltiple en el estanque (F)" data-i18n-title="feedBtnTitle">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="7" r="1.4" fill="currentColor" stroke="none" />
             <circle cx="7.5" cy="13.5" r="1.4" fill="currentColor" stroke="none" />
@@ -139,6 +150,13 @@
             <circle cx="12" cy="12" r="2.7" />
           </svg>
         </button>
+
+        <button type="button" id="settings-btn" class="icon-btn" title="Ajustes, bangs personalizados y respaldo" aria-label="Abrir ajustes" data-i18n-title="settingsBtnTitle" data-i18n-aria-label="settingsBtnAria">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+          </svg>
+        </button>
       </div>
     </div>
   </header>
@@ -149,6 +167,7 @@
       <div class="fauna-presets">
         <button type="button" class="fauna-preset-btn" data-preset="koi" data-i18n="presetKoi">Solo Koi</button>
         <button type="button" class="fauna-preset-btn" data-preset="ocean" data-i18n="presetOcean">Océano</button>
+        <button type="button" class="fauna-preset-btn" data-preset="reef" data-i18n="presetReef">Arrecife</button>
         <button type="button" class="fauna-preset-btn" data-preset="all" data-i18n="presetAll">Todos</button>
       </div>
     </div>
@@ -185,6 +204,22 @@
           <span class="species-desc" data-i18n="speciesHammerDesc">Nado ágil con cefalofoil en T</span>
         </span>
       </button>
+
+      <button type="button" class="species-card" data-species="mantaRay" aria-pressed="false">
+        <span class="species-swatch swatch-manta" aria-hidden="true"></span>
+        <span class="species-info">
+          <span class="species-name" data-i18n="speciesMantaName">Mantarraya</span>
+          <span class="species-desc" data-i18n="speciesMantaDesc">Planeo ancho con alas ondulantes</span>
+        </span>
+      </button>
+
+      <button type="button" class="species-card" data-species="giantCarp" aria-pressed="false">
+        <span class="species-swatch swatch-carp" aria-hidden="true"></span>
+        <span class="species-info">
+          <span class="species-name" data-i18n="speciesCarpName">Carpa Dorada</span>
+          <span class="species-desc" data-i18n="speciesCarpDesc">Velo real ámbar y escamas suaves</span>
+        </span>
+      </button>
     </div>
 
     <div class="fauna-env-section">
@@ -196,6 +231,7 @@
         <button type="button" class="env-chip" data-env="kelp" aria-pressed="false" data-i18n="envKelp">Algas</button>
         <button type="button" class="env-chip" data-env="jellyfish" aria-pressed="false" data-i18n="envJellyfish">Medusas</button>
         <button type="button" class="env-chip" data-env="school" aria-pressed="false" data-i18n="envSchool">Cardumen</button>
+        <button type="button" class="env-chip" data-env="snow" aria-pressed="false" data-i18n="envSnow">Nieve</button>
       </div>
     </div>
 
@@ -221,34 +257,53 @@
 
       <h1 id="greeting" class="greeting"></h1>
 
-      <form id="search-form" class="search-form" action="https://www.google.com/search" method="GET" role="search">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" />
-          <path d="m20 20-3.5-3.5" />
-        </svg>
-        <button type="button" id="bang-badge" class="bang-badge" hidden title="Clic o Backspace para quitar prefijo" data-i18n-title="bangBadgeTitle"></button>
-        <input
-          id="search-input"
-          class="search-input"
-          type="search"
-          name="q"
-          maxlength="2048"
-          placeholder="Buscar en la web, URL o !gh !yt !r !mdn !so !w..."
-          data-i18n-placeholder="searchPlaceholder"
-          autocomplete="off"
-          spellcheck="false"
-          autofocus
-          aria-label="Buscar en la web o mediante prefijos"
-          data-i18n-aria-label="searchAria"
-        >
-        <button type="submit" class="search-submit" aria-label="Buscar" data-i18n-aria-label="searchSubmitAria">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5 12h14M13 6l6 6-6 6" />
+      <div class="search-box-wrap">
+        <form id="search-form" class="search-form" action="https://www.google.com/search" method="GET" role="search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
           </svg>
-        </button>
-      </form>
+          <button type="button" id="bang-badge" class="bang-badge" hidden title="Clic o Backspace para quitar prefijo" data-i18n-title="bangBadgeTitle"></button>
+          <input
+            id="search-input"
+            class="search-input"
+            type="search"
+            name="q"
+            maxlength="2048"
+            placeholder="Buscar en la web, URL o !gh !yt !r !mdn !so !w..."
+            data-i18n-placeholder="searchPlaceholder"
+            autocomplete="off"
+            spellcheck="false"
+            autofocus
+            aria-autocomplete="list"
+            aria-controls="bang-suggestions"
+            aria-expanded="false"
+            aria-label="Buscar en la web o mediante prefijos"
+            data-i18n-aria-label="searchAria"
+          >
+          <button type="submit" class="search-submit" aria-label="Buscar" data-i18n-aria-label="searchSubmitAria">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </button>
+        </form>
+        <ul id="bang-suggestions" class="bang-suggestions" role="listbox" aria-label="Sugerencias de prefijos bang" data-i18n-aria-label="bangSuggestAria" hidden></ul>
+      </div>
 
-      <p class="pond-hint"><span data-i18n="pondHintPrefix">Clic en el agua para alimentar · Prefijos:</span> <code>!gh</code> <code>!yt</code> <code>!r</code> <code>!mdn</code> <code>!so</code> <code>!w</code></p>
+      <p class="pond-hint"><span data-i18n="pondHintPrefix">Clic en el agua o tecla F para alimentar · Prefijos:</span> <code>!gh</code> <code>!yt</code> <code>!r</code> <code>!mdn</code> <code>!so</code> <code>!w</code></p>
+
+      <div id="daily-focus-wrap" class="daily-focus-wrap">
+        <input
+          id="daily-focus-input"
+          class="daily-focus-input"
+          type="text"
+          maxlength="120"
+          placeholder="¿Cuál es tu enfoque principal hoy?"
+          data-i18n-placeholder="dailyFocusPlaceholder"
+          aria-label="Objetivo del día"
+          data-i18n-aria-label="dailyFocusAria"
+        >
+      </div>
     </section>
   </main>
 
@@ -257,7 +312,7 @@
     <div id="river-stones-list" class="river-stones-list"></div>
     <div class="stones-controls">
       <button type="button" id="stone-add-btn" class="stone-ctrl-btn" title="Añadir piedra de río" aria-label="Añadir acceso directo" data-i18n-title="stoneAddTitle" data-i18n-aria-label="stoneAddAria">+</button>
-      <button type="button" id="stone-edit-btn" class="stone-ctrl-btn" title="Editar o eliminar piedras" aria-pressed="false" aria-label="Editar accesos directos" data-i18n-title="stoneEditTitle" data-i18n-aria-label="stoneEditAria">
+      <button type="button" id="stone-edit-btn" class="stone-ctrl-btn" title="Editar o reordenar piedras" aria-pressed="false" aria-label="Editar accesos directos" data-i18n-title="stoneEditTitle" data-i18n-aria-label="stoneEditAria">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
@@ -335,6 +390,71 @@
         </div>
       </div>
     </form>
+  </div>
+
+  <!-- Settings Modal: Clock, Eco Mode, Custom Bangs, Backup -->
+  <div id="settings-modal" class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title" hidden>
+    <div class="settings-modal-card">
+      <div class="settings-modal-header">
+        <h2 id="settings-modal-title" class="settings-modal-title" data-i18n="settingsTitle">Ajustes del estanque</h2>
+        <button type="button" id="settings-close-btn" class="settings-modal-btn" data-i18n="settingsClose">Cerrar</button>
+      </div>
+
+      <section class="settings-section">
+        <h3 class="settings-section-title" data-i18n="settingsSectionGeneral">Apariencia y rendimiento</h3>
+        <div class="settings-row">
+          <label for="settings-username" class="settings-label" data-i18n="settingsUserName">Tu nombre (saludo)</label>
+          <input id="settings-username" class="settings-input" type="text" maxlength="32" placeholder="Ej. Alex" data-i18n-placeholder="settingsUserNamePlaceholder">
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-label" data-i18n="settingsClockFormat">Formato de reloj</span>
+          <div class="settings-seg-group">
+            <button type="button" class="clock-format-btn is-active" data-clock-format="24h" aria-pressed="true" data-i18n="settingsClock24">24 horas</button>
+            <button type="button" class="clock-format-btn" data-clock-format="12h" aria-pressed="false" data-i18n="settingsClock12">12 horas</button>
+          </div>
+        </div>
+
+        <label class="settings-checkbox-label">
+          <input id="settings-show-focus" type="checkbox" checked>
+          <span data-i18n="settingsShowFocus">Mostrar objetivo del día bajo el buscador</span>
+        </label>
+
+        <div class="settings-row">
+          <span class="settings-label" data-i18n="settingsEcoMode">Modo ahorro / calidad adaptativa</span>
+          <div class="settings-seg-group">
+            <button type="button" class="eco-mode-btn is-active" data-eco-mode="auto" aria-pressed="true" title="Activa Eco automáticamente si la tasa de fotogramas baja de forma sostenida" data-i18n="ecoAuto" data-i18n-title="ecoAutoTitle">Auto</button>
+            <button type="button" class="eco-mode-btn" data-eco-mode="on" aria-pressed="false" title="Limita a 30 FPS y desactiva brillo para ahorrar batería" data-i18n="ecoOn" data-i18n-title="ecoOnTitle">Eco</button>
+            <button type="button" class="eco-mode-btn" data-eco-mode="off" aria-pressed="false" title="Máxima fluidez y brillo ASCII activados siempre" data-i18n="ecoOff" data-i18n-title="ecoOffTitle">Alto</button>
+          </div>
+        </div>
+
+        <p class="settings-shortcuts-hint"><strong data-i18n="settingsShortcutsTitle">Atajos de teclado</strong>: <span data-i18n="settingsShortcutsBody">/ Buscar · F Alimentar · R Lluvia · P Pomodoro · Z Zen · Esc Cerrar</span></p>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="settings-section-title" data-i18n="settingsSectionBangs">Bangs personalizados (solo HTTPS)</h3>
+        <ul id="custom-bang-list" class="settings-bang-list"></ul>
+        <form id="bang-add-form" class="settings-bang-form">
+          <input id="bang-prefix-input" class="settings-input" type="text" maxlength="11" placeholder="!npm" data-i18n-placeholder="bangPrefixPlaceholder" aria-label="Prefijo" data-i18n-aria-label="bangPrefixLabel" required>
+          <input id="bang-name-input" class="settings-input" type="text" maxlength="20" placeholder="npm" data-i18n-placeholder="bangNamePlaceholder" aria-label="Nombre" data-i18n-aria-label="bangNameLabel" required>
+          <input id="bang-url-input" class="settings-input" type="text" maxlength="2048" placeholder="https://www.npmjs.com/search?q={q}" data-i18n-placeholder="bangUrlPlaceholder" aria-label="Plantilla HTTPS (usa {q} opcional)" data-i18n-aria-label="bangUrlLabel" required>
+          <button type="submit" class="settings-modal-btn settings-btn-primary" data-i18n="bangAddBtn">Añadir</button>
+        </form>
+        <p id="bang-error" class="settings-error" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="settings-section">
+        <h3 class="settings-section-title" data-i18n="settingsSectionBackup">Sincronización y respaldo JSON</h3>
+        <p class="settings-hint" data-i18n="backupSyncHint">Tus preferencias, piedras de río, bangs y objetivo diario se sincronizan entre dispositivos con tu perfil del navegador.</p>
+        <div class="settings-backup-row">
+          <button type="button" id="backup-export-btn" class="settings-modal-btn" data-i18n="backupExportBtn">Exportar JSON</button>
+          <button type="button" id="backup-import-btn" class="settings-modal-btn" data-i18n="backupImportBtn">Importar JSON</button>
+          <input id="backup-import-input" type="file" accept="application/json" hidden>
+          <span id="backup-status" class="settings-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </div>
   </div>
 
   <button type="button" id="zen-exit-btn" class="zen-exit-btn" title="Salir del Modo Zen (Esc / Z)" aria-label="Salir del Modo Zen" data-i18n-title="zenExitTitle" data-i18n-aria-label="zenExitAria">

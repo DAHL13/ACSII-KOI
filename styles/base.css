@@ -79,7 +79,12 @@ body {
 .pomo-collapse-btn:focus-visible,
 .pomo-mode-btn:focus-visible,
 .pomo-btn:focus-visible,
-.zen-exit-btn:focus-visible {
+.zen-exit-btn:focus-visible,
+.clock-format-btn:focus-visible,
+.eco-mode-btn:focus-visible,
+.settings-modal-btn:focus-visible,
+.settings-bang-del:focus-visible,
+.daily-focus-input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }

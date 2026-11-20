@@ -1,6 +1,7 @@
 import { getShortLang, t } from '../core/i18n.js';
 
 export const MAX_URL_LENGTH = 2048;
+export const MAX_CUSTOM_BANGS = 20;
 
 export const COMMON_TLDS = new Set([
   'com', 'org', 'net', 'io', 'dev', 'app', 'ai', 'co', 'edu', 'gov', 'mil', 'info', 'biz', 'me',
@@ -66,6 +67,69 @@ export function getBangSearchUrl(bang, lang = getShortLang()) {
       : 'https://es.wikipedia.org/w/index.php?search=';
   }
   return bang.url;
+}
+
+export function buildBangQueryUrl(bang, query, lang = getShortLang()) {
+  if (!bang) return '';
+  const encoded = encodeURIComponent(query);
+  if (bang.custom && bang.url.includes('{q}')) {
+    return bang.url.replaceAll('{q}', encoded);
+  }
+  return getBangSearchUrl(bang, lang) + encoded;
+}
+
+export function sanitizeCustomBang(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+
+  let prefix = String(raw.prefix || '').trim().toLowerCase();
+  if (!prefix) return null;
+  if (!prefix.startsWith('!')) {
+    prefix = '!' + prefix;
+  }
+  if (!/^![a-z0-9_-]{1,10}$/.test(prefix)) return null;
+  if (Object.prototype.hasOwnProperty.call(BANGS, prefix)) return null;
+
+  const label = String(raw.label || '').trim().slice(0, 20);
+  if (!label) return null;
+
+  const rawTemplate = String(raw.url || '').trim();
+  if (!rawTemplate || rawTemplate.length > MAX_URL_LENGTH) return null;
+  if (/[\s\u0000-\u001F\u007F]/.test(rawTemplate)) return null;
+
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(rawTemplate) ? rawTemplate : `https://${rawTemplate}`;
+  const marker = '__KOI_BANG_QUERY_MARKER__';
+  const hasPlaceholder = withScheme.includes('{q}');
+  const testCandidate = hasPlaceholder ? withScheme.replaceAll('{q}', marker) : withScheme;
+  const safeTestUrl = sanitizeHttpUrl(testCandidate);
+  if (!safeTestUrl) return null;
+
+  try {
+    const parsed = new URL(safeTestUrl);
+    if (parsed.protocol !== 'https:') return null;
+  } catch (_) {
+    return null;
+  }
+
+  const normalizedTemplate = hasPlaceholder ? safeTestUrl.replaceAll(marker, '{q}') : safeTestUrl;
+  return {
+    prefix,
+    label,
+    url: normalizedTemplate,
+    className: 'bang-custom',
+    custom: true
+  };
+}
+
+export function mergeBangs(customList = []) {
+  const merged = { ...BANGS };
+  if (!Array.isArray(customList)) return merged;
+  for (let i = 0; i < customList.length; i++) {
+    const sanitized = sanitizeCustomBang(customList[i]);
+    if (sanitized && !merged[sanitized.prefix]) {
+      merged[sanitized.prefix] = sanitized;
+    }
+  }
+  return merged;
 }
 
 export function createStoneId() {

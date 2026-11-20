@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "__MSG_extDescription__",
   "default_locale": "es",
   "minimum_chrome_version": "104",
-  "permissions": ["topSites", "search", "favicon"],
+  "permissions": ["topSites", "search", "favicon", "storage"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'none'; img-src 'self' data:;"
   },

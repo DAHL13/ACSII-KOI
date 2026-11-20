@@ -1,4 +1,4 @@
-import { CELL_H, CELL_W } from '../core/constants.js';
+import { BIOME_KEYS, CELL_H, CELL_W } from '../core/constants.js';
 import { clamp, dampFactor, randRange } from '../core/math.js';
 import { LilyPadLayer } from './lilies.js';
 import { OceanLayer } from './ocean.js';
@@ -43,6 +43,66 @@ export const SOLAR_KEYS = {
   }
 };
 
+const BIOME_SOLAR_THEMES = {
+  pond: SOLAR_KEYS,
+  ocean: SOLAR_KEYS,
+  reef: {
+    day: {
+      ...SOLAR_KEYS.day,
+      causticKey: 'reefTeal',
+      causticAltKey: 'reefCoral',
+      ripplePrimaryKey: 'reefTeal',
+      rippleSecondaryKey: 'reefCoral',
+      trailKey: 'reefTeal'
+    },
+    sunset: {
+      ...SOLAR_KEYS.sunset,
+      causticKey: 'waterAmber',
+      causticAltKey: 'reefCoral',
+      ripplePrimaryKey: 'reefCoral',
+      rippleSecondaryKey: 'reefTeal',
+      trailKey: 'reefCoral'
+    },
+    night: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'reefTeal',
+      causticAltKey: 'reefCoral',
+      ripplePrimaryKey: 'reefTeal',
+      rippleSecondaryKey: 'waterCyan',
+      trailKey: 'reefTeal'
+    }
+  },
+  winter: {
+    day: {
+      ...SOLAR_KEYS.day,
+      causticKey: 'snowBlue',
+      causticAltKey: 'iceCyan',
+      ripplePrimaryKey: 'iceCyan',
+      rippleSecondaryKey: 'snowBlue',
+      trailKey: 'iceCyan',
+      rainKey: 'snowBlue'
+    },
+    sunset: {
+      ...SOLAR_KEYS.sunset,
+      causticKey: 'snowBlue',
+      causticAltKey: 'iceCyan',
+      ripplePrimaryKey: 'iceCyan',
+      rippleSecondaryKey: 'snowBlue',
+      trailKey: 'snowBlue',
+      rainKey: 'snowBlue'
+    },
+    night: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'snowBlue',
+      causticAltKey: 'iceCyan',
+      ripplePrimaryKey: 'iceCyan',
+      rippleSecondaryKey: 'snowBlue',
+      trailKey: 'snowBlue',
+      rainKey: 'snowBlue'
+    }
+  }
+};
+
 export class PondEcosystem {
   constructor(width, height, options = {}) {
     this.width = width;
@@ -50,8 +110,9 @@ export class PondEcosystem {
 
     this.timeMode = options.timeMode || 'auto';
     this.solarPhase = this.resolveSolarPhase();
-    this.biome = options.biome === 'ocean' ? 'ocean' : 'pond';
+    this.biome = BIOME_KEYS.includes(options.biome) ? options.biome : 'pond';
     this.rainEnabled = Boolean(options.rainEnabled);
+    this.snowEnabled = Boolean(options.snowEnabled);
     this.liliesEnabled = options.liliesEnabled !== undefined ? Boolean(options.liliesEnabled) : true;
     this.firefliesMode = ['auto', 'on', 'off'].includes(options.firefliesMode) ? options.firefliesMode : 'auto';
     this.obstacleRect = null;
@@ -74,6 +135,7 @@ export class PondEcosystem {
     this.initCaustics();
     this.initFireflies();
     this.weatherLayer.seedRain(this.rainEnabled);
+    this.weatherLayer.seedSnow(this.snowEnabled);
   }
 
   resolveSolarPhase() {
@@ -95,7 +157,7 @@ export class PondEcosystem {
   }
 
   setBiome(biome) {
-    this.biome = biome === 'ocean' ? 'ocean' : 'pond';
+    this.biome = BIOME_KEYS.includes(biome) ? biome : 'pond';
   }
 
   setCurrentsEnabled(enabled) {
@@ -125,6 +187,16 @@ export class PondEcosystem {
       this.weatherLayer.seedRain(true);
     } else {
       this.rainEnabled = next;
+    }
+  }
+
+  setSnowEnabled(enabled) {
+    const next = Boolean(enabled);
+    if (next && !this.snowEnabled) {
+      this.snowEnabled = true;
+      this.weatherLayer.seedSnow(true);
+    } else {
+      this.snowEnabled = next;
     }
   }
 
@@ -186,7 +258,8 @@ export class PondEcosystem {
   }
 
   getTheme() {
-    return SOLAR_KEYS[this.solarPhase] || SOLAR_KEYS.night;
+    const biomeThemes = BIOME_SOLAR_THEMES[this.biome] || BIOME_SOLAR_THEMES.pond;
+    return biomeThemes[this.solarPhase] || biomeThemes.night;
   }
 
   resize(width, height) {
@@ -198,6 +271,9 @@ export class PondEcosystem {
     this.oceanLayer.resize(width, height);
     if (this.rainEnabled) {
       this.weatherLayer.seedRain(true);
+    }
+    if (this.snowEnabled) {
+      this.weatherLayer.seedSnow(true);
     }
     for (let i = 0; i < this.fireflies.length; i++) {
       const f = this.fireflies[i];
@@ -297,7 +373,7 @@ export class PondEcosystem {
     }
 
     const boundFlow = (x, y, out) => this.oceanLayer.getFlowAt(x, y, this.time, out);
-    this.weatherLayer.update(dt, this.time, this.rainEnabled, boundFlow);
+    this.weatherLayer.update(dt, this.time, this.rainEnabled, boundFlow, this.snowEnabled);
     this.oceanLayer.update(dt, this.time, this.obstacleRect, (x, y) => {
       this.weatherLayer.spawnRainRipple(x, y);
     });

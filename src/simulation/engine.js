@@ -2,7 +2,9 @@ import { CELL_H, CELL_W, RIPPLE_CHARS } from '../core/constants.js';
 import { clamp, dampFactor, lerp, randRange } from '../core/math.js';
 import { ObjectPool } from '../core/object-pool.js';
 import { BaitSchool } from './bait-school.js';
+import { GiantCarp } from './species/carp.js';
 import { KoiFish } from './species/koi.js';
+import { MantaRay } from './species/manta.js';
 import { HammerheadShark, WhaleShark } from './species/sharks.js';
 import { SeaTurtle } from './species/turtle.js';
 
@@ -23,9 +25,13 @@ export class KoiPondEngine {
 
     this.fishCount = clamp(options.fishCount || 12, 5, 25);
     this.enabledSpecies = Object.assign(
-      { koi: true, turtle: false, whaleShark: false, hammerhead: false },
+      { koi: true, turtle: false, whaleShark: false, hammerhead: false, mantaRay: false, giantCarp: false },
       options.species || {}
     );
+    this.ecoMode = ['auto', 'on', 'off'].includes(options.ecoMode) ? options.ecoMode : 'auto';
+    this.adaptiveEcoActive = false;
+    this._slowAccumSec = 0;
+    this._fastAccumSec = 0;
 
     this.obstacleRect = null;
     this.stonesRect = null;
@@ -124,16 +130,69 @@ export class KoiPondEngine {
     window.addEventListener('resize', this.handleResize);
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
     this.watchDpr();
+    this.syncAtlasGlow();
   }
 
   getCreatureCount() {
     return this.creatures.length;
   }
 
+  isEcoActive() {
+    return this.ecoMode === 'on' || (this.ecoMode === 'auto' && this.adaptiveEcoActive);
+  }
+
+  syncAtlasGlow() {
+    if (this.atlas && typeof this.atlas.setGlowEnabled === 'function') {
+      this.atlas.setGlowEnabled(!this.isEcoActive());
+    }
+  }
+
+  setEcoMode(mode) {
+    if (mode !== 'auto' && mode !== 'on' && mode !== 'off') return;
+    this.ecoMode = mode;
+    if (mode !== 'auto') {
+      this.adaptiveEcoActive = false;
+      this._slowAccumSec = 0;
+      this._fastAccumSec = 0;
+    }
+    this.syncAtlasGlow();
+  }
+
+  evaluateAdaptiveQuality(frameMs, dt) {
+    if (this.ecoMode !== 'auto') return false;
+    const prev = this.isEcoActive();
+    if (frameMs > 24) {
+      this._slowAccumSec += dt;
+      this._fastAccumSec = 0;
+      if (!this.adaptiveEcoActive && this._slowAccumSec >= 3.0) {
+        this.adaptiveEcoActive = true;
+      }
+    } else if (this.adaptiveEcoActive && frameMs < 11) {
+      this._fastAccumSec += dt;
+      this._slowAccumSec = 0;
+      if (this._fastAccumSec >= 6.0) {
+        this.adaptiveEcoActive = false;
+      }
+    } else {
+      this._slowAccumSec = Math.max(0, this._slowAccumSec - dt * 0.5);
+      if (!this.adaptiveEcoActive) {
+        this._fastAccumSec = 0;
+      }
+    }
+    const next = this.isEcoActive();
+    if (next !== prev) {
+      this.syncAtlasGlow();
+      return true;
+    }
+    return false;
+  }
+
   getMetrics() {
     return {
       fps: this.fps,
-      frameTimeMs: this.frameTimeMs
+      frameTimeMs: this.frameTimeMs,
+      ecoActive: this.isEcoActive(),
+      ecoMode: this.ecoMode
     };
   }
 
@@ -251,8 +310,10 @@ export class KoiPondEngine {
     if (sp.turtle) activeList.push('turtle');
     if (sp.whaleShark) activeList.push('whaleShark');
     if (sp.hammerhead) activeList.push('hammerhead');
+    if (sp.mantaRay) activeList.push('mantaRay');
+    if (sp.giantCarp) activeList.push('giantCarp');
 
-    const targets = { koi: 0, turtle: 0, whaleShark: 0, hammerhead: 0 };
+    const targets = { koi: 0, turtle: 0, whaleShark: 0, hammerhead: 0, mantaRay: 0, giantCarp: 0 };
     if (activeList.length === 0) return targets;
 
     if (activeList.length === 1) {
@@ -261,11 +322,16 @@ export class KoiPondEngine {
       else if (only === 'turtle') targets.turtle = clamp(Math.round(total * 0.55), 3, 12);
       else if (only === 'whaleShark') targets.whaleShark = clamp(Math.round(total * 0.2), 1, 4);
       else if (only === 'hammerhead') targets.hammerhead = clamp(Math.round(total * 0.36), 2, 8);
+      else if (only === 'mantaRay') targets.mantaRay = clamp(Math.round(total * 0.25), 1, 5);
+      else if (only === 'giantCarp') targets.giantCarp = clamp(Math.round(total * 0.35), 2, 7);
       return targets;
     }
 
     if (sp.whaleShark) {
       targets.whaleShark = total >= 16 ? 2 : 1;
+    }
+    if (sp.mantaRay) {
+      targets.mantaRay = total >= 14 ? 2 : 1;
     }
     if (sp.hammerhead) {
       targets.hammerhead = clamp(Math.round(total * 0.18), 1, 4);
@@ -273,8 +339,12 @@ export class KoiPondEngine {
     if (sp.turtle) {
       targets.turtle = clamp(Math.round(total * 0.25), 1, 6);
     }
+    if (sp.giantCarp) {
+      targets.giantCarp = clamp(Math.round(total * 0.16), 1, 3);
+    }
     if (sp.koi) {
-      const used = targets.whaleShark + targets.hammerhead + targets.turtle;
+      const used =
+        targets.whaleShark + targets.mantaRay + targets.hammerhead + targets.turtle + targets.giantCarp;
       targets.koi = Math.max(2, total - used);
     }
     return targets;
@@ -285,12 +355,14 @@ export class KoiPondEngine {
     if (species === 'turtle') return new SeaTurtle(this.width, this.height, depth);
     if (species === 'whaleShark') return new WhaleShark(this.width, this.height, clamp(depth, 0.68, 1.08));
     if (species === 'hammerhead') return new HammerheadShark(this.width, this.height, depth);
+    if (species === 'mantaRay') return new MantaRay(this.width, this.height, clamp(depth, 0.66, 1.12));
+    if (species === 'giantCarp') return new GiantCarp(this.width, this.height, depth);
     return new KoiFish(this.width, this.height, depth);
   }
 
   syncPopulation() {
     const targets = this.computeSpeciesTargets();
-    const bySpecies = { koi: [], turtle: [], whaleShark: [], hammerhead: [] };
+    const bySpecies = { koi: [], turtle: [], whaleShark: [], hammerhead: [], mantaRay: [], giantCarp: [] };
 
     for (let i = 0; i < this.creatures.length; i++) {
       const c = this.creatures[i];
@@ -300,7 +372,7 @@ export class KoiPondEngine {
     }
 
     const nextList = [];
-    const order = ['koi', 'turtle', 'hammerhead', 'whaleShark'];
+    const order = ['koi', 'giantCarp', 'turtle', 'mantaRay', 'hammerhead', 'whaleShark'];
     for (let s = 0; s < order.length; s++) {
       const sp = order[s];
       const wanted = targets[sp];
@@ -453,7 +525,9 @@ export class KoiPondEngine {
   frameLoop(now) {
     if (!this.running || this.pausedByVisibility) return;
 
-    if (this.reducedMotion && now - this.lastFrameTime < 50) {
+    const ecoNow = this.isEcoActive();
+    const minFrameMs = this.reducedMotion ? 50 : ecoNow ? 33.3 : 0;
+    if (minFrameMs > 0 && now - this.lastFrameTime < minFrameMs) {
       this.rafId = requestAnimationFrame(this.loop);
       return;
     }
@@ -474,8 +548,9 @@ export class KoiPondEngine {
       this.fps = Math.round((this.fpsFrameCount * 1000) / elapsed);
       this.fpsSampleStart = now;
       this.fpsFrameCount = 0;
+      this.evaluateAdaptiveQuality(this.frameTimeMs, elapsed / 1000);
       if (this.onMetrics) {
-        this.onMetrics(this.fps, this.frameTimeMs);
+        this.onMetrics(this.fps, this.frameTimeMs, this.isEcoActive());
       }
     }
 

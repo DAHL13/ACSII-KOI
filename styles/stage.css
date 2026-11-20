@@ -366,6 +366,100 @@ body.zen-mode .zen-exit-btn:focus-visible {
   border-color: rgba(203, 213, 225, 0.42);
 }
 
+.bang-custom {
+  background: rgba(45, 212, 191, 0.2);
+  color: #ccfbf1;
+  border-color: rgba(45, 212, 191, 0.45);
+}
+
+.search-box-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.bang-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 14px;
+  right: 14px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 16px;
+  background: rgba(9, 14, 24, 0.92);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+  z-index: 30;
+  max-height: 210px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.bang-suggestions[hidden] {
+  display: none;
+}
+
+.bang-suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.bang-suggest-item code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+.bang-suggest-item:hover,
+.bang-suggest-item.is-selected {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.daily-focus-wrap {
+  width: min(420px, 100%);
+  margin-top: 2px;
+}
+
+.daily-focus-wrap[hidden] {
+  display: none;
+}
+
+.daily-focus-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid rgba(190, 220, 255, 0.16);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  text-align: center;
+  padding: 5px 10px;
+  outline: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.daily-focus-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.78;
+}
+
+.daily-focus-input:focus {
+  border-bottom-color: var(--accent);
+  color: var(--text-primary);
+}
+
 .pond-hint code {
   font-family: var(--font-mono);
   font-size: 11px;

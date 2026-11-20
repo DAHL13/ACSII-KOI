@@ -3,7 +3,7 @@
     "message": "Estanque Koi ASCII · Nueva Pestaña"
   },
   "extDescription": {
-    "message": "Reemplaza tu página de Nueva Pestaña por un estanque Koi y mar abierto en ASCII luminoso interactivo con tortugas, tiburones, medusas, bioluminiscencia, nenúfares 2.5D, piedras de río, prefijos de búsqueda y Pomodoro."
+    "message": "Reemplaza tu página de Nueva Pestaña por un estanque Koi, arrecife, estanque invernal y mar abierto en ASCII luminoso interactivo con tortugas, tiburones, mantarrayas, medusas, bioluminiscencia, piedras de río, bangs y Pomodoro."
   },
   "pageTitlePond": {
     "message": "Nueva pestaña · Estanque Koi"
@@ -11,8 +11,17 @@
   "pageTitleOcean": {
     "message": "Nueva pestaña · Mar Abierto"
   },
+  "pageTitleReef": {
+    "message": "Nueva pestaña · Arrecife Coralino"
+  },
+  "pageTitleWinter": {
+    "message": "Nueva pestaña · Estanque Invernal"
+  },
   "perfPlaceholder": {
     "message": "-- FPS · -- ms"
+  },
+  "perfEcoTag": {
+    "message": "ECO"
   },
   "controlsAria": {
     "message": "Controles del estanque"
@@ -68,17 +77,29 @@
   "biomeOceanTitle": {
     "message": "Mar abierto con corrientes, cardumen, medusas y algas"
   },
+  "biomeReef": {
+    "message": "Arrecife"
+  },
+  "biomeReefTitle": {
+    "message": "Arrecife coralino vibrante con mantarrayas y cardumen"
+  },
+  "biomeWinter": {
+    "message": "Invierno"
+  },
+  "biomeWinterTitle": {
+    "message": "Estanque invernal con nieve suave y carpas doradas"
+  },
   "rainBtn": {
     "message": "Lluvia"
   },
   "rainBtnTitle": {
-    "message": "Activar o desactivar lluvia suave"
+    "message": "Activar o desactivar lluvia suave (R)"
   },
   "feedBtn": {
     "message": "Alimentar"
   },
   "feedBtnTitle": {
-    "message": "Soltar comida múltiple en el estanque"
+    "message": "Soltar comida múltiple en el estanque (F)"
   },
   "stonesToggleTitle": {
     "message": "Mostrar u ocultar piedras de río"
@@ -101,6 +122,12 @@
   "zenBtnAria": {
     "message": "Activar Modo Zen"
   },
+  "settingsBtnTitle": {
+    "message": "Ajustes, bangs personalizados y respaldo"
+  },
+  "settingsBtnAria": {
+    "message": "Abrir ajustes"
+  },
   "faunaPopoverAria": {
     "message": "Selector de especies del estanque"
   },
@@ -112,6 +139,9 @@
   },
   "presetOcean": {
     "message": "Océano"
+  },
+  "presetReef": {
+    "message": "Arrecife"
   },
   "presetAll": {
     "message": "Todos"
@@ -140,6 +170,18 @@
   "speciesHammerDesc": {
     "message": "Nado ágil con cefalofoil en T"
   },
+  "speciesMantaName": {
+    "message": "Mantarraya"
+  },
+  "speciesMantaDesc": {
+    "message": "Planeo ancho con alas ondulantes"
+  },
+  "speciesCarpName": {
+    "message": "Carpa Dorada"
+  },
+  "speciesCarpDesc": {
+    "message": "Velo real ámbar y escamas suaves"
+  },
   "envSectionTitle": {
     "message": "Entorno y vida marina"
   },
@@ -160,6 +202,9 @@
   },
   "envSchool": {
     "message": "Cardumen"
+  },
+  "envSnow": {
+    "message": "Nieve"
   },
   "firefliesLabel": {
     "message": "Luciérnagas"
@@ -216,8 +261,17 @@
       }
     }
   },
+  "bangSuggestAria": {
+    "message": "Sugerencias de prefijos bang"
+  },
   "pondHintPrefix": {
-    "message": "Clic en el agua para alimentar · Prefijos:"
+    "message": "Clic en el agua o tecla F para alimentar · Prefijos:"
+  },
+  "dailyFocusPlaceholder": {
+    "message": "¿Cuál es tu enfoque principal hoy?"
+  },
+  "dailyFocusAria": {
+    "message": "Objetivo del día"
   },
   "dockAria": {
     "message": "Accesos directos en piedras de río"
@@ -229,7 +283,7 @@
     "message": "Añadir acceso directo"
   },
   "stoneEditTitle": {
-    "message": "Editar o eliminar piedras"
+    "message": "Editar o reordenar piedras"
   },
   "stoneEditAria": {
     "message": "Editar accesos directos"
@@ -245,6 +299,28 @@
   },
   "stoneDeleteOneTitle": {
     "message": "Eliminar enlace"
+  },
+  "stoneMoveLeftTitle": {
+    "message": "Mover a la izquierda"
+  },
+  "stoneMoveRightTitle": {
+    "message": "Mover a la derecha"
+  },
+  "stoneMoveLeftAria": {
+    "message": "Mover $A1$ a la izquierda",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "stoneMoveRightAria": {
+    "message": "Mover $A1$ a la derecha",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
   },
   "stoneEditOneAria": {
     "message": "Editar $A1$",
@@ -370,6 +446,119 @@
   "pomoDocBreak": {
     "message": "Descanso"
   },
+  "settingsTitle": {
+    "message": "Ajustes del estanque"
+  },
+  "settingsClose": {
+    "message": "Cerrar"
+  },
+  "settingsSectionGeneral": {
+    "message": "Apariencia y rendimiento"
+  },
+  "settingsUserName": {
+    "message": "Tu nombre (saludo)"
+  },
+  "settingsUserNamePlaceholder": {
+    "message": "Ej. Alex"
+  },
+  "settingsClockFormat": {
+    "message": "Formato de reloj"
+  },
+  "settingsClock24": {
+    "message": "24 horas"
+  },
+  "settingsClock12": {
+    "message": "12 horas"
+  },
+  "settingsShowFocus": {
+    "message": "Mostrar objetivo del día bajo el buscador"
+  },
+  "settingsEcoMode": {
+    "message": "Modo ahorro / calidad adaptativa"
+  },
+  "ecoAuto": {
+    "message": "Auto"
+  },
+  "ecoAutoTitle": {
+    "message": "Activa Eco automáticamente si la tasa de fotogramas baja de forma sostenida"
+  },
+  "ecoOn": {
+    "message": "Eco"
+  },
+  "ecoOnTitle": {
+    "message": "Limita a 30 FPS y desactiva brillo para ahorrar batería"
+  },
+  "ecoOff": {
+    "message": "Alto"
+  },
+  "ecoOffTitle": {
+    "message": "Máxima fluidez y brillo ASCII activados siempre"
+  },
+  "settingsShortcutsTitle": {
+    "message": "Atajos de teclado"
+  },
+  "settingsShortcutsBody": {
+    "message": "/ Buscar · F Alimentar · R Lluvia · P Pomodoro · Z Zen · Esc Cerrar"
+  },
+  "settingsSectionBangs": {
+    "message": "Bangs personalizados (solo HTTPS)"
+  },
+  "bangPrefixLabel": {
+    "message": "Prefijo"
+  },
+  "bangPrefixPlaceholder": {
+    "message": "!npm"
+  },
+  "bangNameLabel": {
+    "message": "Nombre"
+  },
+  "bangNamePlaceholder": {
+    "message": "npm"
+  },
+  "bangUrlLabel": {
+    "message": "Plantilla HTTPS (usa {q} opcional)"
+  },
+  "bangUrlPlaceholder": {
+    "message": "https://www.npmjs.com/search?q={q}"
+  },
+  "bangAddBtn": {
+    "message": "Añadir"
+  },
+  "bangDeleteAria": {
+    "message": "Eliminar prefijo $A1$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      }
+    }
+  },
+  "bangInvalidError": {
+    "message": "Prefijo inválido, reservado o URL sin HTTPS válido (ej. !npm + https://www.npmjs.com/search?q={q})."
+  },
+  "bangEmptyList": {
+    "message": "Sin bangs personalizados aún. Los 6 prefijos integrados siguen siempre disponibles."
+  },
+  "settingsSectionBackup": {
+    "message": "Sincronización y respaldo JSON"
+  },
+  "backupSyncHint": {
+    "message": "Tus preferencias, piedras de río, bangs y objetivo diario se sincronizan entre dispositivos con tu perfil del navegador."
+  },
+  "backupExportBtn": {
+    "message": "Exportar JSON"
+  },
+  "backupImportBtn": {
+    "message": "Importar JSON"
+  },
+  "backupExportOk": {
+    "message": "Respaldo descargado correctamente."
+  },
+  "backupImportOk": {
+    "message": "Configuración importada y aplicada."
+  },
+  "backupImportErr": {
+    "message": "Archivo JSON inválido o incompatible."
+  },
   "zenExitTitle": {
     "message": "Salir del Modo Zen (Esc / Z)"
   },
@@ -394,6 +583,17 @@
   "greetingEvening": {
     "message": "Buenas noches"
   },
+  "greetingWithName": {
+    "message": "$A1$, $A2$",
+    "placeholders": {
+      "a1": {
+        "content": "$1"
+      },
+      "a2": {
+        "content": "$2"
+      }
+    }
+  },
   "speciesKoiShort": {
     "message": "Koi"
   },
@@ -405,6 +605,12 @@
   },
   "speciesHammerShort": {
     "message": "T. Martillo"
+  },
+  "speciesMantaShort": {
+    "message": "Mantarraya"
+  },
+  "speciesCarpShort": {
+    "message": "Carpa"
   },
   "faunaMulti": {
     "message": "Fauna ($A1$)",
