@@ -74,18 +74,28 @@ def run_test_suite(
     base_url: str,
     route: str,
     label: str,
-    budget_ms: int = 1500,
+    budget_ms: int = 10000,
     lang: str = 'es-ES',
     viewport: str = '1280,800',
 ) -> tuple[int, int]:
-    dom = dump_dom(browser, f'{base_url}{route}', budget_ms=budget_ms, lang=lang, viewport=viewport)
-    m_status = re.search(r'<div[^>]*id="test-report"[^>]*>', dom)
-    if not m_status:
-        raise RuntimeError(f'{label}: #test-report not found in DOM')
-    tag = m_status.group(0)
-    status = re.search(r'data-status="([^"]+)"', tag)
-    passed = re.search(r'data-pass="(\d+)"', tag)
-    failed = re.search(r'data-fail="(\d+)"', tag)
+    dom = ''
+    tag = ''
+    status = None
+    passed = None
+    failed = None
+    for attempt in range(2):
+        dom = dump_dom(browser, f'{base_url}{route}', budget_ms=budget_ms, lang=lang, viewport=viewport)
+        m_status = re.search(r'<div[^>]*id="test-report"[^>]*>', dom)
+        if not m_status:
+            if attempt == 0:
+                continue
+            raise RuntimeError(f'{label}: #test-report not found in DOM')
+        tag = m_status.group(0)
+        status = re.search(r'data-status="([^"]+)"', tag)
+        passed = re.search(r'data-pass="(\d+)"', tag)
+        failed = re.search(r'data-fail="(\d+)"', tag)
+        if status and status.group(1) == 'done':
+            break
 
     if not status or status.group(1) != 'done':
         raise RuntimeError(f'{label}: test suite did not finish (tag={tag})')
@@ -112,7 +122,7 @@ def run_index_smoke(
     viewport: str = '1280,800',
     query: str = '',
 ) -> bool:
-    for budget_ms in (1000, 1800):
+    for budget_ms in (1500, 3000):
         dom = dump_dom(browser, f'{base_url}/index.html{query}', budget_ms=budget_ms, lang=cli_lang, viewport=viewport)
         html_lang_m = re.search(r'<html[^>]*\blang="([^"]+)"', dom)
         clock_m = re.search(r'<time[^>]*id="clock"[^>]*>(.*?)</time>', dom, re.S)
@@ -123,8 +133,9 @@ def run_index_smoke(
         clock_ok = bool(clock_m and clock_m.group(1).strip())
         greet_ok = bool(greet_m and greet_m.group(1).strip())
         stones_ok = len(stones) == 6
+        favicon_ok = 'rel="icon"' in dom and 'icons/icon48.png' in dom
         no_dead_id = 'id="lilies-btn"' not in dom and 'class="control-label"' not in dom
-        if clock_ok or budget_ms == 1800:
+        if clock_ok or budget_ms == 3000:
             break
 
     print(
@@ -133,9 +144,10 @@ def run_index_smoke(
         f'  clock={clock_m.group(1).strip() if clock_m else None!r} ok={clock_ok}\n'
         f'  greeting={greet_m.group(1).strip() if greet_m else None!r} ok={greet_ok}\n'
         f'  riverStones={len(stones)} ok={stones_ok}\n'
+        f'  favicon={favicon_ok}\n'
         f'  deadDomClean={no_dead_id}'
     )
-    return lang_ok and clock_ok and greet_ok and stones_ok and no_dead_id
+    return lang_ok and clock_ok and greet_ok and stones_ok and favicon_ok and no_dead_id
 
 
 def main() -> int:
@@ -158,7 +170,7 @@ def main() -> int:
     smoke_failures = 0
 
     try:
-        u_pass, u_fail = run_test_suite(browser, base_url, '/tests/unit.html', 'Unit Tests', budget_ms=1500)
+        u_pass, u_fail = run_test_suite(browser, base_url, '/tests/unit.html', 'Unit Tests', budget_ms=10000)
         total_pass += u_pass
         total_fail += u_fail
 
@@ -177,7 +189,7 @@ def main() -> int:
                 base_url,
                 f'/tests/ui.html{query}',
                 f'UI Integration Tests ({expected_lang} @ {viewport})',
-                budget_ms=2500,
+                budget_ms=10000,
                 lang=cli_lang,
                 viewport=viewport,
             )

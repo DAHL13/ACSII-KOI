@@ -36,7 +36,20 @@ jobs:
         run: python scripts/package.py --check
 
       - name: Run headless unit, UI integration, and smoke tests
-        run: python scripts/run-tests.py
+        run: |
+          set -o pipefail
+          python scripts/run-tests.py 2>&1 | tee test-output.log
+
+      - name: Publish test summary
+        if: always()
+        run: |
+          if [ -f test-output.log ]; then
+            {
+              echo '```'
+              cat test-output.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Build MV3 release packages (Chrome + Firefox)
         run: python scripts/package.py --target all
