@@ -4,7 +4,12 @@ import {
   DAILY_FOCUS_STORAGE_KEY,
   DEFAULT_PREFS,
   LEGACY_PREFS_STORAGE_KEY,
+  MAX_DAILY_FOCUS_LEN,
+  MAX_STONES,
+  MAX_USERNAME_LEN,
   PREFS_STORAGE_KEY,
+  SPACE_ORBIT_SPEEDS,
+  SPACE_PALETTE_KEYS,
   SPECIES_KEYS,
   STONES_STORAGE_KEY
 } from './constants.js';
@@ -16,10 +21,6 @@ import {
   sanitizeHttpUrl,
   shortenTitle
 } from '../productivity/url-utils.js';
-
-const MAX_STONES = 8;
-const MAX_USERNAME_LEN = 32;
-const MAX_DAILY_FOCUS_LEN = 120;
 
 function cloneDefaultPrefs() {
   return {
@@ -84,6 +85,17 @@ export function normalizePrefs(parsed) {
   return {
     fishCount: clampInt(parsed.fishCount, 5, 25, DEFAULT_PREFS.fishCount),
     biome: BIOME_KEYS.includes(parsed.biome) ? parsed.biome : DEFAULT_PREFS.biome,
+    spacePalette: SPACE_PALETTE_KEYS.includes(parsed.spacePalette)
+      ? parsed.spacePalette
+      : DEFAULT_PREFS.spacePalette,
+    spaceOrbitSpeed:
+      parsed.spaceOrbitSpeed !== undefined &&
+      parsed.spaceOrbitSpeed !== null &&
+      parsed.spaceOrbitSpeed !== '' &&
+      typeof parsed.spaceOrbitSpeed !== 'boolean' &&
+      SPACE_ORBIT_SPEEDS.includes(Number(parsed.spaceOrbitSpeed))
+        ? Number(parsed.spaceOrbitSpeed)
+        : DEFAULT_PREFS.spaceOrbitSpeed,
     species,
     firefliesMode: ['auto', 'on', 'off'].includes(parsed.firefliesMode)
       ? parsed.firefliesMode
@@ -190,7 +202,7 @@ export function saveCustomBangs(list) {
   return clean;
 }
 
-function sanitizeStoneArray(rawList) {
+export function sanitizeStoneArray(rawList) {
   if (!Array.isArray(rawList)) return null;
   const seenIds = new Set();
   const sanitized = [];
@@ -212,6 +224,29 @@ function sanitizeStoneArray(rawList) {
     });
   }
   return sanitized;
+}
+
+export function loadSavedStones() {
+  try {
+    const raw = localStorage.getItem(STONES_STORAGE_KEY);
+    if (raw === null) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    if (parsed.length === 0) return [];
+    const sanitized = sanitizeStoneArray(parsed);
+    return sanitized && sanitized.length > 0 ? sanitized : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+export function saveStonesList(stones) {
+  const clean = sanitizeStoneArray(stones) || [];
+  try {
+    localStorage.setItem(STONES_STORAGE_KEY, JSON.stringify(clean));
+  } catch (_) {}
+  syncPushKey(STONES_STORAGE_KEY, clean);
+  return clean;
 }
 
 export function syncPullAll(handlers = {}) {

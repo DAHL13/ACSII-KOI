@@ -27,15 +27,54 @@ export class PomodoroController {
     this.timerId = null;
     this.sakuraStatusTimer = null;
     this.circumference = 2 * Math.PI * 20;
+    this.biome = options.biome || 'pond';
     this.baseDocTitle = options.baseTitle || document.title || t('pageTitlePond');
     this.handleStorage = this.onStorageEvent.bind(this);
 
     this.ringEl.style.strokeDasharray = `${this.circumference}`;
     this.bindEvents();
+    this.setBiome(this.biome);
     this.setCollapsed(Boolean(options.collapsed), false);
     this.loadState(true);
     window.addEventListener('storage', this.handleStorage);
     this.render();
+  }
+
+  getRewardKeys() {
+    if (this.biome === 'space') {
+      return {
+        icon: '☄️',
+        testTitleKey: 'pomoTestSpaceTitle',
+        testAriaKey: 'pomoTestSpaceAria',
+        previewKey: 'pomoStatusMeteor',
+        completeKey: 'pomoStatusCompleteSpace'
+      };
+    }
+    if (this.biome === 'aurora') {
+      return {
+        icon: '✨',
+        testTitleKey: 'pomoTestAuroraTitle',
+        testAriaKey: 'pomoTestAuroraAria',
+        previewKey: 'pomoStatusAurora',
+        completeKey: 'pomoStatusCompleteAurora'
+      };
+    }
+    return {
+      icon: '🌸',
+      testTitleKey: 'pomoTestTitle',
+      testAriaKey: 'pomoTestAria',
+      previewKey: 'pomoStatusSakura',
+      completeKey: 'pomoStatusComplete'
+    };
+  }
+
+  setBiome(biome) {
+    this.biome = biome || 'pond';
+    if (!this.testBtn) return;
+    const keys = this.getRewardKeys();
+    this.testBtn.textContent = keys.icon;
+    this.testBtn.title = t(keys.testTitleKey);
+    this.testBtn.setAttribute('aria-label', t(keys.testAriaKey));
   }
 
   setBaseTitle(title) {
@@ -68,7 +107,7 @@ export class PomodoroController {
       if (this.ecosystem) {
         this.ecosystem.triggerCherryBlossomShower(25);
         this.clearSakuraStatusTimer();
-        this.statusEl.textContent = t('pomoStatusSakura');
+        this.statusEl.textContent = t(this.getRewardKeys().previewKey);
         this.sakuraStatusTimer = setTimeout(() => {
           this.sakuraStatusTimer = null;
           this.statusEl.textContent = this.getDefaultStatusText();
@@ -173,7 +212,8 @@ export class PomodoroController {
           this.mode = nextMode;
           this.remainingSec = this.durations[nextMode];
           this.syncModeButtons();
-          this.statusEl.textContent = mode === 'focus' ? t('pomoStatusComplete') : t('pomoStatusReady');
+          this.statusEl.textContent =
+            mode === 'focus' ? t(this.getRewardKeys().completeKey) : t('pomoStatusReady');
           if (triggerCatchupShower && mode === 'focus' && this.ecosystem) {
             this.ecosystem.triggerCherryBlossomShower(25);
           }
@@ -270,7 +310,7 @@ export class PomodoroController {
       this.mode = 'break';
       this.remainingSec = this.durations.break;
       this.syncModeButtons();
-      this.statusEl.textContent = t('pomoStatusComplete');
+      this.statusEl.textContent = t(this.getRewardKeys().completeKey);
     } else {
       this.mode = 'focus';
       this.remainingSec = this.durations.focus;

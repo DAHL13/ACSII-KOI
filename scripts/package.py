@@ -84,6 +84,14 @@ def validate_manifest_and_locales() -> dict:
     if missing_html:
         raise ValueError(f'index.html references missing i18n keys: {missing_html}')
 
+    js_key_pattern = re.compile(r"\bt\(\s*(['\"])([A-Za-z0-9_]+)\1")
+    used_js_keys: set[str] = set()
+    for js_path in sorted((ROOT / 'src').rglob('*.js')):
+        used_js_keys.update(match[1] for match in js_key_pattern.findall(js_path.read_text(encoding='utf-8')))
+    missing_js = sorted(used_js_keys - es_js_keys)
+    if missing_js:
+        raise ValueError(f'src/ references missing i18n keys: {missing_js}')
+
     expected_locale_keys = es_js_keys | {'extName', 'extDescription'}
     for loc in ('es', 'en'):
         msg_path = ROOT / '_locales' / loc / 'messages.json'

@@ -17,6 +17,12 @@
   "pageTitleWinter": {
     "message": "New Tab · Winter Pond"
   },
+  "pageTitleSpace": {
+    "message": "New Tab · Deep Space"
+  },
+  "pageTitleAurora": {
+    "message": "New Tab · Northern Lights"
+  },
   "perfPlaceholder": {
     "message": "-- FPS · -- ms"
   },
@@ -65,8 +71,26 @@
   "biomeGroupAria": {
     "message": "Aquatic habitat"
   },
+  "biomeBtnTitle": {
+    "message": "Switch background and ecosystem"
+  },
+  "biomePopoverAria": {
+    "message": "Background selector"
+  },
+  "biomePopoverTitle": {
+    "message": "Scenes & backgrounds"
+  },
+  "biomeGroupAquatic": {
+    "message": "Aquatic habitats"
+  },
+  "biomeGroupCosmos": {
+    "message": "Cosmos & night sky"
+  },
   "biomePond": {
     "message": "Pond"
+  },
+  "biomePondDesc": {
+    "message": "Lily pads and zen calm"
   },
   "biomePondTitle": {
     "message": "Zen pond with lily pads"
@@ -74,11 +98,17 @@
   "biomeOcean": {
     "message": "Ocean"
   },
+  "biomeOceanDesc": {
+    "message": "Currents, jellyfish, and kelp"
+  },
   "biomeOceanTitle": {
     "message": "Open ocean with currents, baitfish, jellyfish, and kelp"
   },
   "biomeReef": {
     "message": "Reef"
+  },
+  "biomeReefDesc": {
+    "message": "Warm coral and baitfish school"
   },
   "biomeReefTitle": {
     "message": "Vibrant coral reef with manta rays and schooling fish"
@@ -86,8 +116,68 @@
   "biomeWinter": {
     "message": "Winter"
   },
+  "biomeWinterDesc": {
+    "message": "Soft snow and glacial shimmer"
+  },
   "biomeWinterTitle": {
     "message": "Winter pond with soft snow and giant golden carp"
+  },
+  "biomeSpace": {
+    "message": "Space"
+  },
+  "biomeSpaceCardTitle": {
+    "message": "ASCII Black Hole"
+  },
+  "biomeSpaceDesc": {
+    "message": "Gravitational accretion disk and starfield"
+  },
+  "biomeSpaceTitle": {
+    "message": "Luminous ASCII black hole and deep space starfield"
+  },
+  "biomeAurora": {
+    "message": "Aurora"
+  },
+  "biomeAuroraCardTitle": {
+    "message": "Aurora Borealis"
+  },
+  "biomeAuroraDesc": {
+    "message": "Luminous curtains and night peaks"
+  },
+  "biomeAuroraTitle": {
+    "message": "ASCII northern lights over silhouetted alpine peaks"
+  },
+  "spacePaletteLabel": {
+    "message": "Starlight palette"
+  },
+  "spacePaletteGroupAria": {
+    "message": "Black hole color palette"
+  },
+  "spacePaletteGold": {
+    "message": "Gold"
+  },
+  "spacePaletteQuasar": {
+    "message": "Quasar"
+  },
+  "spacePaletteViolet": {
+    "message": "Violet"
+  },
+  "spaceOrbitLabel": {
+    "message": "Camera orbit"
+  },
+  "spaceOrbitGroupAria": {
+    "message": "Orbital speed"
+  },
+  "spaceOrbitPause": {
+    "message": "Pause"
+  },
+  "spaceOrbitSlow": {
+    "message": "0.5×"
+  },
+  "spaceOrbitNormal": {
+    "message": "1×"
+  },
+  "spaceOrbitFast": {
+    "message": "2×"
   },
   "rainBtn": {
     "message": "Rain"
@@ -100,6 +190,18 @@
   },
   "feedBtnTitle": {
     "message": "Drop multiple food pellets (F)"
+  },
+  "spacePulseBtn": {
+    "message": "Pulse"
+  },
+  "spacePulseBtnTitle": {
+    "message": "Trigger gravitational flare pulse (F)"
+  },
+  "auroraPulseBtn": {
+    "message": "Flare"
+  },
+  "auroraPulseBtnTitle": {
+    "message": "Trigger magnetic aurora wave (F)"
   },
   "stonesToggleTitle": {
     "message": "Show or hide river stones"
@@ -267,6 +369,12 @@
   "pondHintPrefix": {
     "message": "Click water or press F to feed · Bangs:"
   },
+  "spaceHintPrefix": {
+    "message": "Click or press F for cosmic pulse · Bangs:"
+  },
+  "auroraHintPrefix": {
+    "message": "Click or press F for aurora wave · Bangs:"
+  },
   "dailyFocusPlaceholder": {
     "message": "What is your main focus today?"
   },
@@ -410,11 +518,23 @@
   "pomoStatusComplete": {
     "message": "Session complete! 🌸"
   },
+  "pomoStatusCompleteSpace": {
+    "message": "Session complete! ☄️"
+  },
+  "pomoStatusCompleteAurora": {
+    "message": "Session complete! ✨"
+  },
   "pomoStatusReady": {
     "message": "Ready to focus"
   },
   "pomoStatusSakura": {
     "message": "Cherry blossoms 🌸"
+  },
+  "pomoStatusMeteor": {
+    "message": "Meteor shower ☄️"
+  },
+  "pomoStatusAurora": {
+    "message": "Aurora surge ✨"
   },
   "pomoStart": {
     "message": "Start"
@@ -439,6 +559,18 @@
   },
   "pomoTestAria": {
     "message": "Preview cherry blossoms"
+  },
+  "pomoTestSpaceTitle": {
+    "message": "Preview meteor shower"
+  },
+  "pomoTestSpaceAria": {
+    "message": "Preview meteor shower"
+  },
+  "pomoTestAuroraTitle": {
+    "message": "Preview aurora surge"
+  },
+  "pomoTestAuroraAria": {
+    "message": "Preview aurora surge"
   },
   "pomoDocFocus": {
     "message": "Focus"
@@ -498,7 +630,7 @@
     "message": "Keyboard shortcuts"
   },
   "settingsShortcutsBody": {
-    "message": "/ Search · F Feed · R Rain · P Pomodoro · Z Zen · Esc Close"
+    "message": "/ Search · F Feed · R Rain · B Scene · P Pomodoro · Z Zen · Esc Close"
   },
   "settingsSectionBangs": {
     "message": "Custom bangs (HTTPS only)"

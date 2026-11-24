@@ -264,6 +264,131 @@ async function main() {
       document.documentElement.scrollWidth <= window.innerWidth + 1,
       `Horizontal overflow detected: scrollWidth=${document.documentElement.scrollWidth} > innerWidth=${window.innerWidth}`
     );
+
+    if (window.innerWidth >= 1000) {
+      const stoneTops = Array.from(document.querySelectorAll('#river-stones-list .river-stone')).map((el) =>
+        Math.round(el.getBoundingClientRect().top)
+      );
+      const rowDelta = Math.max(...stoneTops) - Math.min(...stoneTops);
+      assert(rowDelta <= 2, `Expected all 6 river stones on a single row at ${window.innerWidth}px, rowDelta=${rowDelta}`);
+    }
+  });
+
+  await check('Background selector switches Space (palettes/orbit/meteor) & Aurora biomes + B shortcut', () => {
+    const prevAquaticBiome = document.documentElement.getAttribute('data-biome') || 'pond';
+    const biomeBtn = document.getElementById('biome-btn');
+    const biomePopover = document.getElementById('biome-popover');
+    const spaceOptions = document.getElementById('space-options-section');
+    const controlFish = document.querySelector('.control-fish');
+    const solarSelector = document.querySelector('.solar-selector');
+    const controlToggles = document.querySelector('.control-toggles');
+    const rainBtn = document.getElementById('rain-btn');
+    const pomoTestBtn = document.getElementById('pomo-test-btn');
+    const pomoStatus = document.getElementById('pomo-status');
+
+    biomeBtn.click();
+    assertEqual(biomePopover.hidden, false);
+    assertEqual(biomeBtn.getAttribute('aria-expanded'), 'true');
+    assertEqual(biomePopover.inert, false);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assertEqual(biomePopover.hidden, true);
+    assertEqual(biomeBtn.getAttribute('aria-expanded'), 'false');
+    assertEqual(document.activeElement, biomeBtn);
+
+    // 1. Switch to Space & test Space options (palettes + orbit speed + meteor shower reward)
+    biomeBtn.click();
+    document.querySelector('#biome-popover .biome-btn[data-biome="space"]').click();
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'space');
+    assertEqual(document.title, t('pageTitleSpace'));
+    assertEqual(document.getElementById('biome-btn-label').textContent, t('biomeSpace'));
+    assertEqual(document.getElementById('feed-btn-label').textContent, t('spacePulseBtn'));
+    assertEqual(document.getElementById('pond-hint-prefix').textContent, t('spaceHintPrefix'));
+    assertEqual(controlFish.inert, true);
+    assertEqual(solarSelector.inert, true);
+    assertEqual(controlToggles.inert, true);
+    assertEqual(biomePopover.hidden, true);
+    assertEqual(pomoTestBtn.textContent.trim(), '☄️');
+    pomoTestBtn.click();
+    assertEqual(pomoStatus.textContent, t('pomoStatusMeteor'));
+
+    biomeBtn.click();
+    assertEqual(spaceOptions.hidden, false, 'Space options section must appear inside popover when Space is active');
+    document.querySelector('.space-palette-btn[data-space-palette="quasar"]').click();
+    assertEqual(document.documentElement.getAttribute('data-space-palette'), 'quasar');
+    assertEqual(biomePopover.hidden, false, 'Clicking palette chip should keep popover open for preview');
+    document.querySelector('.space-speed-btn[data-space-speed="0"]').click();
+    assertEqual(
+      document.querySelector('.space-speed-btn[data-space-speed="0"]').getAttribute('aria-pressed'),
+      'true'
+    );
+
+    const rainBeforeSpaceR = rainBtn.getAttribute('aria-pressed');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }));
+    assertEqual(rainBtn.getAttribute('aria-pressed'), rainBeforeSpaceR, 'Shortcut R must be ignored in Space mode');
+
+    // 2. Switch to Aurora & test UI adaptation + aurora Pomodoro reward
+    document.querySelector('#biome-popover .biome-btn[data-biome="aurora"]').click();
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'aurora');
+    assertEqual(document.title, t('pageTitleAurora'));
+    assertEqual(document.getElementById('biome-btn-label').textContent, t('biomeAurora'));
+    assertEqual(document.getElementById('feed-btn-label').textContent, t('auroraPulseBtn'));
+    assertEqual(document.getElementById('pond-hint-prefix').textContent, t('auroraHintPrefix'));
+    assertEqual(spaceOptions.hidden, true);
+    assertEqual(controlFish.inert, true);
+    assertEqual(solarSelector.inert, true);
+    assertEqual(controlToggles.inert, true);
+    assertEqual(pomoTestBtn.textContent.trim(), '✨');
+    pomoTestBtn.click();
+    assertEqual(pomoStatus.textContent, t('pomoStatusAurora'));
+
+    const rainBeforeAuroraR = rainBtn.getAttribute('aria-pressed');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }));
+    assertEqual(rainBtn.getAttribute('aria-pressed'), rainBeforeAuroraR, 'Shortcut R must be ignored in Aurora mode');
+
+    // 3. Shortcut B toggles quickly between cosmic/sky scene and last aquatic scene
+    document.getElementById('search-input').blur();
+    document.body.focus();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', bubbles: true }));
+    assertEqual(
+      document.documentElement.getAttribute('data-biome'),
+      prevAquaticBiome,
+      'Shortcut B should toggle back to last aquatic biome'
+    );
+    assertEqual(controlFish.inert, false);
+    assertEqual(solarSelector.inert, false);
+    assertEqual(controlToggles.inert, false);
+    assertEqual(document.getElementById('feed-btn-label').textContent, t('feedBtn'));
+    assertEqual(pomoTestBtn.textContent.trim(), '🌸');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', bubbles: true }));
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'aurora', 'Shortcut B should return to last cosmic biome');
+
+    biomeBtn.click();
+    document.querySelector('#biome-popover .biome-btn[data-biome="pond"]').click();
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'pond');
+
+    // Verify B preserves customized env chips across non-aquatic toggle, and / closes open popover
+    const kelpChip = document.querySelector('.env-chip[data-env="kelp"]');
+    kelpChip.click();
+    assertEqual(kelpChip.getAttribute('aria-pressed'), 'true');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', bubbles: true }));
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'aurora');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', bubbles: true }));
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'pond');
+    assertEqual(kelpChip.getAttribute('aria-pressed'), 'true', 'Shortcut B must preserve customized aquatic env layers');
+
+    biomeBtn.click();
+    assertEqual(biomePopover.hidden, false);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true }));
+    assertEqual(biomePopover.hidden, true, 'Shortcut / should close open popover');
+    assertEqual(document.activeElement, document.getElementById('search-input'));
+    document.getElementById('search-input').blur();
+
+    assert(
+      document.documentElement.scrollWidth <= window.innerWidth + 1,
+      `Horizontal overflow detected after biome switch: scrollWidth=${document.documentElement.scrollWidth} > innerWidth=${window.innerWidth}`
+    );
   });
 
   let passed = 0;

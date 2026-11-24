@@ -56,7 +56,7 @@
         <span id="fish-count-value" class="count-badge">12</span>
       </div>
 
-      <span class="pill-divider" aria-hidden="true"></span>
+      <span class="pill-divider pill-divider-fish" aria-hidden="true"></span>
 
       <div class="control-group solar-selector" role="group" aria-label="Momento del día" data-i18n-aria-label="solarGroupAria">
         <button type="button" class="solar-btn is-active" data-time-mode="auto" aria-pressed="true" title="Ciclo solar automático" data-i18n-title="solarAutoTitle">
@@ -76,23 +76,15 @@
         </button>
       </div>
 
-      <span class="pill-divider" aria-hidden="true"></span>
+      <span class="pill-divider pill-divider-solar" aria-hidden="true"></span>
 
-      <div class="control-group biome-selector" role="group" aria-label="Hábitat acuático" data-i18n-aria-label="biomeGroupAria">
-        <button type="button" class="biome-btn is-active" data-biome="pond" aria-pressed="true" title="Estanque zen con nenúfares" data-i18n-title="biomePondTitle">
-          <span data-i18n="biomePond">Estanque</span>
-        </button>
-        <button type="button" class="biome-btn" data-biome="ocean" aria-pressed="false" title="Mar abierto con corrientes, cardumen, medusas y algas" data-i18n-title="biomeOceanTitle">
-          <span class="swatch swatch-ocean" aria-hidden="true"></span>
-          <span data-i18n="biomeOcean">Mar</span>
-        </button>
-        <button type="button" class="biome-btn" data-biome="reef" aria-pressed="false" title="Arrecife coralino vibrante con mantarrayas y cardumen" data-i18n-title="biomeReefTitle">
-          <span class="swatch swatch-reef" aria-hidden="true"></span>
-          <span data-i18n="biomeReef">Arrecife</span>
-        </button>
-        <button type="button" class="biome-btn" data-biome="winter" aria-pressed="false" title="Estanque invernal con nieve suave y carpas doradas" data-i18n-title="biomeWinterTitle">
-          <span class="swatch swatch-winter" aria-hidden="true"></span>
-          <span data-i18n="biomeWinter">Invierno</span>
+      <div class="control-group biome-selector">
+        <button type="button" id="biome-btn" class="biome-trigger-btn" aria-expanded="false" aria-controls="biome-popover" title="Cambiar fondo y ecosistema" data-i18n-title="biomeBtnTitle">
+          <span id="biome-btn-swatch" class="swatch swatch-pond" aria-hidden="true"></span>
+          <span id="biome-btn-label" data-i18n="biomePond">Estanque</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
         </button>
       </div>
 
@@ -108,7 +100,7 @@
         </button>
       </div>
 
-      <span class="pill-divider" aria-hidden="true"></span>
+      <span class="pill-divider pill-divider-rain" aria-hidden="true"></span>
 
       <div class="control-group control-actions">
         <button type="button" id="feed-btn" class="action-btn" title="Soltar comida múltiple en el estanque (F)" data-i18n-title="feedBtnTitle">
@@ -118,7 +110,7 @@
             <circle cx="16.5" cy="14" r="1.4" fill="currentColor" stroke="none" />
             <circle cx="12" cy="17.5" r="1.2" fill="currentColor" stroke="none" />
           </svg>
-          <span data-i18n="feedBtn">Alimentar</span>
+          <span id="feed-btn-label" data-i18n="feedBtn">Alimentar</span>
         </button>
 
         <button type="button" id="stones-toggle-btn" class="icon-btn" title="Mostrar u ocultar piedras de río" aria-pressed="true" aria-label="Mostrar u ocultar piedras de río" data-i18n-title="stonesToggleTitle" data-i18n-aria-label="stonesToggleTitle">
@@ -252,6 +244,100 @@
     </div>
   </section>
 
+  <section id="biome-popover" class="biome-popover" aria-label="Selector de fondos" data-i18n-aria-label="biomePopoverAria" hidden>
+    <div class="fauna-popover-header">
+      <span class="fauna-popover-title" data-i18n="biomePopoverTitle">Escenarios y fondos</span>
+    </div>
+
+    <div class="biome-group">
+      <span class="biome-group-label" data-i18n="biomeGroupAquatic">Hábitats acuáticos</span>
+      <div class="biome-grid" role="group" aria-label="Hábitat acuático" data-i18n-aria-label="biomeGroupAria">
+        <button type="button" class="biome-btn is-active" data-biome="pond" aria-pressed="true" title="Estanque zen con nenúfares" data-i18n-title="biomePondTitle">
+          <span class="species-swatch swatch-pond" aria-hidden="true"></span>
+          <span class="species-info">
+            <span class="species-name" data-i18n="biomePond">Estanque</span>
+            <span class="species-desc" data-i18n="biomePondDesc">Nenúfares y calma zen</span>
+          </span>
+        </button>
+
+        <button type="button" class="biome-btn" data-biome="ocean" aria-pressed="false" title="Mar abierto con corrientes, cardumen, medusas y algas" data-i18n-title="biomeOceanTitle">
+          <span class="species-swatch swatch-ocean" aria-hidden="true"></span>
+          <span class="species-info">
+            <span class="species-name" data-i18n="biomeOcean">Mar</span>
+            <span class="species-desc" data-i18n="biomeOceanDesc">Corrientes, medusas y algas</span>
+          </span>
+        </button>
+
+        <button type="button" class="biome-btn" data-biome="reef" aria-pressed="false" title="Arrecife coralino vibrante con mantarrayas y cardumen" data-i18n-title="biomeReefTitle">
+          <span class="species-swatch swatch-reef" aria-hidden="true"></span>
+          <span class="species-info">
+            <span class="species-name" data-i18n="biomeReef">Arrecife</span>
+            <span class="species-desc" data-i18n="biomeReefDesc">Coral cálido y cardumen</span>
+          </span>
+        </button>
+
+        <button type="button" class="biome-btn" data-biome="winter" aria-pressed="false" title="Estanque invernal con nieve suave y carpas doradas" data-i18n-title="biomeWinterTitle">
+          <span class="species-swatch swatch-winter" aria-hidden="true"></span>
+          <span class="species-info">
+            <span class="species-name" data-i18n="biomeWinter">Invierno</span>
+            <span class="species-desc" data-i18n="biomeWinterDesc">Nieve suave y reflejos glaciares</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="biome-group">
+      <span class="biome-group-label" data-i18n="biomeGroupCosmos">Cosmos y cielo nocturno</span>
+      <div class="biome-grid" role="group" aria-label="Cosmos y cielo nocturno" data-i18n-aria-label="biomeGroupCosmos">
+        <button type="button" class="biome-btn biome-card-featured" data-biome="space" aria-pressed="false" title="Agujero negro luminoso en arte ASCII y campo de estrellas" data-i18n-title="biomeSpaceTitle">
+          <span class="species-swatch swatch-space" aria-hidden="true"></span>
+          <span class="species-info">
+            <span class="species-name" data-i18n="biomeSpaceCardTitle">Agujero Negro ASCII</span>
+            <span class="species-desc" data-i18n="biomeSpaceDesc">Disco de acreción gravitacional y estrellas</span>
+          </span>
+        </button>
+
+        <button type="button" class="biome-btn biome-card-aurora" data-biome="aurora" aria-pressed="false" title="Aurora boreal nocturna en ASCII sobre cordillera alpina" data-i18n-title="biomeAuroraTitle">
+          <span class="species-swatch swatch-aurora" aria-hidden="true"></span>
+          <span class="species-info">
+            <span class="species-name" data-i18n="biomeAuroraCardTitle">Aurora Boreal</span>
+            <span class="species-desc" data-i18n="biomeAuroraDesc">Cortinas luminosas y montañas nocturnas</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div id="space-options-section" class="space-options-section" hidden>
+      <div class="space-option-row">
+        <span class="space-option-label" data-i18n="spacePaletteLabel">Paleta estelar</span>
+        <div class="space-chip-group" role="group" aria-label="Paleta del agujero negro" data-i18n-aria-label="spacePaletteGroupAria">
+          <button type="button" class="space-chip space-palette-btn is-active" data-space-palette="gold" aria-pressed="true">
+            <span class="palette-dot palette-dot-gold" aria-hidden="true"></span>
+            <span data-i18n="spacePaletteGold">Dorado</span>
+          </button>
+          <button type="button" class="space-chip space-palette-btn" data-space-palette="quasar" aria-pressed="false">
+            <span class="palette-dot palette-dot-quasar" aria-hidden="true"></span>
+            <span data-i18n="spacePaletteQuasar">Quásar</span>
+          </button>
+          <button type="button" class="space-chip space-palette-btn" data-space-palette="violet" aria-pressed="false">
+            <span class="palette-dot palette-dot-violet" aria-hidden="true"></span>
+            <span data-i18n="spacePaletteViolet">Violeta</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-option-row">
+        <span class="space-option-label" data-i18n="spaceOrbitLabel">Órbita de cámara</span>
+        <div class="space-chip-group" role="group" aria-label="Velocidad orbital" data-i18n-aria-label="spaceOrbitGroupAria">
+          <button type="button" class="space-chip space-speed-btn" data-space-speed="0" aria-pressed="false" data-i18n="spaceOrbitPause">Pausa</button>
+          <button type="button" class="space-chip space-speed-btn" data-space-speed="0.5" aria-pressed="false" data-i18n="spaceOrbitSlow">0.5×</button>
+          <button type="button" class="space-chip space-speed-btn is-active" data-space-speed="1" aria-pressed="true" data-i18n="spaceOrbitNormal">1×</button>
+          <button type="button" class="space-chip space-speed-btn" data-space-speed="2" aria-pressed="false" data-i18n="spaceOrbitFast">2×</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <main class="center-stage" id="center-stage">
     <section class="hero-card" id="hero-card" aria-label="Saludo y búsqueda" data-i18n-aria-label="heroAria">
       <div class="clock-wrap" id="clock-wrap">
@@ -294,7 +380,7 @@
         <ul id="bang-suggestions" class="bang-suggestions" role="listbox" aria-label="Sugerencias de prefijos bang" data-i18n-aria-label="bangSuggestAria" hidden></ul>
       </div>
 
-      <p class="pond-hint"><span data-i18n="pondHintPrefix">Clic en el agua o tecla F para alimentar · Prefijos:</span> <code>!gh</code> <code>!yt</code> <code>!r</code> <code>!mdn</code> <code>!so</code> <code>!w</code></p>
+      <p class="pond-hint"><span id="pond-hint-prefix" data-i18n="pondHintPrefix">Clic en el agua o tecla F para alimentar · Prefijos:</span> <code>!gh</code> <code>!yt</code> <code>!r</code> <code>!mdn</code> <code>!so</code> <code>!w</code></p>
 
       <div id="daily-focus-wrap" class="daily-focus-wrap">
         <input
@@ -433,7 +519,7 @@
           </div>
         </div>
 
-        <p class="settings-shortcuts-hint"><strong data-i18n="settingsShortcutsTitle">Atajos de teclado</strong>: <span data-i18n="settingsShortcutsBody">/ Buscar · F Alimentar · R Lluvia · P Pomodoro · Z Zen · Esc Cerrar</span></p>
+        <p class="settings-shortcuts-hint"><strong data-i18n="settingsShortcutsTitle">Atajos de teclado</strong>: <span data-i18n="settingsShortcutsBody">/ Buscar · F Alimentar · R Lluvia · B Fondo · P Pomodoro · Z Zen · Esc Cerrar</span></p>
       </section>
 
       <section class="settings-section">

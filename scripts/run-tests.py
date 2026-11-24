@@ -181,6 +181,7 @@ def main() -> int:
             matrix.extend([
                 ('en', 'en-US', '1280,800', '?lang=en'),
                 ('es', 'es-ES', '800,600', '?lang=es'),
+                ('es', 'es-ES', '480,800', '?lang=es'),
             ])
 
         for expected_lang, cli_lang, viewport, query in matrix:

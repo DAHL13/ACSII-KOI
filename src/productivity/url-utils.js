@@ -12,7 +12,7 @@ export const COMMON_TLDS = new Set([
   'ua', 'tr', 'il', 'sg', 'hk', 'tw', 'za', 'eu', 'cat', 'pro', 'int', 'design', 'studio',
   'digital', 'tools', 'codes', 'software', 'systems', 'network', 'games', 'live', 'social',
   'media', 'video', 'music', 'space', 'world', 'work', 'shop', 'club', 'art', 'ink', 'run',
-  'build', 'pub'
+  'build', 'pub', 'rs', 'sh', 'cc', 'pl', 'ro', 'hu', 'gr', 'sk'
 ]);
 
 export const BANGS = {
@@ -107,6 +107,10 @@ export function sanitizeCustomBang(raw) {
     const parsed = new URL(safeTestUrl);
     if (parsed.protocol !== 'https:') return null;
   } catch (_) {
+    return null;
+  }
+
+  if (!hasPlaceholder && !/[=?&]$/.test(safeTestUrl)) {
     return null;
   }
 

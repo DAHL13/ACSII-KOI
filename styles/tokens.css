@@ -137,3 +137,83 @@ html[data-biome="winter"][data-solar="night"] {
   --accent-glow: rgba(103, 232, 249, 0.25);
   --border-glass-focus: rgba(186, 230, 253, 0.52);
 }
+
+/* Espacio profundo (Agujero Negro ASCII) */
+html[data-biome="space"],
+html[data-biome="space"][data-solar="day"],
+html[data-biome="space"][data-solar="sunset"],
+html[data-biome="space"][data-solar="night"] {
+  --bg-base: #020205;
+  --bg-radial-1: rgba(34, 18, 6, 0.24);
+  --bg-radial-2: rgba(12, 7, 4, 0.14);
+  --bg-radial-accent: rgba(251, 191, 36, 0.06);
+  --surface-glass: rgba(8, 8, 12, 0.64);
+  --surface-glass-hover: rgba(16, 13, 18, 0.80);
+  --surface-pill: rgba(8, 8, 12, 0.62);
+  --border-glass: rgba(251, 191, 36, 0.18);
+  --border-glass-focus: rgba(251, 191, 36, 0.56);
+  --text-primary: #fefce8;
+  --text-secondary: rgba(253, 230, 138, 0.86);
+  --text-muted: rgba(253, 211, 132, 0.66);
+  --accent: #fbbf24;
+  --accent-soft: rgba(251, 191, 36, 0.18);
+  --accent-glow: rgba(251, 191, 36, 0.26);
+}
+
+html[data-biome="space"][data-space-palette="quasar"] {
+  --bg-base: #02040a;
+  --bg-radial-1: rgba(14, 38, 76, 0.26);
+  --bg-radial-2: rgba(7, 16, 36, 0.16);
+  --bg-radial-accent: rgba(56, 189, 248, 0.08);
+  --surface-glass: rgba(6, 11, 20, 0.64);
+  --surface-glass-hover: rgba(10, 18, 32, 0.80);
+  --surface-pill: rgba(6, 11, 20, 0.62);
+  --border-glass: rgba(56, 189, 248, 0.20);
+  --border-glass-focus: rgba(56, 189, 248, 0.56);
+  --text-primary: #f0f9ff;
+  --text-secondary: rgba(186, 230, 253, 0.86);
+  --text-muted: rgba(147, 197, 253, 0.68);
+  --accent: #38bdf8;
+  --accent-soft: rgba(56, 189, 248, 0.18);
+  --accent-glow: rgba(56, 189, 248, 0.28);
+}
+
+html[data-biome="space"][data-space-palette="violet"] {
+  --bg-base: #04020a;
+  --bg-radial-1: rgba(52, 20, 88, 0.28);
+  --bg-radial-2: rgba(20, 9, 40, 0.16);
+  --bg-radial-accent: rgba(192, 132, 252, 0.08);
+  --surface-glass: rgba(11, 7, 20, 0.64);
+  --surface-glass-hover: rgba(18, 11, 32, 0.80);
+  --surface-pill: rgba(11, 7, 20, 0.62);
+  --border-glass: rgba(192, 132, 252, 0.20);
+  --border-glass-focus: rgba(192, 132, 252, 0.56);
+  --text-primary: #faf5ff;
+  --text-secondary: rgba(233, 213, 255, 0.86);
+  --text-muted: rgba(216, 180, 254, 0.68);
+  --accent: #c084fc;
+  --accent-soft: rgba(192, 132, 252, 0.18);
+  --accent-glow: rgba(192, 132, 252, 0.28);
+}
+
+/* Aurora Boreal nocturna */
+html[data-biome="aurora"],
+html[data-biome="aurora"][data-solar="day"],
+html[data-biome="aurora"][data-solar="sunset"],
+html[data-biome="aurora"][data-solar="night"] {
+  --bg-base: #030914;
+  --bg-radial-1: rgba(12, 46, 54, 0.34);
+  --bg-radial-2: rgba(28, 18, 56, 0.20);
+  --bg-radial-accent: rgba(52, 211, 153, 0.09);
+  --surface-glass: rgba(6, 14, 22, 0.62);
+  --surface-glass-hover: rgba(10, 22, 34, 0.78);
+  --surface-pill: rgba(6, 14, 22, 0.60);
+  --border-glass: rgba(110, 231, 183, 0.18);
+  --border-glass-focus: rgba(52, 211, 153, 0.56);
+  --text-primary: #ecfdf5;
+  --text-secondary: rgba(209, 250, 229, 0.84);
+  --text-muted: rgba(167, 243, 208, 0.68);
+  --accent: #34d399;
+  --accent-soft: rgba(52, 211, 153, 0.17);
+  --accent-glow: rgba(52, 211, 153, 0.28);
+}

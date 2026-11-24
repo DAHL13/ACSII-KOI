@@ -1,6 +1,8 @@
 export const ATLAS_CHARS = [
   '@', '#', '%', '*', '+', ':', '.', '~', '|', '/', "'", '(', ')', '·', 'o', '✿', '❀',
-  '≈', '-', '>', '<', '°', '❄'
+  '≈', '-', '>', '<', '°', '❄',
+  ',', ';', '_', '=', '\\', '^', 'r', 't', 'v', 'c', 'x', 'z', 'e', 'a', 's', 'n', 'u',
+  '0', 'O', 'Q', 'S', '8', 'B', 'R', 'K', 'N', 'M', 'W', '$'
 ];
 
 export const PALETTE_COLORS = {
@@ -94,11 +96,70 @@ export const PALETTE_COLORS = {
   carpCream: '#fef3c7',
 
   reefCoral: '#fb7185',
-  reefAmber: '#f59e0b',
   reefTeal: '#2dd4bf',
   snowWhite: '#f8fafc',
   snowBlue: '#bae6fd',
-  iceCyan: '#67e8f9'
+  iceCyan: '#67e8f9',
+
+  spaceEmber: '#6e280a',
+  spaceRust: '#a8430c',
+  spaceAmber: '#d97706',
+  spaceGold: '#fbbf24',
+  spacePale: '#fde68a',
+  spaceCore: '#fffbeb',
+  spaceSunsetOrange: '#ea580c',
+  starCool: '#cbd5e1',
+  starBlue: '#93c5fd',
+  starWarm: '#fde68a',
+
+  planetSlateDark: '#1e293b',
+  planetSlateMid: '#475569',
+  planetIceLight: '#cbd5e1',
+  planetOceanDark: '#102a4c',
+  planetOceanMid: '#2563eb',
+  planetOceanLight: '#7dd3fc',
+  planetVioletDark: '#2e1a47',
+  planetVioletMid: '#7c3aed',
+  planetVioletLight: '#ddd6fe',
+  planetOchreDark: '#593b18',
+  planetOchreMid: '#b07b38',
+  planetOchreLight: '#f3d5a5',
+  planetCrimsonDark: '#4c1118',
+  planetCrimsonMid: '#b91c1c',
+  planetCrimsonLight: '#fca5a5',
+  planetEmeraldDark: '#0b3828',
+  planetEmeraldMid: '#10b981',
+  planetEmeraldLight: '#a7f3d0',
+  planetRingDust: '#d6b68a',
+
+  quasarEmber: '#0c2d57',
+  quasarRust: '#1d4ed8',
+  quasarAmber: '#0284c7',
+  quasarGold: '#38bdf8',
+  quasarPale: '#bae6fd',
+  quasarCore: '#f0f9ff',
+
+  violetEmber: '#2e1065',
+  violetRust: '#6d28d9',
+  violetAmber: '#9333ea',
+  violetGold: '#c084fc',
+  violetPale: '#e9d5ff',
+  violetCore: '#faf5ff',
+
+  nebulaGoldA: '#5c4328',
+  nebulaGoldB: '#8a6d4b',
+  nebulaBlueA: '#1e3a5f',
+  nebulaBlueB: '#3b6ea5',
+  nebulaVioletA: '#3b1f5e',
+  nebulaVioletB: '#7044a3',
+
+  auroraEmerald: '#34d399',
+  auroraLime: '#6ee7b7',
+  auroraCyan: '#22d3ee',
+  auroraTeal: '#0d9488',
+  auroraViolet: '#a78bfa',
+  auroraMagenta: '#e879f9',
+  mountainRidge: '#2a4858'
 };
 
 const LOGICAL_CELL = 22;

@@ -1,18 +1,19 @@
-import { STONES_STORAGE_KEY } from '../core/constants.js';
-import { t } from '../core/i18n.js';
-import { syncPushKey, syncRemoveKey } from '../core/storage.js';
+import { MAX_STONES, STONES_STORAGE_KEY } from '../core/constants.js';
+import { getShortLang, t } from '../core/i18n.js';
+import { loadSavedStones, saveStonesList, syncRemoveKey } from '../core/storage.js';
 import { createStoneId, extractHostname, sanitizeHttpUrl, shortenTitle } from './url-utils.js';
 
-const MAX_STONES = 8;
-
-const DEFAULT_STONES = [
-  { id: 'def-gh', title: 'GitHub', url: 'https://github.com' },
-  { id: 'def-yt', title: 'YouTube', url: 'https://www.youtube.com' },
-  { id: 'def-gm', title: 'Gmail', url: 'https://mail.google.com' },
-  { id: 'def-mdn', title: 'MDN', url: 'https://developer.mozilla.org' },
-  { id: 'def-wiki', title: 'Wikipedia', url: 'https://es.wikipedia.org' },
-  { id: 'def-so', title: 'StackOverflow', url: 'https://stackoverflow.com' }
-];
+function getDefaultStones() {
+  const wikiHost = getShortLang() === 'en' ? 'en.wikipedia.org' : 'es.wikipedia.org';
+  return [
+    { id: 'def-gh', title: 'GitHub', url: 'https://github.com' },
+    { id: 'def-yt', title: 'YouTube', url: 'https://www.youtube.com' },
+    { id: 'def-gm', title: 'Gmail', url: 'https://mail.google.com' },
+    { id: 'def-mdn', title: 'MDN', url: 'https://developer.mozilla.org' },
+    { id: 'def-wiki', title: 'Wikipedia', url: `https://${wikiHost}` },
+    { id: 'def-so', title: 'StackOverflow', url: 'https://stackoverflow.com' }
+  ];
+}
 
 const ORGANIC_RADII = [
   '24px 20px 26px 22px / 20px 25px 21px 24px',
@@ -173,47 +174,11 @@ export class RiverStonesManager {
   }
 
   loadSavedStones() {
-    try {
-      const raw = localStorage.getItem(STONES_STORAGE_KEY);
-      if (raw === null) return null;
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return null;
-      if (parsed.length === 0) return [];
-
-      const seenIds = new Set();
-      const sanitized = [];
-      for (let i = 0; i < parsed.length; i++) {
-        const item = parsed[i];
-        if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
-        const safeUrl = sanitizeHttpUrl(item.url);
-        if (!safeUrl) continue;
-
-        let id = typeof item.id === 'string' && item.id.trim() ? item.id.trim() : createStoneId();
-        if (seenIds.has(id)) {
-          id = createStoneId();
-        }
-        seenIds.add(id);
-
-        const rawTitle = typeof item.title === 'string' ? item.title : '';
-        sanitized.push({
-          id,
-          title: shortenTitle(rawTitle, safeUrl),
-          url: safeUrl
-        });
-      }
-
-      if (sanitized.length === 0) return null;
-      return sanitized;
-    } catch (_) {
-      return null;
-    }
+    return loadSavedStones();
   }
 
   saveStones() {
-    try {
-      localStorage.setItem(STONES_STORAGE_KEY, JSON.stringify(this.stones));
-    } catch (_) {}
-    syncPushKey(STONES_STORAGE_KEY, this.stones);
+    this.stones = saveStonesList(this.stones);
   }
 
   setStones(nextStones) {
@@ -265,7 +230,7 @@ export class RiverStonesManager {
       try {
         chrome.topSites.get((sites) => {
           if (chrome.runtime && chrome.runtime.lastError) {
-            this.stones = DEFAULT_STONES.map((s) => ({ ...s }));
+            this.stones = getDefaultStones();
             this.render();
             return;
           }
@@ -286,7 +251,7 @@ export class RiverStonesManager {
               url: s.url
             }));
           } else {
-            this.stones = DEFAULT_STONES.map((s) => ({ ...s }));
+            this.stones = getDefaultStones();
           }
           this.render();
         });
@@ -296,7 +261,7 @@ export class RiverStonesManager {
       }
     }
 
-    this.stones = DEFAULT_STONES.map((s) => ({ ...s }));
+    this.stones = getDefaultStones();
     this.render();
   }
 

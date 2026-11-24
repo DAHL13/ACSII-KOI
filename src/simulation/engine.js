@@ -137,6 +137,16 @@ export class KoiPondEngine {
     return this.creatures.length;
   }
 
+  isSpaceMode() {
+    return Boolean(this.ecosystem && this.ecosystem.isSpaceBiome && this.ecosystem.isSpaceBiome());
+  }
+
+  isNonAquaticMode() {
+    if (!this.ecosystem) return false;
+    if (this.ecosystem.isNonAquaticBiome) return Boolean(this.ecosystem.isNonAquaticBiome());
+    return this.isSpaceMode();
+  }
+
   isEcoActive() {
     return this.ecoMode === 'on' || (this.ecoMode === 'auto' && this.adaptiveEcoActive);
   }
@@ -401,11 +411,47 @@ export class KoiPondEngine {
   }
 
   dropFood(x, y) {
+    if (this.isSpaceMode()) {
+      if (this.ecosystem.triggerSpacePulse) {
+        this.ecosystem.triggerSpacePulse(x, y, 8);
+      }
+      this.spawnRipple(x, y, 96, 1.25, 0.82);
+      return;
+    }
+    if (this.isNonAquaticMode()) {
+      if (this.ecosystem.triggerAuroraPulse) {
+        this.ecosystem.triggerAuroraPulse(x, y, 10);
+      }
+      this.spawnRipple(x, y, 92, 1.2, 0.76);
+      return;
+    }
     this.activateFoodSlot(x, y, 0);
     this.spawnRipple(x, y, 108, 1.35, 0.9);
   }
 
   dropMultipleFood(count = 8) {
+    if (this.isSpaceMode()) {
+      if (this.ecosystem.triggerSpaceMultiPulse) {
+        this.ecosystem.triggerSpaceMultiPulse();
+      }
+      const cx = this.width * 0.5;
+      const cy = this.height * 0.49;
+      this.spawnRipple(cx - 120, cy - 18, 88, 1.2, 0.72);
+      this.spawnRipple(cx, cy, 118, 1.35, 0.88);
+      this.spawnRipple(cx + 120, cy + 18, 88, 1.2, 0.72);
+      return;
+    }
+    if (this.isNonAquaticMode()) {
+      if (this.ecosystem.triggerAuroraMultiPulse) {
+        this.ecosystem.triggerAuroraMultiPulse();
+      }
+      const cy = this.height * 0.34;
+      this.spawnRipple(this.width * 0.25, cy, 90, 1.25, 0.72);
+      this.spawnRipple(this.width * 0.50, cy - 22, 116, 1.35, 0.85);
+      this.spawnRipple(this.width * 0.75, cy, 90, 1.25, 0.72);
+      return;
+    }
+
     const margin = 90;
     for (let i = 0; i < count; i++) {
       const fx = randRange(margin, Math.max(margin + 10, this.width - margin));
@@ -454,8 +500,18 @@ export class KoiPondEngine {
   onMouseMove(x, y) {
     this.mouse.x = x;
     this.mouse.y = y;
+    if (this.isNonAquaticMode()) {
+      this.mouse.active = false;
+      this.mouse.energy = 0;
+      return;
+    }
+
     this.mouse.active = true;
     this.mouse.energy = Math.min(1.0, this.mouse.energy + 0.35);
+
+    if (this.ecosystem && this.ecosystem.setPointer) {
+      this.ecosystem.setPointer(x, y, true);
+    }
 
     const dist = Math.hypot(x - this.mouse.lastSpawnX, y - this.mouse.lastSpawnY);
     if (dist > 18) {
@@ -486,6 +542,9 @@ export class KoiPondEngine {
 
   onMouseLeave() {
     this.mouse.active = false;
+    if (this.ecosystem && this.ecosystem.setPointer) {
+      this.ecosystem.setPointer(this.mouse.x, this.mouse.y, false);
+    }
   }
 
   start() {
@@ -591,6 +650,8 @@ export class KoiPondEngine {
       p.vy *= trailDamp;
     }
 
+    if (this.isNonAquaticMode()) return;
+
     const foodDamp = dampFactor(0.97, dt);
     const foods = this.foodPool.items;
     for (let i = 0; i < FOOD_POOL_SIZE; i++) {
@@ -654,12 +715,13 @@ export class KoiPondEngine {
     const ctx = this.ctx;
     const atlas = this.atlas;
     const theme = this.ecosystem.getTheme();
+    const nonAquatic = this.isNonAquaticMode();
 
     ctx.clearRect(0, 0, this.width, this.height);
 
-    this.ecosystem.renderSubaqueous(ctx, atlas);
+    this.ecosystem.renderSubaqueous(ctx, atlas, this.isEcoActive());
 
-    if (this.schoolEnabled) {
+    if (!nonAquatic && this.schoolEnabled) {
       this.baitSchool.render(ctx, atlas);
     }
 
@@ -676,8 +738,10 @@ export class KoiPondEngine {
     }
     ctx.globalAlpha = 1;
 
-    for (let i = 0; i < this.creatures.length; i++) {
-      this.creatures[i].render(ctx, atlas, this.ecosystem, this.time, this.width, this.height);
+    if (!nonAquatic) {
+      for (let i = 0; i < this.creatures.length; i++) {
+        this.creatures[i].render(ctx, atlas, this.ecosystem, this.time, this.width, this.height);
+      }
     }
 
     const ripples = this.ripplePool.items;
@@ -717,22 +781,24 @@ export class KoiPondEngine {
       }
     }
 
-    const foods = this.foodPool.items;
-    for (let i = 0; i < FOOD_POOL_SIZE; i++) {
-      const f = foods[i];
-      if (!f.active || f.age < 0) continue;
+    if (!nonAquatic) {
+      const foods = this.foodPool.items;
+      for (let i = 0; i < FOOD_POOL_SIZE; i++) {
+        const f = foods[i];
+        if (!f.active || f.age < 0) continue;
 
-      const pulse = 0.78 + 0.22 * Math.sin(this.time * 7 + i);
-      const gx = (Math.floor(f.x / CELL_W) + 0.5) * CELL_W;
-      const gy = (Math.floor(f.y / CELL_H) + 0.5) * CELL_H;
+        const pulse = 0.78 + 0.22 * Math.sin(this.time * 7 + i);
+        const gx = (Math.floor(f.x / CELL_W) + 0.5) * CELL_W;
+        const gy = (Math.floor(f.y / CELL_H) + 0.5) * CELL_H;
 
-      ctx.globalAlpha = pulse;
-      atlas.drawGlyph(ctx, '*', theme.pelletKey, true, gx, gy);
+        ctx.globalAlpha = pulse;
+        atlas.drawGlyph(ctx, '*', theme.pelletKey, true, gx, gy);
 
-      if (Math.sin(this.time * 5 + i) > 0.1) {
-        ctx.globalAlpha = 0.28;
-        atlas.drawGlyph(ctx, '·', theme.pelletKey, true, gx - CELL_W, gy);
-        atlas.drawGlyph(ctx, '·', theme.pelletKey, true, gx + CELL_W, gy);
+        if (Math.sin(this.time * 5 + i) > 0.1) {
+          ctx.globalAlpha = 0.28;
+          atlas.drawGlyph(ctx, '·', theme.pelletKey, true, gx - CELL_W, gy);
+          atlas.drawGlyph(ctx, '·', theme.pelletKey, true, gx + CELL_W, gy);
+        }
       }
     }
 

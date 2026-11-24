@@ -205,3 +205,9 @@ body.zen-mode .pomodoro-widget {
   background: rgba(255, 183, 197, 0.2);
   border-color: rgba(255, 183, 197, 0.45);
 }
+
+html[data-biome="space"] .pomo-btn-sakura:hover,
+html[data-biome="aurora"] .pomo-btn-sakura:hover {
+  background: var(--accent-soft);
+  border-color: var(--border-glass-focus);
+}

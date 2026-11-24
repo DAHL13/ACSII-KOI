@@ -109,7 +109,6 @@
 }
 
 .solar-btn,
-.biome-btn,
 .toggle-btn,
 .action-btn,
 .icon-btn {
@@ -135,7 +134,6 @@
 }
 
 .solar-btn:hover,
-.biome-btn:hover,
 .toggle-btn:hover,
 .action-btn:hover,
 .icon-btn:hover {
@@ -144,7 +142,6 @@
 }
 
 .solar-btn:active,
-.biome-btn:active,
 .toggle-btn:active,
 .action-btn:active,
 .icon-btn:active {
@@ -152,7 +149,6 @@
 }
 
 .solar-btn.is-active,
-.biome-btn.is-active,
 .toggle-btn[aria-pressed="true"] {
   color: var(--text-primary);
   background: var(--accent-soft);
@@ -179,6 +175,73 @@
 .swatch-winter {
   background: linear-gradient(135deg, #f8fafc, #67e8f9);
   box-shadow: 0 0 6px rgba(186, 230, 253, 0.75);
+}
+
+.swatch-pond {
+  background: linear-gradient(135deg, #52b788, #38bdf8);
+  box-shadow: 0 0 6px rgba(82, 183, 136, 0.7);
+}
+
+.swatch-space {
+  background: radial-gradient(circle, #020205 32%, #fbbf24 62%, #d97706 100%);
+  box-shadow: 0 0 7px rgba(251, 191, 36, 0.75);
+}
+
+html[data-space-palette="quasar"] .biome-trigger-btn .swatch-space {
+  background: radial-gradient(circle, #02040a 32%, #38bdf8 62%, #1d4ed8 100%);
+  box-shadow: 0 0 7px rgba(56, 189, 248, 0.8);
+}
+
+html[data-space-palette="violet"] .biome-trigger-btn .swatch-space {
+  background: radial-gradient(circle, #04020a 32%, #c084fc 62%, #6d28d9 100%);
+  box-shadow: 0 0 7px rgba(192, 132, 252, 0.8);
+}
+
+.swatch-aurora {
+  background: linear-gradient(135deg, #34d399 10%, #22d3ee 55%, #a78bfa 100%);
+  box-shadow: 0 0 7px rgba(52, 211, 153, 0.75);
+}
+
+.biome-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.biome-trigger-btn:hover,
+.biome-trigger-btn[aria-expanded="true"] {
+  background: var(--accent-soft);
+  border-color: var(--border-glass-focus);
+}
+
+.biome-trigger-btn[aria-expanded="true"] .chevron-icon {
+  transform: rotate(180deg);
+}
+
+html[data-biome="space"] .control-fish,
+html[data-biome="space"] .pill-divider-fish,
+html[data-biome="space"] .solar-selector,
+html[data-biome="space"] .pill-divider-solar,
+html[data-biome="space"] .control-toggles,
+html[data-biome="space"] .pill-divider-rain,
+html[data-biome="aurora"] .control-fish,
+html[data-biome="aurora"] .pill-divider-fish,
+html[data-biome="aurora"] .solar-selector,
+html[data-biome="aurora"] .pill-divider-solar,
+html[data-biome="aurora"] .control-toggles,
+html[data-biome="aurora"] .pill-divider-rain {
+  display: none;
 }
 
 .swatch-day {

@@ -1,7 +1,9 @@
 import { BIOME_KEYS, CELL_H, CELL_W } from '../core/constants.js';
 import { clamp, dampFactor, randRange } from '../core/math.js';
+import { AuroraLayer } from './aurora.js';
 import { LilyPadLayer } from './lilies.js';
 import { OceanLayer } from './ocean.js';
+import { SpaceLayer } from './space.js';
 import { WeatherLayer } from './weather.js';
 
 export const SOLAR_KEYS = {
@@ -100,7 +102,76 @@ const BIOME_SOLAR_THEMES = {
       trailKey: 'snowBlue',
       rainKey: 'snowBlue'
     }
+  },
+  space: {
+    day: {
+      ...SOLAR_KEYS.day,
+      causticKey: 'spaceGold',
+      causticAltKey: 'spaceAmber',
+      ripplePrimaryKey: 'spaceGold',
+      rippleSecondaryKey: 'spaceAmber',
+      trailKey: 'spaceAmber',
+      pelletKey: 'spaceCore',
+      rainKey: 'spacePale'
+    },
+    sunset: {
+      ...SOLAR_KEYS.sunset,
+      causticKey: 'spaceGold',
+      causticAltKey: 'spaceSunsetOrange',
+      ripplePrimaryKey: 'spaceGold',
+      rippleSecondaryKey: 'spaceSunsetOrange',
+      trailKey: 'spaceSunsetOrange',
+      pelletKey: 'spaceCore',
+      rainKey: 'spacePale'
+    },
+    night: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'spaceGold',
+      causticAltKey: 'spaceAmber',
+      ripplePrimaryKey: 'spaceGold',
+      rippleSecondaryKey: 'spaceAmber',
+      trailKey: 'spaceAmber',
+      pelletKey: 'spaceCore',
+      rainKey: 'starWarm'
+    }
+  },
+  aurora: {
+    day: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'auroraEmerald',
+      causticAltKey: 'auroraCyan',
+      ripplePrimaryKey: 'auroraEmerald',
+      rippleSecondaryKey: 'auroraCyan',
+      trailKey: 'auroraCyan',
+      pelletKey: 'auroraLime',
+      rainKey: 'snowBlue'
+    },
+    sunset: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'auroraEmerald',
+      causticAltKey: 'auroraViolet',
+      ripplePrimaryKey: 'auroraEmerald',
+      rippleSecondaryKey: 'auroraViolet',
+      trailKey: 'auroraCyan',
+      pelletKey: 'auroraLime',
+      rainKey: 'snowBlue'
+    },
+    night: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'auroraEmerald',
+      causticAltKey: 'auroraCyan',
+      ripplePrimaryKey: 'auroraEmerald',
+      rippleSecondaryKey: 'auroraViolet',
+      trailKey: 'auroraCyan',
+      pelletKey: 'auroraLime',
+      rainKey: 'snowBlue'
+    }
   }
+};
+
+const ZERO_FLOW = (_x, _y, out) => {
+  out.vx = 0;
+  out.vy = 0;
 };
 
 export class PondEcosystem {
@@ -131,6 +202,11 @@ export class PondEcosystem {
       kelpEnabled: options.kelpEnabled,
       jellyfishEnabled: options.jellyfishEnabled
     });
+    this.spaceLayer = new SpaceLayer(width, height, {
+      palette: options.spacePalette,
+      orbitSpeed: options.spaceOrbitSpeed
+    });
+    this.auroraLayer = new AuroraLayer(width, height);
 
     this.initCaustics();
     this.initFireflies();
@@ -157,7 +233,57 @@ export class PondEcosystem {
   }
 
   setBiome(biome) {
-    this.biome = BIOME_KEYS.includes(biome) ? biome : 'pond';
+    const nextBiome = BIOME_KEYS.includes(biome) ? biome : 'pond';
+    const wasNonAquatic = this.isNonAquaticBiome();
+    this.biome = nextBiome;
+    if (this.isNonAquaticBiome()) {
+      this.weatherLayer.seedRain(false);
+      this.weatherLayer.seedSnow(false);
+    } else if (wasNonAquatic) {
+      if (this.rainEnabled) this.weatherLayer.seedRain(true);
+      if (this.snowEnabled) this.weatherLayer.seedSnow(true);
+    }
+  }
+
+  isSpaceBiome() {
+    return this.biome === 'space';
+  }
+
+  isAuroraBiome() {
+    return this.biome === 'aurora';
+  }
+
+  isNonAquaticBiome() {
+    return this.biome === 'space' || this.biome === 'aurora';
+  }
+
+  setSpacePalette(palette) {
+    this.spaceLayer.setPalette(palette);
+  }
+
+  setSpaceOrbitSpeed(speed) {
+    this.spaceLayer.setOrbitSpeed(speed);
+  }
+
+  setPointer(x, y, active) {
+    this.spaceLayer.setPointer(x, y, active);
+    this.auroraLayer.setPointer(x, y, active);
+  }
+
+  triggerSpacePulse(x, y, count = 8) {
+    this.spaceLayer.triggerPulse(x, y, count);
+  }
+
+  triggerSpaceMultiPulse() {
+    this.spaceLayer.triggerMultiPulse();
+  }
+
+  triggerAuroraPulse(x, y, count = 10) {
+    this.auroraLayer.triggerPulse(x, y, count);
+  }
+
+  triggerAuroraMultiPulse() {
+    this.auroraLayer.triggerMultiPulse();
   }
 
   setCurrentsEnabled(enabled) {
@@ -184,7 +310,9 @@ export class PondEcosystem {
     const next = Boolean(enabled);
     if (next && !this.rainEnabled) {
       this.rainEnabled = true;
-      this.weatherLayer.seedRain(true);
+      if (!this.isNonAquaticBiome()) {
+        this.weatherLayer.seedRain(true);
+      }
     } else {
       this.rainEnabled = next;
     }
@@ -194,7 +322,9 @@ export class PondEcosystem {
     const next = Boolean(enabled);
     if (next && !this.snowEnabled) {
       this.snowEnabled = true;
-      this.weatherLayer.seedSnow(true);
+      if (!this.isNonAquaticBiome()) {
+        this.weatherLayer.seedSnow(true);
+      }
     } else {
       this.snowEnabled = next;
     }
@@ -213,7 +343,7 @@ export class PondEcosystem {
   isFirefliesActive() {
     if (this.firefliesMode === 'on') return true;
     if (this.firefliesMode === 'off') return false;
-    return this.solarPhase === 'night';
+    return this.solarPhase === 'night' && !this.isNonAquaticBiome();
   }
 
   setObstacleRect(rect) {
@@ -229,6 +359,14 @@ export class PondEcosystem {
   }
 
   triggerCherryBlossomShower(durationSeconds = 25) {
+    if (this.biome === 'space') {
+      this.spaceLayer.triggerMeteorShower(durationSeconds);
+      return;
+    }
+    if (this.biome === 'aurora') {
+      this.auroraLayer.triggerAuroraSurge(durationSeconds);
+      return;
+    }
     this.weatherLayer.triggerCherryBlossomShower(durationSeconds);
   }
 
@@ -258,6 +396,18 @@ export class PondEcosystem {
   }
 
   getTheme() {
+    if (this.biome === 'space') {
+      const pal = this.spaceLayer.getPaletteConfig();
+      return {
+        ...BIOME_SOLAR_THEMES.space.night,
+        causticKey: pal.gold,
+        causticAltKey: pal.amber,
+        ripplePrimaryKey: pal.gold,
+        rippleSecondaryKey: pal.amber,
+        trailKey: pal.amber,
+        pelletKey: pal.core
+      };
+    }
     const biomeThemes = BIOME_SOLAR_THEMES[this.biome] || BIOME_SOLAR_THEMES.pond;
     return biomeThemes[this.solarPhase] || biomeThemes.night;
   }
@@ -269,7 +419,9 @@ export class PondEcosystem {
     this.liliesLayer.resize(width, height);
     this.weatherLayer.resize(width, height);
     this.oceanLayer.resize(width, height);
-    if (this.rainEnabled) {
+    this.spaceLayer.resize(width, height);
+    this.auroraLayer.resize(width, height);
+    if (this.rainEnabled && !this.isNonAquaticBiome()) {
       this.weatherLayer.seedRain(true);
     }
     if (this.snowEnabled) {
@@ -315,6 +467,40 @@ export class PondEcosystem {
     }
   }
 
+  updateFireflies(dt) {
+    if (!this.isFirefliesActive()) return;
+    const fireflyDamp = dampFactor(0.975, dt);
+    for (let i = 0; i < this.fireflies.length; i++) {
+      const f = this.fireflies[i];
+      f.vx += randRange(-44, 44) * dt;
+      f.vy += randRange(-44, 44) * dt;
+      f.vx *= fireflyDamp;
+      f.vy *= fireflyDamp;
+      const speed = Math.hypot(f.vx, f.vy);
+      if (speed > 26) {
+        f.vx = (f.vx / speed) * 26;
+        f.vy = (f.vy / speed) * 26;
+      }
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+
+      if (f.x < 16) {
+        f.x = 16;
+        f.vx = Math.abs(f.vx);
+      } else if (f.x > this.width - 16) {
+        f.x = this.width - 16;
+        f.vx = -Math.abs(f.vx);
+      }
+      if (f.y < 16) {
+        f.y = 16;
+        f.vy = Math.abs(f.vy);
+      } else if (f.y > this.height - 16) {
+        f.y = this.height - 16;
+        f.vy = -Math.abs(f.vy);
+      }
+    }
+  }
+
   update(dt) {
     this.time += dt;
     if (this.timeMode === 'auto') {
@@ -323,6 +509,20 @@ export class PondEcosystem {
         this._solarCheckAccum = 0;
         this.solarPhase = this.resolveSolarPhase();
       }
+    }
+
+    if (this.biome === 'space') {
+      this.spaceLayer.update(dt, this.time);
+      this.updateFireflies(dt);
+      this.weatherLayer.update(dt, this.time, false, ZERO_FLOW, false);
+      return;
+    }
+
+    if (this.biome === 'aurora') {
+      this.auroraLayer.update(dt, this.time);
+      this.updateFireflies(dt);
+      this.weatherLayer.update(dt, this.time, false, ZERO_FLOW, false);
+      return;
     }
 
     for (let i = 0; i < this.causticPoints.length; i++) {
@@ -339,38 +539,7 @@ export class PondEcosystem {
       this.liliesLayer.update(dt, this.obstacleRect, this.stonesRect);
     }
 
-    if (this.isFirefliesActive()) {
-      const fireflyDamp = dampFactor(0.975, dt);
-      for (let i = 0; i < this.fireflies.length; i++) {
-        const f = this.fireflies[i];
-        f.vx += randRange(-44, 44) * dt;
-        f.vy += randRange(-44, 44) * dt;
-        f.vx *= fireflyDamp;
-        f.vy *= fireflyDamp;
-        const speed = Math.hypot(f.vx, f.vy);
-        if (speed > 26) {
-          f.vx = (f.vx / speed) * 26;
-          f.vy = (f.vy / speed) * 26;
-        }
-        f.x += f.vx * dt;
-        f.y += f.vy * dt;
-
-        if (f.x < 16) {
-          f.x = 16;
-          f.vx = Math.abs(f.vx);
-        } else if (f.x > this.width - 16) {
-          f.x = this.width - 16;
-          f.vx = -Math.abs(f.vx);
-        }
-        if (f.y < 16) {
-          f.y = 16;
-          f.vy = Math.abs(f.vy);
-        } else if (f.y > this.height - 16) {
-          f.y = this.height - 16;
-          f.vy = -Math.abs(f.vy);
-        }
-      }
-    }
+    this.updateFireflies(dt);
 
     const boundFlow = (x, y, out) => this.oceanLayer.getFlowAt(x, y, this.time, out);
     this.weatherLayer.update(dt, this.time, this.rainEnabled, boundFlow, this.snowEnabled);
@@ -379,7 +548,18 @@ export class PondEcosystem {
     });
   }
 
-  renderSubaqueous(ctx, atlas) {
+  renderSubaqueous(ctx, atlas, ecoActive = false) {
+    if (this.biome === 'space') {
+      this.spaceLayer.render(ctx, atlas, this.time, this.solarPhase, ecoActive);
+      ctx.globalAlpha = 1;
+      return;
+    }
+    if (this.biome === 'aurora') {
+      this.auroraLayer.render(ctx, atlas, this.time, this.solarPhase, ecoActive);
+      ctx.globalAlpha = 1;
+      return;
+    }
+
     const theme = this.getTheme();
 
     if (this.solarPhase === 'day') {
@@ -419,6 +599,12 @@ export class PondEcosystem {
 
   renderSurface(ctx, atlas) {
     const theme = this.getTheme();
+    if (this.isNonAquaticBiome()) {
+      this.weatherLayer.renderSurface(ctx, atlas, theme);
+      ctx.globalAlpha = 1;
+      return;
+    }
+
     this.oceanLayer.renderSurface(ctx, atlas);
     this.weatherLayer.renderSurface(ctx, atlas, theme);
 

@@ -1,4 +1,10 @@
-import { BIOME_KEYS, DEFAULT_PREFS, ENV_KEYS } from './core/constants.js';
+import {
+  BIOME_KEYS,
+  DEFAULT_PREFS,
+  ENV_KEYS,
+  SPACE_ORBIT_SPEEDS,
+  SPACE_PALETTE_KEYS
+} from './core/constants.js';
 import { applyDomI18n, t } from './core/i18n.js';
 import { clampInt } from './core/math.js';
 import {
@@ -16,6 +22,7 @@ import { SmartSearchController } from './productivity/smart-search.js';
 import { GlyphAtlas } from './render/glyph-atlas.js';
 import { KoiPondEngine } from './simulation/engine.js';
 import { createClockController } from './ui/clock-greeting.js';
+import { createBiomePopoverController } from './ui/biome-popover.js';
 import { createFaunaPopoverController } from './ui/fauna-popover.js';
 import { createSettingsModalController } from './ui/settings-modal.js';
 import { createZenController } from './ui/zen-mode.js';
@@ -36,8 +43,20 @@ const BIOME_CONFIG = {
   winter: {
     titleKey: 'pageTitleWinter',
     defaults: { lilies: false, currents: false, plankton: false, kelp: false, jellyfish: false, school: false, snow: true }
+  },
+  space: {
+    titleKey: 'pageTitleSpace',
+    defaults: { lilies: false, currents: false, plankton: false, kelp: false, jellyfish: false, school: false, snow: false }
+  },
+  aurora: {
+    titleKey: 'pageTitleAurora',
+    defaults: { lilies: false, currents: false, plankton: false, kelp: false, jellyfish: false, school: false, snow: false }
   }
 };
+
+function isNonAquaticBiome(biome) {
+  return biome === 'space' || biome === 'aurora';
+}
 
 let activeApp = null;
 
@@ -53,10 +72,20 @@ export function initApp() {
 
   const canvas = document.getElementById('koi-canvas');
   const topBar = document.getElementById('top-bar');
+  const controlFish = document.querySelector('.control-fish');
+  const solarSelector = document.querySelector('.solar-selector');
+  const controlToggles = document.querySelector('.control-toggles');
   const centerStage = document.getElementById('center-stage');
   const faunaBtn = document.getElementById('fauna-btn');
   const faunaBtnLabel = document.getElementById('fauna-btn-label');
   const faunaPopover = document.getElementById('fauna-popover');
+  const biomeBtn = document.getElementById('biome-btn');
+  const biomeBtnSwatch = document.getElementById('biome-btn-swatch');
+  const biomeBtnLabel = document.getElementById('biome-btn-label');
+  const biomePopover = document.getElementById('biome-popover');
+  const spaceOptionsSection = document.getElementById('space-options-section');
+  const spacePaletteButtons = Array.from(document.querySelectorAll('.space-palette-btn'));
+  const spaceSpeedButtons = Array.from(document.querySelectorAll('.space-speed-btn'));
   const speciesCards = Array.from(document.querySelectorAll('.species-card'));
   const faunaPresets = Array.from(document.querySelectorAll('.fauna-preset-btn'));
   const fireflyModeButtons = Array.from(document.querySelectorAll('.firefly-mode-btn'));
@@ -67,6 +96,8 @@ export function initApp() {
   const solarButtons = Array.from(document.querySelectorAll('.solar-btn'));
   const rainBtn = document.getElementById('rain-btn');
   const feedBtn = document.getElementById('feed-btn');
+  const feedBtnLabel = document.getElementById('feed-btn-label');
+  const pondHintPrefix = document.getElementById('pond-hint-prefix');
   const stonesToggleBtn = document.getElementById('stones-toggle-btn');
   const pomoToggleBtn = document.getElementById('pomo-toggle-btn');
   const clockToggleBtn = document.getElementById('clock-toggle-btn');
@@ -131,6 +162,9 @@ export function initApp() {
 
   let prefs = loadPrefs();
   let customBangs = loadCustomBangs();
+  let lastAquaticBiome = isNonAquaticBiome(prefs.biome) ? 'pond' : prefs.biome;
+  let lastCosmicBiome = isNonAquaticBiome(prefs.biome) ? prefs.biome : 'space';
+  let lastAquaticEnv = null;
   let currentSolarAttr = '';
   let isInitializing = true;
   let obstacleSyncScheduled = false;
@@ -138,6 +172,7 @@ export function initApp() {
   let settingsModalOpen = false;
   let pomodoro = null;
   let faunaCtrl = null;
+  let biomeCtrl = null;
   let settingsCtrl = null;
 
   const atlas = new GlyphAtlas(window.devicePixelRatio || 1);
@@ -145,6 +180,8 @@ export function initApp() {
   const ecosystem = new PondEcosystem(window.innerWidth, window.innerHeight, {
     timeMode: prefs.timeMode,
     biome: prefs.biome,
+    spacePalette: prefs.spacePalette,
+    spaceOrbitSpeed: prefs.spaceOrbitSpeed,
     rainEnabled: prefs.rainEnabled,
     snowEnabled: prefs.snowEnabled,
     liliesEnabled: prefs.liliesEnabled,
@@ -190,11 +227,16 @@ export function initApp() {
   function syncInertStates() {
     const zen = Boolean(prefs.zenMode);
     const modal = stoneModalOpen || settingsModalOpen;
+    const nonAquatic = isNonAquaticBiome(prefs.biome);
     topBar.inert = zen || modal;
+    if (controlFish) controlFish.inert = zen || modal || nonAquatic;
+    if (solarSelector) solarSelector.inert = zen || modal || nonAquatic;
+    if (controlToggles) controlToggles.inert = zen || modal || nonAquatic;
     centerStage.inert = zen || modal;
     stonesDock.inert = zen || !prefs.stonesVisible || modal;
     pomoWidget.inert = zen || !prefs.pomodoroVisible || modal;
     faunaPopover.inert = zen || !faunaCtrl || !faunaCtrl.isOpen() || modal;
+    if (biomePopover) biomePopover.inert = zen || !biomeCtrl || !biomeCtrl.isOpen() || modal;
     zenExitBtn.inert = !zen || modal;
   }
 
@@ -265,32 +307,93 @@ export function initApp() {
     persistPrefs();
   }
 
+  function applySpacePalette(palette) {
+    const next = SPACE_PALETTE_KEYS.includes(palette) ? palette : DEFAULT_PREFS.spacePalette;
+    prefs.spacePalette = next;
+    document.documentElement.setAttribute('data-space-palette', next);
+    ecosystem.setSpacePalette(next);
+    if (biomeCtrl) {
+      biomeCtrl.syncUI(prefs.biome, prefs.spacePalette, prefs.spaceOrbitSpeed);
+    }
+    persistPrefs();
+  }
+
+  function applySpaceOrbitSpeed(speed) {
+    const num = Number(speed);
+    const next = SPACE_ORBIT_SPEEDS.includes(num) ? num : DEFAULT_PREFS.spaceOrbitSpeed;
+    prefs.spaceOrbitSpeed = next;
+    ecosystem.setSpaceOrbitSpeed(next);
+    if (biomeCtrl) {
+      biomeCtrl.syncUI(prefs.biome, prefs.spacePalette, prefs.spaceOrbitSpeed);
+    }
+    persistPrefs();
+  }
+
+  function captureAquaticEnv() {
+    const snap = {};
+    ENV_KEYS.forEach((key) => {
+      snap[key] = Boolean(prefs[ENV_CONFIG[key].prefKey]);
+    });
+    return snap;
+  }
+
   function applyBiome(biome, applyPreset = true) {
     prefs.biome = BIOME_KEYS.includes(biome) ? biome : 'pond';
     document.documentElement.setAttribute('data-biome', prefs.biome);
     ecosystem.setBiome(prefs.biome);
 
+    const nonAquatic = isNonAquaticBiome(prefs.biome);
+    if (nonAquatic) {
+      lastCosmicBiome = prefs.biome;
+      if (faunaCtrl && faunaCtrl.isOpen()) {
+        faunaCtrl.setOpen(false);
+      }
+    } else {
+      lastAquaticBiome = prefs.biome;
+    }
+
     const cfg = BIOME_CONFIG[prefs.biome] || BIOME_CONFIG.pond;
     const nextTitle = t(cfg.titleKey);
     if (pomodoro) {
       pomodoro.setBaseTitle(nextTitle);
+      pomodoro.setBiome(prefs.biome);
     } else {
       document.title = nextTitle;
     }
 
-    biomeButtons.forEach((btn) => {
-      const active = btn.dataset.biome === prefs.biome;
-      btn.classList.toggle('is-active', active);
-      btn.setAttribute('aria-pressed', String(active));
-    });
+    const isSpace = prefs.biome === 'space';
+    const isAurora = prefs.biome === 'aurora';
+    if (feedBtnLabel) {
+      feedBtnLabel.textContent = t(isSpace ? 'spacePulseBtn' : isAurora ? 'auroraPulseBtn' : 'feedBtn');
+    }
+    if (feedBtn) {
+      feedBtn.title = t(isSpace ? 'spacePulseBtnTitle' : isAurora ? 'auroraPulseBtnTitle' : 'feedBtnTitle');
+    }
+    if (pondHintPrefix) {
+      pondHintPrefix.textContent = t(
+        isSpace ? 'spaceHintPrefix' : isAurora ? 'auroraHintPrefix' : 'pondHintPrefix'
+      );
+    }
+
+    if (biomeCtrl) {
+      biomeCtrl.syncUI(prefs.biome, prefs.spacePalette, prefs.spaceOrbitSpeed);
+    } else {
+      biomeButtons.forEach((btn) => {
+        const active = btn.dataset.biome === prefs.biome;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+    }
 
     if (applyPreset) {
+      const envSource = typeof applyPreset === 'object' ? applyPreset : cfg.defaults;
       ENV_KEYS.forEach((key) => {
-        prefs[ENV_CONFIG[key].prefKey] = Boolean(cfg.defaults[key]);
+        prefs[ENV_CONFIG[key].prefKey] = Boolean(envSource[key]);
       });
     }
 
     syncEnvFlags();
+    syncInertStates();
     persistPrefs();
   }
 
@@ -386,6 +489,9 @@ export function initApp() {
       if (enabled && faunaCtrl) {
         faunaCtrl.setOpen(false);
       }
+      if (enabled && biomeCtrl) {
+        biomeCtrl.setOpen(false);
+      }
       persistPrefs();
       syncInertStates();
       scheduleObstacleSync();
@@ -415,6 +521,33 @@ export function initApp() {
     },
     onFirefliesChange: applyFirefliesMode,
     onFishCountChange: applyFishCount,
+    onOpenChange: (open) => {
+      if (open && biomeCtrl) biomeCtrl.setOpen(false);
+    },
+    onInertSync: syncInertStates
+  });
+
+  biomeCtrl = createBiomePopoverController({
+    biomeBtn,
+    biomeBtnSwatch,
+    biomeBtnLabel,
+    biomePopover,
+    biomeButtons,
+    spaceOptionsSection,
+    spacePaletteButtons,
+    spaceSpeedButtons,
+    onSelectBiome: (biome) => {
+      if (biome === prefs.biome) return;
+      if (!isNonAquaticBiome(biome)) {
+        lastAquaticEnv = null;
+      }
+      applyBiome(biome, true);
+    },
+    onSelectSpacePalette: (palette) => applySpacePalette(palette),
+    onSelectSpaceSpeed: (speed) => applySpaceOrbitSpeed(speed),
+    onOpenChange: (open) => {
+      if (open && faunaCtrl) faunaCtrl.setOpen(false);
+    },
     onInertSync: syncInertStates
   });
 
@@ -458,6 +591,7 @@ export function initApp() {
     testBtn: pomoTestBtn,
     modeButtons: pomoModeButtons,
     ecosystem,
+    biome: prefs.biome,
     baseTitle: initialBaseTitle,
     collapsed: prefs.pomodoroCollapsed,
     onCollapseChange: (collapsed) => {
@@ -471,6 +605,8 @@ export function initApp() {
     const prevInit = isInitializing;
     isInitializing = true;
     applyTimeMode(prefs.timeMode);
+    applySpacePalette(prefs.spacePalette);
+    applySpaceOrbitSpeed(prefs.spaceOrbitSpeed);
     applyBiome(prefs.biome, false);
     applySpecies(prefs.species);
     applyFirefliesMode(prefs.firefliesMode);
@@ -578,9 +714,6 @@ export function initApp() {
   syncPullAll(syncHandlers);
   const unsubscribeSync = subscribeSyncChanges(syncHandlers);
 
-  biomeButtons.forEach((btn) => {
-    btn.addEventListener('click', () => applyBiome(btn.dataset.biome, true));
-  });
   solarButtons.forEach((btn) => {
     btn.addEventListener('click', () => applyTimeMode(btn.dataset.timeMode));
   });
@@ -593,7 +726,12 @@ export function initApp() {
   zenBtn.addEventListener('click', () => zenCtrl.apply(!prefs.zenMode, !prefs.zenMode));
   zenExitBtn.addEventListener('click', () => zenCtrl.apply(false, false));
 
-  const onCanvasClick = (e) => engine.dropFood(e.clientX, e.clientY);
+  const onCanvasClick = (e) => {
+    if ((faunaCtrl && faunaCtrl.isOpen()) || (biomeCtrl && biomeCtrl.isOpen())) {
+      return;
+    }
+    engine.dropFood(e.clientX, e.clientY);
+  };
   const onPointerMove = (e) => {
     if (e.isPrimary === false) return;
     engine.onMouseMove(e.clientX, e.clientY);
@@ -625,6 +763,10 @@ export function initApp() {
         faunaCtrl.setOpen(false, true);
         return;
       }
+      if (biomeCtrl && biomeCtrl.isOpen()) {
+        biomeCtrl.setOpen(false, true);
+        return;
+      }
       if (!stoneModal.hidden) {
         riverStones.closeModal();
         return;
@@ -641,12 +783,24 @@ export function initApp() {
 
     if (e.key === '/') {
       e.preventDefault();
+      if (faunaCtrl && faunaCtrl.isOpen()) faunaCtrl.setOpen(false);
+      if (biomeCtrl && biomeCtrl.isOpen()) biomeCtrl.setOpen(false);
       if (!prefs.zenMode) searchInput.focus();
     } else if (e.key === 'f' || e.key === 'F') {
       engine.dropMultipleFood(8);
     } else if (e.key === 'r' || e.key === 'R') {
-      applyRain(!prefs.rainEnabled);
+      if (!isNonAquaticBiome(prefs.biome)) {
+        applyRain(!prefs.rainEnabled);
+      }
+    } else if (e.key === 'b' || e.key === 'B') {
+      if (isNonAquaticBiome(prefs.biome)) {
+        applyBiome(lastAquaticBiome, lastAquaticEnv || true);
+      } else {
+        lastAquaticEnv = captureAquaticEnv();
+        applyBiome(lastCosmicBiome, true);
+      }
     } else if (e.key === 'p' || e.key === 'P') {
+      if (!prefs.pomodoroVisible) return;
       if (pomodoro.running) pomodoro.pause();
       else pomodoro.start();
     } else if (e.key === 'z' || e.key === 'Z') {
@@ -669,6 +823,7 @@ export function initApp() {
       clockCtrl.destroy();
       zenCtrl.destroy();
       faunaCtrl.destroy();
+      if (biomeCtrl) biomeCtrl.destroy();
       riverStones.destroy();
       pomodoro.destroy();
     }

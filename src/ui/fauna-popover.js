@@ -18,6 +18,7 @@ export function createFaunaPopoverController(options) {
     onEnvToggle,
     onFirefliesChange,
     onFishCountChange,
+    onOpenChange,
     onInertSync
   } = options;
 
@@ -87,6 +88,9 @@ export function createFaunaPopoverController(options) {
   function setOpen(open, restoreFocus = false) {
     faunaPopover.hidden = !open;
     faunaBtn.setAttribute('aria-expanded', String(open));
+    if (open && onOpenChange) {
+      onOpenChange(true);
+    }
     onInertSync();
     if (open) {
       const firstControl = faunaPopover.querySelector('button');

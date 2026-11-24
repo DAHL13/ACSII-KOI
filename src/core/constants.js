@@ -11,13 +11,21 @@ export const POMO_STORAGE_KEY = 'ascii_koi_pomodoro_v1';
 export const CUSTOM_BANGS_STORAGE_KEY = 'ascii_koi_custom_bangs_v1';
 export const DAILY_FOCUS_STORAGE_KEY = 'ascii_koi_daily_focus_v1';
 
-export const BIOME_KEYS = ['pond', 'ocean', 'reef', 'winter'];
+export const MAX_STONES = 8;
+export const MAX_USERNAME_LEN = 32;
+export const MAX_DAILY_FOCUS_LEN = 120;
+
+export const BIOME_KEYS = ['pond', 'ocean', 'reef', 'winter', 'space', 'aurora'];
+export const SPACE_PALETTE_KEYS = ['gold', 'quasar', 'violet'];
+export const SPACE_ORBIT_SPEEDS = [0, 0.5, 1, 2];
 export const ENV_KEYS = ['lilies', 'currents', 'plankton', 'kelp', 'jellyfish', 'school', 'snow'];
 export const SPECIES_KEYS = ['koi', 'turtle', 'whaleShark', 'hammerhead', 'mantaRay', 'giantCarp'];
 
 export const DEFAULT_PREFS = {
   fishCount: 12,
   biome: 'pond',
+  spacePalette: 'gold',
+  spaceOrbitSpeed: 1,
   species: {
     koi: true,
     turtle: false,

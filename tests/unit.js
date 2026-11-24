@@ -13,6 +13,7 @@ import {
   loadCustomBangs,
   loadDailyFocus,
   loadPrefs,
+  normalizePrefs,
   saveCustomBangs,
   saveDailyFocus,
   savePrefs,
@@ -20,7 +21,9 @@ import {
   subscribeSyncChanges,
   syncPullAll
 } from '../src/core/storage.js';
+import { AuroraLayer } from '../src/ecosystem/aurora.js';
 import { PondEcosystem, SOLAR_KEYS } from '../src/ecosystem/ecosystem.js';
+import { SpaceLayer } from '../src/ecosystem/space.js';
 import { PomodoroController } from '../src/productivity/pomodoro.js';
 import { RiverStonesManager } from '../src/productivity/river-stones.js';
 import { SmartSearchController } from '../src/productivity/smart-search.js';
@@ -467,6 +470,9 @@ test('custom bangs validate HTTPS, prevent built-in overwrite, and format {q} te
   assertEqual(sanitizeCustomBang({ prefix: '!gh', label: 'Fake', url: 'https://evil.com' }), null);
   assertEqual(sanitizeCustomBang({ prefix: '!npm', label: 'npm', url: 'http://npmjs.com/search?q=' }), null);
   assertEqual(sanitizeCustomBang({ prefix: '!bad!', label: 'x', url: 'https://example.com/?q=' }), null);
+  assertEqual(sanitizeCustomBang({ prefix: '!broken', label: 'Broken', url: 'https://example.com/search' }), null);
+  assertEqual(resolveDirectUrl('docs.rs'), 'https://docs.rs/');
+  assertEqual(resolveDirectUrl('bun.sh'), 'https://bun.sh/');
 
   const ok = sanitizeCustomBang({ prefix: 'npm', label: 'npm', url: 'npmjs.com/search?q={q}' });
   assert(ok && ok.prefix === '!npm' && ok.url === 'https://npmjs.com/search?q={q}', 'Expected normalized https template');
@@ -560,7 +566,7 @@ test('SpatialHashGrid, MantaRay, GiantCarp, reef/winter biomes, snow pool, and E
   assert(Number.isFinite(school.items[0].x) && Number.isFinite(school.items[0].y));
 
   const atlas = new GlyphAtlas(1);
-  const eco = new PondEcosystem(800, 600, { biome: 'reef', snowEnabled: true, liliesEnabled: false });
+  const eco = new PondEcosystem(800, 600, { biome: 'reef', timeMode: 'day', snowEnabled: true, liliesEnabled: false });
   assertEqual(eco.getTheme().causticKey, 'reefTeal');
   eco.setBiome('winter');
   assertEqual(eco.getTheme().causticKey, 'snowBlue');
@@ -646,6 +652,206 @@ test('RiverStonesManager moveStone & reorderStone and SmartSearchController auto
   assertEqual(navigated[0], 'https://www.npmjs.com/search?q=eslint');
 
   sandboxEl.innerHTML = '';
+});
+
+test('SpaceLayer palettes, orbit speed/pause, Milky Way, moons, meteor shower & KoiPondEngine', () => {
+  localStorage.clear();
+  savePrefs({ ...DEFAULT_PREFS, biome: 'space', spacePalette: 'quasar', spaceOrbitSpeed: 0 });
+  const loadedSpacePrefs = loadPrefs();
+  assertEqual(loadedSpacePrefs.biome, 'space', 'space biome must persist cleanly in storage');
+  assertEqual(loadedSpacePrefs.spacePalette, 'quasar', 'spacePalette must persist in storage');
+  assertEqual(loadedSpacePrefs.spaceOrbitSpeed, 0, 'spaceOrbitSpeed=0 (pause) must persist explicitly');
+
+  const fallbackNorm = normalizePrefs({ spacePalette: 'unknown', spaceOrbitSpeed: undefined });
+  assertEqual(fallbackNorm.spacePalette, 'gold');
+  assertEqual(fallbackNorm.spaceOrbitSpeed, 1);
+
+  const space = new SpaceLayer(1280, 800);
+  assert(space.getCellCount() > 500, `Expected dense black hole ASCII grid, got ${space.getCellCount()}`);
+  assert(space.getStarCount() >= 50, `Expected background starfield, got ${space.getStarCount()}`);
+  assert(space.getMilkyWayCount() >= 100, `Expected Milky Way dust band, got ${space.getMilkyWayCount()}`);
+  assert(space.getPlanetCount() >= 4, `Expected background ASCII planets, got ${space.getPlanetCount()}`);
+  assert(space.planets.some((p) => Boolean(p.moon)), 'At least one planet should host an orbiting moon');
+  assert(space.r0 < 115, `Expected 30% zoomed-out black hole radius (<115 at 1280x800), got ${space.r0}`);
+
+  const cam0 = { ...space.getCameraState() };
+  space.update(0.05, 10.0);
+  const cam10 = space.getCameraState();
+  assert(cam10.azimuth > cam0.azimuth, 'Orbiting camera azimuth should advance with time');
+  assert(cam10.azimuth - cam0.azimuth < 0.6, 'Orbiting camera rotation should be slow and serene');
+  assert(cam10.elev !== cam0.elev && cam10.roll !== cam0.roll, 'Orbiting camera elev and roll should vary smoothly');
+
+  // Verify pointer movement does not influence Space camera
+  const beforePtrAz = cam10.azimuth;
+  const beforePtrElev = cam10.elev;
+  const beforePtrRoll = cam10.roll;
+  space.setPointer(100, 120, true);
+  space.update(0.05, 10.0);
+  const afterPtr = space.getCameraState();
+  assertEqual(afterPtr.azimuth, beforePtrAz, 'Mouse movement must not shift camera azimuth');
+  assertEqual(afterPtr.elev, beforePtrElev, 'Mouse movement must not shift camera elev');
+  assertEqual(afterPtr.roll, beforePtrRoll, 'Mouse movement must not shift camera roll');
+
+  // Verify orbit pause freezes azimuth and resuming does not teleport
+  space.setOrbitSpeed(0);
+  const azAtPause = space.getCameraState().azimuth;
+  space.update(0.05, 16.0);
+  assertEqual(space.getCameraState().azimuth, azAtPause, 'Paused orbit speed must freeze camera azimuth');
+  space.setOrbitSpeed(2);
+  space.update(0.05, 17.0);
+  const azResumed = space.getCameraState().azimuth;
+  assert(azResumed > azAtPause && azResumed - azAtPause < 0.15, 'Resuming orbit must advance smoothly without jumping');
+
+  // Verify every planet has a unique palette and at most one ringed giant
+  const planetPalettes = new Set(space.planets.map((p) => `${p.darkKey}|${p.midKey}|${p.lightKey}`));
+  assertEqual(planetPalettes.size, space.planets.length, 'Every planet must have a unique palette');
+  const ringedCount = space.planets.filter((p) => p.hasRings).length;
+  assert(ringedCount <= 1, `Expected at most 1 ringed planet, got ${ringedCount}`);
+
+  space.resize(1920, 1080);
+  assert(space.getCellCount() > 500, 'Black hole grid should rebuild after resize');
+
+  space.triggerPulse(400, 300, 8);
+  assert(space.flare > 0, 'Pulse must boost flare energy');
+  assert(space.stardustPool.items.some((p) => p.active), 'Pulse must spawn orbiting stardust');
+  space.update(0.016, 17.5);
+
+  const atlas = new GlyphAtlas(1);
+  const eco = new PondEcosystem(1280, 800, {
+    biome: 'space',
+    spacePalette: 'quasar',
+    spaceOrbitSpeed: 1,
+    timeMode: 'night',
+    firefliesMode: 'auto',
+    liliesEnabled: true
+  });
+  assertEqual(eco.isSpaceBiome(), true);
+  assertEqual(eco.isNonAquaticBiome(), true);
+  assertEqual(eco.getTheme().causticKey, 'quasarGold');
+  eco.setSpacePalette('violet');
+  assertEqual(eco.getTheme().causticKey, 'violetGold');
+  assertEqual(eco.isFirefliesActive(), false, 'Auto fireflies must stay off in space night');
+  eco.setFirefliesMode('on');
+  assertEqual(eco.isFirefliesActive(), true, 'Explicit fireflies=on must still work in space');
+
+  eco.triggerCherryBlossomShower(25);
+  assert(eco.spaceLayer.meteorTimer > 20, 'Space Pomodoro reward should trigger meteor shower instead of blossoms');
+  assert(eco.spaceLayer.meteorPool.items.some((m) => m.active), 'Meteor shower must activate falling meteors');
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 1280;
+  canvas.height = 800;
+  const engine = new KoiPondEngine(canvas, atlas, eco, { fishCount: 12 });
+  assertEqual(engine.isSpaceMode(), true);
+  assertEqual(engine.isNonAquaticMode(), true);
+
+  let glyphDraws = 0;
+  const origDraw = atlas.drawGlyph.bind(atlas);
+  atlas.drawGlyph = (...args) => {
+    glyphDraws++;
+    return origDraw(...args);
+  };
+
+  engine.dropFood(500, 360);
+  assert(eco.spaceLayer.flare > 0, 'Clicking canvas in space mode should trigger flare pulse');
+  assertEqual(engine.foodPool.items.some((f) => f.active), false, 'Space mode click must not spawn aquatic pellets');
+
+  engine.dropMultipleFood(8);
+  for (const tr of engine.trailPool.items) tr.active = false;
+  engine.onMouseMove(540, 380);
+  engine.onMouseMove(620, 410);
+  assertEqual(engine.trailPool.items.some((tr) => tr.active), false, 'Mouse movement in Space must not spawn cursor trails');
+  engine.update(0.016);
+  engine.render();
+  assert(glyphDraws > 200, `Expected space glyphs drawn, got ${glyphDraws}`);
+
+  // Verify multiple orbital viewpoints and palette/eco combinations render cleanly
+  eco.time = 10.0;
+  eco.setSpacePalette('gold');
+  engine.setEcoMode('on');
+  engine.render();
+  assert(
+    eco.spaceLayer.candOdd.length === eco.spaceLayer.getCellCount(),
+    'SpaceLayer must track checkerboard parity for Eco mode'
+  );
+  eco.setSnowEnabled(true);
+  eco.update(0.05);
+  assertEqual(
+    eco.weatherLayer.snowPool.some((f) => f.active),
+    false,
+    'Space mode must not activate snow particles'
+  );
+  eco.time = 26.0;
+  eco.setSpacePalette('quasar');
+  engine.setEcoMode('off');
+  engine.render();
+
+  engine.destroy();
+});
+
+test('AuroraLayer, aurora biome, geomagnetic surge reward, and KoiPondEngine aurora mode', () => {
+  localStorage.clear();
+  savePrefs({ ...DEFAULT_PREFS, biome: 'aurora' });
+  assertEqual(loadPrefs().biome, 'aurora', 'aurora biome must persist cleanly in storage');
+
+  const aurora = new AuroraLayer(1280, 800);
+  assert(aurora.getStarCount() >= 50, `Expected arctic stars, got ${aurora.getStarCount()}`);
+  assert(aurora.getRidgeSampleCount() >= 40, `Expected mountain ridge samples, got ${aurora.getRidgeSampleCount()}`);
+  aurora.triggerPulse(420, 260, 10);
+  assert(aurora.pulseBoost > 0, 'Aurora pulse should boost intensity');
+  assert(aurora.motePool.items.some((m) => m.active), 'Aurora pulse should spawn rising motes');
+  aurora.triggerAuroraSurge(25);
+  assert(aurora.surgeTimer > 20, 'Aurora surge should arm 25s northern-light boost');
+  aurora.update(0.016);
+
+  const atlas = new GlyphAtlas(1);
+  const eco = new PondEcosystem(1280, 800, { biome: 'aurora', firefliesMode: 'auto', liliesEnabled: true });
+  assertEqual(eco.isAuroraBiome(), true);
+  assertEqual(eco.isNonAquaticBiome(), true);
+  assertEqual(eco.isSpaceBiome(), false);
+  assertEqual(eco.isFirefliesActive(), false, 'Auto fireflies must stay off in aurora mode');
+  eco.triggerCherryBlossomShower(25);
+  assert(eco.auroraLayer.surgeTimer > 20, 'Aurora Pomodoro reward should trigger aurora surge');
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 1280;
+  canvas.height = 800;
+  const engine = new KoiPondEngine(canvas, atlas, eco, { fishCount: 12 });
+  assertEqual(engine.isNonAquaticMode(), true);
+  assertEqual(engine.isSpaceMode(), false);
+
+  let glyphDraws = 0;
+  const origDraw = atlas.drawGlyph.bind(atlas);
+  atlas.drawGlyph = (...args) => {
+    glyphDraws++;
+    return origDraw(...args);
+  };
+
+  engine.dropFood(400, 220);
+  assertEqual(engine.foodPool.items.some((f) => f.active), false, 'Aurora click must not spawn aquatic pellets');
+  engine.dropMultipleFood(8);
+  for (const tr of engine.trailPool.items) tr.active = false;
+  engine.onMouseMove(300, 200);
+  assertEqual(engine.trailPool.items.some((tr) => tr.active), false, 'Aurora hover must not spawn cursor trails');
+  engine.update(0.016);
+  engine.render();
+  assert(glyphDraws > 200, `Expected aurora glyphs drawn, got ${glyphDraws}`);
+  const firstTerrainCanvas = eco.auroraLayer._terrainCanvas;
+  assert(Boolean(firstTerrainCanvas), 'Aurora terrain OffscreenCanvas must be created on render');
+  engine.render();
+  assertEqual(
+    eco.auroraLayer._terrainCanvas,
+    firstTerrainCanvas,
+    'Aurora terrain OffscreenCanvas must be reused across frames'
+  );
+  eco.setSnowEnabled(true);
+  eco.update(0.05);
+  assertEqual(eco.weatherLayer.snowPool.some((f) => f.active), false, 'Aurora mode must not activate snow particles');
+
+  engine.setEcoMode('on');
+  engine.render();
+  assertEqual(eco.auroraLayer._terrainEco, true, 'Aurora terrain cache must update when Eco mode toggles');
+  engine.destroy();
 });
 
 const DAILY_FOCUS_STORAGE_KEY_MOCK = 'unused_extra_key';

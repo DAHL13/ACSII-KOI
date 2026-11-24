@@ -17,6 +17,12 @@
   "pageTitleWinter": {
     "message": "Nueva pestaña · Estanque Invernal"
   },
+  "pageTitleSpace": {
+    "message": "Nueva pestaña · Espacio Profundo"
+  },
+  "pageTitleAurora": {
+    "message": "Nueva pestaña · Aurora Boreal"
+  },
   "perfPlaceholder": {
     "message": "-- FPS · -- ms"
   },
@@ -65,8 +71,26 @@
   "biomeGroupAria": {
     "message": "Hábitat acuático"
   },
+  "biomeBtnTitle": {
+    "message": "Cambiar fondo y ecosistema"
+  },
+  "biomePopoverAria": {
+    "message": "Selector de fondos"
+  },
+  "biomePopoverTitle": {
+    "message": "Escenarios y fondos"
+  },
+  "biomeGroupAquatic": {
+    "message": "Hábitats acuáticos"
+  },
+  "biomeGroupCosmos": {
+    "message": "Cosmos y cielo nocturno"
+  },
   "biomePond": {
     "message": "Estanque"
+  },
+  "biomePondDesc": {
+    "message": "Nenúfares y calma zen"
   },
   "biomePondTitle": {
     "message": "Estanque zen con nenúfares"
@@ -74,11 +98,17 @@
   "biomeOcean": {
     "message": "Mar"
   },
+  "biomeOceanDesc": {
+    "message": "Corrientes, medusas y algas"
+  },
   "biomeOceanTitle": {
     "message": "Mar abierto con corrientes, cardumen, medusas y algas"
   },
   "biomeReef": {
     "message": "Arrecife"
+  },
+  "biomeReefDesc": {
+    "message": "Coral cálido y cardumen"
   },
   "biomeReefTitle": {
     "message": "Arrecife coralino vibrante con mantarrayas y cardumen"
@@ -86,8 +116,68 @@
   "biomeWinter": {
     "message": "Invierno"
   },
+  "biomeWinterDesc": {
+    "message": "Nieve suave y reflejos glaciares"
+  },
   "biomeWinterTitle": {
     "message": "Estanque invernal con nieve suave y carpas doradas"
+  },
+  "biomeSpace": {
+    "message": "Espacio"
+  },
+  "biomeSpaceCardTitle": {
+    "message": "Agujero Negro ASCII"
+  },
+  "biomeSpaceDesc": {
+    "message": "Disco de acreción gravitacional y estrellas"
+  },
+  "biomeSpaceTitle": {
+    "message": "Agujero negro luminoso en arte ASCII y campo de estrellas"
+  },
+  "biomeAurora": {
+    "message": "Aurora"
+  },
+  "biomeAuroraCardTitle": {
+    "message": "Aurora Boreal"
+  },
+  "biomeAuroraDesc": {
+    "message": "Cortinas luminosas y montañas nocturnas"
+  },
+  "biomeAuroraTitle": {
+    "message": "Aurora boreal nocturna en ASCII sobre cordillera alpina"
+  },
+  "spacePaletteLabel": {
+    "message": "Paleta estelar"
+  },
+  "spacePaletteGroupAria": {
+    "message": "Paleta del agujero negro"
+  },
+  "spacePaletteGold": {
+    "message": "Dorado"
+  },
+  "spacePaletteQuasar": {
+    "message": "Quásar"
+  },
+  "spacePaletteViolet": {
+    "message": "Violeta"
+  },
+  "spaceOrbitLabel": {
+    "message": "Órbita de cámara"
+  },
+  "spaceOrbitGroupAria": {
+    "message": "Velocidad orbital"
+  },
+  "spaceOrbitPause": {
+    "message": "Pausa"
+  },
+  "spaceOrbitSlow": {
+    "message": "0.5×"
+  },
+  "spaceOrbitNormal": {
+    "message": "1×"
+  },
+  "spaceOrbitFast": {
+    "message": "2×"
   },
   "rainBtn": {
     "message": "Lluvia"
@@ -100,6 +190,18 @@
   },
   "feedBtnTitle": {
     "message": "Soltar comida múltiple en el estanque (F)"
+  },
+  "spacePulseBtn": {
+    "message": "Pulso"
+  },
+  "spacePulseBtnTitle": {
+    "message": "Emitir destello gravitacional (F)"
+  },
+  "auroraPulseBtn": {
+    "message": "Destello"
+  },
+  "auroraPulseBtnTitle": {
+    "message": "Emitir ola magnética en la aurora (F)"
   },
   "stonesToggleTitle": {
     "message": "Mostrar u ocultar piedras de río"
@@ -267,6 +369,12 @@
   "pondHintPrefix": {
     "message": "Clic en el agua o tecla F para alimentar · Prefijos:"
   },
+  "spaceHintPrefix": {
+    "message": "Clic o tecla F para pulso estelar · Prefijos:"
+  },
+  "auroraHintPrefix": {
+    "message": "Clic o tecla F para ola boreal · Prefijos:"
+  },
   "dailyFocusPlaceholder": {
     "message": "¿Cuál es tu enfoque principal hoy?"
   },
@@ -410,11 +518,23 @@
   "pomoStatusComplete": {
     "message": "¡Sesión completada! 🌸"
   },
+  "pomoStatusCompleteSpace": {
+    "message": "¡Sesión completada! ☄️"
+  },
+  "pomoStatusCompleteAurora": {
+    "message": "¡Sesión completada! ✨"
+  },
   "pomoStatusReady": {
     "message": "Listo para enfocar"
   },
   "pomoStatusSakura": {
     "message": "Pétalos de cerezo 🌸"
+  },
+  "pomoStatusMeteor": {
+    "message": "Lluvia cósmica ☄️"
+  },
+  "pomoStatusAurora": {
+    "message": "Tormenta boreal ✨"
   },
   "pomoStart": {
     "message": "Iniciar"
@@ -439,6 +559,18 @@
   },
   "pomoTestAria": {
     "message": "Probar lluvia de cerezo"
+  },
+  "pomoTestSpaceTitle": {
+    "message": "Previsualizar lluvia de meteoros"
+  },
+  "pomoTestSpaceAria": {
+    "message": "Probar lluvia de meteoros"
+  },
+  "pomoTestAuroraTitle": {
+    "message": "Previsualizar tormenta boreal"
+  },
+  "pomoTestAuroraAria": {
+    "message": "Probar tormenta boreal"
   },
   "pomoDocFocus": {
     "message": "Enfoque"
@@ -498,7 +630,7 @@
     "message": "Atajos de teclado"
   },
   "settingsShortcutsBody": {
-    "message": "/ Buscar · F Alimentar · R Lluvia · P Pomodoro · Z Zen · Esc Cerrar"
+    "message": "/ Buscar · F Alimentar · R Lluvia · B Fondo · P Pomodoro · Z Zen · Esc Cerrar"
   },
   "settingsSectionBangs": {
     "message": "Bangs personalizados (solo HTTPS)"

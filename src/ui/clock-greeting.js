@@ -92,7 +92,7 @@ export function createClockController(options) {
   }
 
   function setDailyFocus(value) {
-    if (!dailyFocusInput) return;
+    if (!dailyFocusInput || document.activeElement === dailyFocusInput) return;
     const clean = typeof value === 'string' ? value : '';
     if (dailyFocusInput.value !== clean) {
       dailyFocusInput.value = clean;
