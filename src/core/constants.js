@@ -15,7 +15,7 @@ export const MAX_STONES = 8;
 export const MAX_USERNAME_LEN = 32;
 export const MAX_DAILY_FOCUS_LEN = 120;
 
-export const BIOME_KEYS = ['pond', 'ocean', 'reef', 'winter', 'space', 'aurora'];
+export const BIOME_KEYS = ['pond', 'ocean', 'reef', 'winter', 'space', 'aurora', 'wave'];
 export const SPACE_PALETTE_KEYS = ['gold', 'quasar', 'violet'];
 export const SPACE_ORBIT_SPEEDS = [0, 0.5, 1, 2];
 export const ENV_KEYS = ['lilies', 'currents', 'plankton', 'kelp', 'jellyfish', 'school', 'snow'];

@@ -23,6 +23,9 @@
   "pageTitleAurora": {
     "message": "Nueva pestaña · Aurora Boreal"
   },
+  "pageTitleWave": {
+    "message": "Nueva pestaña · Gran Ola 3D"
+  },
   "perfPlaceholder": {
     "message": "-- FPS · -- ms"
   },
@@ -86,6 +89,9 @@
   "biomeGroupCosmos": {
     "message": "Cosmos y cielo nocturno"
   },
+  "biomeGroupJapan": {
+    "message": "Cultura japonesa"
+  },
   "biomePond": {
     "message": "Estanque"
   },
@@ -146,6 +152,18 @@
   "biomeAuroraTitle": {
     "message": "Aurora boreal nocturna en ASCII sobre cordillera alpina"
   },
+  "biomeWave": {
+    "message": "Gran Ola"
+  },
+  "biomeWaveCardTitle": {
+    "message": "Gran Ola · Kanagawa 3D"
+  },
+  "biomeWaveDesc": {
+    "message": "Oleaje 3D natural, espuma, barcas y Monte Fuji"
+  },
+  "biomeWaveTitle": {
+    "message": "La Gran Ola de Kanagawa en 3D con movimiento oceánico natural"
+  },
   "spacePaletteLabel": {
     "message": "Paleta estelar"
   },
@@ -202,6 +220,12 @@
   },
   "auroraPulseBtnTitle": {
     "message": "Emitir ola magnética en la aurora (F)"
+  },
+  "waveSwellBtn": {
+    "message": "Marejada"
+  },
+  "waveSwellBtnTitle": {
+    "message": "Lanzar gran marejada oceánica en 3D (F)"
   },
   "stonesToggleTitle": {
     "message": "Mostrar u ocultar piedras de río"
@@ -375,6 +399,9 @@
   "auroraHintPrefix": {
     "message": "Clic o tecla F para ola boreal · Prefijos:"
   },
+  "waveHintPrefix": {
+    "message": "Clic para oleada o tecla F para marejada · Prefijos:"
+  },
   "dailyFocusPlaceholder": {
     "message": "¿Cuál es tu enfoque principal hoy?"
   },
@@ -524,6 +551,9 @@
   "pomoStatusCompleteAurora": {
     "message": "¡Sesión completada! ✨"
   },
+  "pomoStatusCompleteWave": {
+    "message": "¡Sesión completada! 🌊"
+  },
   "pomoStatusReady": {
     "message": "Listo para enfocar"
   },
@@ -535,6 +565,9 @@
   },
   "pomoStatusAurora": {
     "message": "Tormenta boreal ✨"
+  },
+  "pomoStatusWave": {
+    "message": "Marea y cerezo 🌊"
   },
   "pomoStart": {
     "message": "Iniciar"
@@ -571,6 +604,12 @@
   },
   "pomoTestAuroraAria": {
     "message": "Probar tormenta boreal"
+  },
+  "pomoTestWaveTitle": {
+    "message": "Previsualizar marejada y pétalos costeros"
+  },
+  "pomoTestWaveAria": {
+    "message": "Probar gran marejada"
   },
   "pomoDocFocus": {
     "message": "Enfoque"

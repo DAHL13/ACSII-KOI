@@ -23,6 +23,9 @@
   "pageTitleAurora": {
     "message": "New Tab · Northern Lights"
   },
+  "pageTitleWave": {
+    "message": "New Tab · Great Wave 3D"
+  },
   "perfPlaceholder": {
     "message": "-- FPS · -- ms"
   },
@@ -86,6 +89,9 @@
   "biomeGroupCosmos": {
     "message": "Cosmos & night sky"
   },
+  "biomeGroupJapan": {
+    "message": "Japanese culture"
+  },
   "biomePond": {
     "message": "Pond"
   },
@@ -146,6 +152,18 @@
   "biomeAuroraTitle": {
     "message": "ASCII northern lights over silhouetted alpine peaks"
   },
+  "biomeWave": {
+    "message": "Great Wave"
+  },
+  "biomeWaveCardTitle": {
+    "message": "Great Wave · Kanagawa 3D"
+  },
+  "biomeWaveDesc": {
+    "message": "Natural 3D ocean swell, seafoam, boats & Mt. Fuji"
+  },
+  "biomeWaveTitle": {
+    "message": "The Great Wave off Kanagawa in 3D with natural ocean motion"
+  },
   "spacePaletteLabel": {
     "message": "Starlight palette"
   },
@@ -202,6 +220,12 @@
   },
   "auroraPulseBtnTitle": {
     "message": "Trigger magnetic aurora wave (F)"
+  },
+  "waveSwellBtn": {
+    "message": "Swell"
+  },
+  "waveSwellBtnTitle": {
+    "message": "Unleash rising 3D ocean swell (F)"
   },
   "stonesToggleTitle": {
     "message": "Show or hide river stones"
@@ -375,6 +399,9 @@
   "auroraHintPrefix": {
     "message": "Click or press F for aurora wave · Bangs:"
   },
+  "waveHintPrefix": {
+    "message": "Click to surge or press F for swell · Bangs:"
+  },
   "dailyFocusPlaceholder": {
     "message": "What is your main focus today?"
   },
@@ -524,6 +551,9 @@
   "pomoStatusCompleteAurora": {
     "message": "Session complete! ✨"
   },
+  "pomoStatusCompleteWave": {
+    "message": "Session complete! 🌊"
+  },
   "pomoStatusReady": {
     "message": "Ready to focus"
   },
@@ -535,6 +565,9 @@
   },
   "pomoStatusAurora": {
     "message": "Aurora surge ✨"
+  },
+  "pomoStatusWave": {
+    "message": "Tempest tide 🌊"
   },
   "pomoStart": {
     "message": "Start"
@@ -571,6 +604,12 @@
   },
   "pomoTestAuroraAria": {
     "message": "Preview aurora surge"
+  },
+  "pomoTestWaveTitle": {
+    "message": "Preview tempest tide and coastal sakura"
+  },
+  "pomoTestWaveAria": {
+    "message": "Preview tempest tide"
   },
   "pomoDocFocus": {
     "message": "Focus"

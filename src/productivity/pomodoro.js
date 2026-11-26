@@ -59,6 +59,15 @@ export class PomodoroController {
         completeKey: 'pomoStatusCompleteAurora'
       };
     }
+    if (this.biome === 'wave') {
+      return {
+        icon: '🌊',
+        testTitleKey: 'pomoTestWaveTitle',
+        testAriaKey: 'pomoTestWaveAria',
+        previewKey: 'pomoStatusWave',
+        completeKey: 'pomoStatusCompleteWave'
+      };
+    }
     return {
       icon: '🌸',
       testTitleKey: 'pomoTestTitle',

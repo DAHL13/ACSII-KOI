@@ -24,6 +24,7 @@ import {
 import { AuroraLayer } from '../src/ecosystem/aurora.js';
 import { PondEcosystem, SOLAR_KEYS } from '../src/ecosystem/ecosystem.js';
 import { SpaceLayer } from '../src/ecosystem/space.js';
+import { BOAT_COUNT, GreatWaveLayer, WAVE_CLAW_COUNT } from '../src/ecosystem/wave.js';
 import { PomodoroController } from '../src/productivity/pomodoro.js';
 import { RiverStonesManager } from '../src/productivity/river-stones.js';
 import { SmartSearchController } from '../src/productivity/smart-search.js';
@@ -667,7 +668,11 @@ test('SpaceLayer palettes, orbit speed/pause, Milky Way, moons, meteor shower & 
   assertEqual(fallbackNorm.spaceOrbitSpeed, 1);
 
   const space = new SpaceLayer(1280, 800);
-  assert(space.getCellCount() > 500, `Expected dense black hole ASCII grid, got ${space.getCellCount()}`);
+  assert(
+    space.getCellCount() > 9000,
+    `Expected 1.5x higher-resolution black hole ASCII grid (>9000 cells at 1280x800), got ${space.getCellCount()}`
+  );
+  assert(space.glyphScale < 0.75, `Expected scaled glyph size (<0.75) for 1.5x grid, got ${space.glyphScale}`);
   assert(space.getStarCount() >= 50, `Expected background starfield, got ${space.getStarCount()}`);
   assert(space.getMilkyWayCount() >= 100, `Expected Milky Way dust band, got ${space.getMilkyWayCount()}`);
   assert(space.getPlanetCount() >= 4, `Expected background ASCII planets, got ${space.getPlanetCount()}`);
@@ -851,6 +856,123 @@ test('AuroraLayer, aurora biome, geomagnetic surge reward, and KoiPondEngine aur
   engine.setEcoMode('on');
   engine.render();
   assertEqual(eco.auroraLayer._terrainEco, true, 'Aurora terrain cache must update when Eco mode toggles');
+  engine.destroy();
+});
+
+test('GreatWaveLayer 3D natural ocean motion, pointer parallax, boats, and KoiPondEngine wave mode', () => {
+  localStorage.clear();
+  savePrefs({ ...DEFAULT_PREFS, biome: 'wave' });
+  assertEqual(loadPrefs().biome, 'wave', 'wave biome must persist cleanly in storage');
+
+  const wave = new GreatWaveLayer(1280, 800);
+  assertEqual(WAVE_CLAW_COUNT, 26);
+  assertEqual(wave.getBoatStates().length, BOAT_COUNT, 'GreatWaveLayer must expose 3 pitching boats');
+
+  let minCrestY = Infinity;
+  let maxCrestY = -Infinity;
+  let minCrestX = Infinity;
+  let maxCrestX = -Infinity;
+  const minPitch = new Array(BOAT_COUNT).fill(Infinity);
+  const maxPitch = new Array(BOAT_COUNT).fill(-Infinity);
+
+  for (let step = 0; step < 220; step++) {
+    wave.update(0.05);
+    const st = wave.getWaveState();
+    assert(Number.isFinite(st.crestX) && Number.isFinite(st.crestY), 'Wave crest coordinates must stay finite');
+    minCrestX = Math.min(minCrestX, st.crestX);
+    maxCrestX = Math.max(maxCrestX, st.crestX);
+    minCrestY = Math.min(minCrestY, st.crestY);
+    maxCrestY = Math.max(maxCrestY, st.crestY);
+
+    const boats = wave.getBoatStates();
+    for (let bi = 0; bi < boats.length; bi++) {
+      assert(
+        Number.isFinite(boats[bi].x) && Number.isFinite(boats[bi].y) && Number.isFinite(boats[bi].pitch),
+        `Boat ${bi} state must stay finite`
+      );
+      minPitch[bi] = Math.min(minPitch[bi], boats[bi].pitch);
+      maxPitch[bi] = Math.max(maxPitch[bi], boats[bi].pitch);
+    }
+  }
+
+  assert(maxCrestY - minCrestY > 10, `Expected natural vertical wave oscillation, got delta=${maxCrestY - minCrestY}`);
+  assert(maxCrestX - minCrestX > 8, `Expected natural horizontal curl sway, got delta=${maxCrestX - minCrestX}`);
+  assert(
+    maxPitch.some((mx, idx) => mx - minPitch[idx] > 0.02),
+    'Expected natural dynamic boat pitching on live ocean swells'
+  );
+
+  wave.setPointer(1140, 140, true);
+  for (let i = 0; i < 25; i++) {
+    wave.update(0.05);
+  }
+  const noParallaxState = wave.getWaveState();
+  assertEqual(wave.pointerActive, false, 'Pointer tracking must remain disabled in GreatWaveLayer');
+  assertEqual(noParallaxState.camParallaxX, 0, 'camParallaxX must stay 0 when mouse tracking is disabled');
+  assertEqual(noParallaxState.camParallaxY, 0, 'camParallaxY must stay 0 when mouse tracking is disabled');
+
+  wave.triggerWaveSurge(420, 480);
+  assert(wave.getWaveState().surgeBoost > 0.3, 'Click surge must boost wave surge energy');
+  assert(wave.sprayPool.items.some((sp) => sp.active), 'Wave surge must emit 3D spray droplets');
+
+  wave.triggerGreatSwell();
+  assertEqual(wave.swellWaveActive, true, 'Great swell trigger must activate sweeping 3D wave');
+
+  wave.triggerTempestTide(25);
+  assert(wave.tempestTimer > 20, 'Tempest tide should arm 25s reward');
+  assert(wave.tempestPool.items.some((tp) => tp.active), 'Tempest tide must emit coastal sakura/mist');
+
+  const atlas = new GlyphAtlas(1);
+  const eco = new PondEcosystem(1280, 800, { biome: 'wave', firefliesMode: 'auto', liliesEnabled: true });
+  assertEqual(eco.isWaveBiome(), true);
+  assertEqual(eco.isNonAquaticBiome(), true);
+  assertEqual(eco.isFirefliesActive(), false, 'Auto fireflies must stay off in wave mode');
+  eco.triggerCherryBlossomShower(25);
+  assert(eco.waveLayer.tempestTimer > 20, 'Wave Pomodoro reward should trigger tempest tide');
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 1280;
+  canvas.height = 800;
+  const engine = new KoiPondEngine(canvas, atlas, eco, { fishCount: 12 });
+  assertEqual(engine.isNonAquaticMode(), true);
+  assertEqual(engine.isWaveMode(), true);
+
+  let glyphDraws = 0;
+  const origDraw = atlas.drawGlyph.bind(atlas);
+  atlas.drawGlyph = (...args) => {
+    glyphDraws++;
+    return origDraw(...args);
+  };
+
+  engine.dropFood(360, 420);
+  assertEqual(engine.foodPool.items.some((f) => f.active), false, 'Wave click must not spawn aquatic pellets');
+  engine.dropMultipleFood(8);
+  assertEqual(eco.waveLayer.swellWaveActive, true, 'Wave swell action must activate Great Swell');
+
+  for (const tr of engine.trailPool.items) tr.active = false;
+  engine.onMouseMove(960, 180);
+  assertEqual(eco.waveLayer.pointerActive, false, 'Wave hover must not enable pointer tracking');
+  assertEqual(engine.trailPool.items.some((tr) => tr.active), false, 'Wave hover must not spawn cursor trails');
+
+  engine.update(0.016);
+  engine.render();
+  assert(glyphDraws > 200, `Expected Great Wave scene glyphs drawn, got ${glyphDraws}`);
+  assert(
+    eco.waveLayer.getShadedCellCount() > 1000,
+    `Expected high-resolution 3D Z-buffered wave cells (>1000), got ${eco.waveLayer.getShadedCellCount()}`
+  );
+  const firstBackdrop = eco.waveLayer._backdropCanvas;
+  assert(Boolean(firstBackdrop), 'Great Wave backdrop OffscreenCanvas must be created on render');
+  engine.render();
+  assertEqual(eco.waveLayer._backdropCanvas, firstBackdrop, 'Great Wave backdrop OffscreenCanvas must be reused');
+
+  eco.setSnowEnabled(true);
+  eco.update(0.05);
+  assertEqual(eco.weatherLayer.snowPool.some((f) => f.active), false, 'Wave mode must not activate snow particles');
+
+  engine.setEcoMode('on');
+  engine.render();
+  assertEqual(eco.waveLayer._backdropEco, true, 'Great Wave backdrop cache must update when Eco mode toggles');
   engine.destroy();
 });
 

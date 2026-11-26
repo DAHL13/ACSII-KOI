@@ -378,6 +378,29 @@ async function main() {
     assertEqual(document.documentElement.getAttribute('data-biome'), 'pond');
     assertEqual(kelpChip.getAttribute('aria-pressed'), 'true', 'Shortcut B must preserve customized aquatic env layers');
 
+    // 4. Switch to Great Wave (Japanese culture) & verify UI adaptation, tempest reward, and B toggle
+    biomeBtn.click();
+    document.querySelector('#biome-popover .biome-btn[data-biome="wave"]').click();
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'wave');
+    assertEqual(document.title, t('pageTitleWave'));
+    assertEqual(document.getElementById('biome-btn-label').textContent, t('biomeWave'));
+    assertEqual(document.getElementById('feed-btn-label').textContent, t('waveSwellBtn'));
+    assertEqual(document.getElementById('pond-hint-prefix').textContent, t('waveHintPrefix'));
+    assertEqual(controlFish.inert, true);
+    assertEqual(solarSelector.inert, true);
+    assertEqual(controlToggles.inert, true);
+    assertEqual(pomoTestBtn.textContent.trim(), '🌊');
+    pomoTestBtn.click();
+    assertEqual(pomoStatus.textContent, t('pomoStatusWave'));
+
+    const rainBeforeWaveR = rainBtn.getAttribute('aria-pressed');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'r', bubbles: true }));
+    assertEqual(rainBtn.getAttribute('aria-pressed'), rainBeforeWaveR, 'Shortcut R must be ignored in Great Wave mode');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'b', bubbles: true }));
+    assertEqual(document.documentElement.getAttribute('data-biome'), 'pond', 'Shortcut B must return from Great Wave to Pond');
+    assertEqual(kelpChip.getAttribute('aria-pressed'), 'true', 'Shortcut B must preserve customized aquatic env layers after Great Wave');
+
     biomeBtn.click();
     assertEqual(biomePopover.hidden, false);
     document.dispatchEvent(new KeyboardEvent('keydown', { key: '/', bubbles: true, cancelable: true }));

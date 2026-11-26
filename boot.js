@@ -17,7 +17,7 @@
       else phase = 'night';
     }
 
-    const validBiomes = { pond: true, ocean: true, reef: true, winter: true, space: true, aurora: true };
+    const validBiomes = { pond: true, ocean: true, reef: true, winter: true, space: true, aurora: true, wave: true };
     const validSpacePalettes = { gold: true, quasar: true, violet: true };
     const root = document.documentElement;
     root.setAttribute('data-solar', phase);

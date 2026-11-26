@@ -51,11 +51,15 @@ const BIOME_CONFIG = {
   aurora: {
     titleKey: 'pageTitleAurora',
     defaults: { lilies: false, currents: false, plankton: false, kelp: false, jellyfish: false, school: false, snow: false }
+  },
+  wave: {
+    titleKey: 'pageTitleWave',
+    defaults: { lilies: false, currents: false, plankton: false, kelp: false, jellyfish: false, school: false, snow: false }
   }
 };
 
 function isNonAquaticBiome(biome) {
-  return biome === 'space' || biome === 'aurora';
+  return biome === 'space' || biome === 'aurora' || biome === 'wave';
 }
 
 let activeApp = null;
@@ -363,15 +367,26 @@ export function initApp() {
 
     const isSpace = prefs.biome === 'space';
     const isAurora = prefs.biome === 'aurora';
+    const isWave = prefs.biome === 'wave';
     if (feedBtnLabel) {
-      feedBtnLabel.textContent = t(isSpace ? 'spacePulseBtn' : isAurora ? 'auroraPulseBtn' : 'feedBtn');
+      feedBtnLabel.textContent = t(
+        isSpace ? 'spacePulseBtn' : isAurora ? 'auroraPulseBtn' : isWave ? 'waveSwellBtn' : 'feedBtn'
+      );
     }
     if (feedBtn) {
-      feedBtn.title = t(isSpace ? 'spacePulseBtnTitle' : isAurora ? 'auroraPulseBtnTitle' : 'feedBtnTitle');
+      feedBtn.title = t(
+        isSpace
+          ? 'spacePulseBtnTitle'
+          : isAurora
+            ? 'auroraPulseBtnTitle'
+            : isWave
+              ? 'waveSwellBtnTitle'
+              : 'feedBtnTitle'
+      );
     }
     if (pondHintPrefix) {
       pondHintPrefix.textContent = t(
-        isSpace ? 'spaceHintPrefix' : isAurora ? 'auroraHintPrefix' : 'pondHintPrefix'
+        isSpace ? 'spaceHintPrefix' : isAurora ? 'auroraHintPrefix' : isWave ? 'waveHintPrefix' : 'pondHintPrefix'
       );
     }
 

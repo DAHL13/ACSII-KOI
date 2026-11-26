@@ -4,6 +4,7 @@ import { AuroraLayer } from './aurora.js';
 import { LilyPadLayer } from './lilies.js';
 import { OceanLayer } from './ocean.js';
 import { SpaceLayer } from './space.js';
+import { GreatWaveLayer } from './wave.js';
 import { WeatherLayer } from './weather.js';
 
 export const SOLAR_KEYS = {
@@ -166,6 +167,38 @@ const BIOME_SOLAR_THEMES = {
       pelletKey: 'auroraLime',
       rainKey: 'snowBlue'
     }
+  },
+  wave: {
+    day: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'waveCerulean',
+      causticAltKey: 'waveSeafoam',
+      ripplePrimaryKey: 'waveFoamWhite',
+      rippleSecondaryKey: 'waveSeafoam',
+      trailKey: 'waveFoamIce',
+      pelletKey: 'waveWashiCream',
+      rainKey: 'waveFoamIce'
+    },
+    sunset: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'waveCerulean',
+      causticAltKey: 'waveSeafoam',
+      ripplePrimaryKey: 'waveFoamWhite',
+      rippleSecondaryKey: 'waveSeafoam',
+      trailKey: 'waveFoamIce',
+      pelletKey: 'waveWashiCream',
+      rainKey: 'waveFoamIce'
+    },
+    night: {
+      ...SOLAR_KEYS.night,
+      causticKey: 'waveCerulean',
+      causticAltKey: 'waveSeafoam',
+      ripplePrimaryKey: 'waveFoamWhite',
+      rippleSecondaryKey: 'waveSeafoam',
+      trailKey: 'waveFoamIce',
+      pelletKey: 'waveWashiCream',
+      rainKey: 'waveFoamIce'
+    }
   }
 };
 
@@ -207,6 +240,7 @@ export class PondEcosystem {
       orbitSpeed: options.spaceOrbitSpeed
     });
     this.auroraLayer = new AuroraLayer(width, height);
+    this.waveLayer = new GreatWaveLayer(width, height);
 
     this.initCaustics();
     this.initFireflies();
@@ -253,8 +287,12 @@ export class PondEcosystem {
     return this.biome === 'aurora';
   }
 
+  isWaveBiome() {
+    return this.biome === 'wave';
+  }
+
   isNonAquaticBiome() {
-    return this.biome === 'space' || this.biome === 'aurora';
+    return this.biome === 'space' || this.biome === 'aurora' || this.biome === 'wave';
   }
 
   setSpacePalette(palette) {
@@ -268,6 +306,7 @@ export class PondEcosystem {
   setPointer(x, y, active) {
     this.spaceLayer.setPointer(x, y, active);
     this.auroraLayer.setPointer(x, y, active);
+    this.waveLayer.setPointer(x, y, active);
   }
 
   triggerSpacePulse(x, y, count = 8) {
@@ -284,6 +323,14 @@ export class PondEcosystem {
 
   triggerAuroraMultiPulse() {
     this.auroraLayer.triggerMultiPulse();
+  }
+
+  triggerWaveSurge(x, y) {
+    this.waveLayer.triggerWaveSurge(x, y);
+  }
+
+  triggerWaveSwell() {
+    this.waveLayer.triggerGreatSwell();
   }
 
   setCurrentsEnabled(enabled) {
@@ -367,6 +414,10 @@ export class PondEcosystem {
       this.auroraLayer.triggerAuroraSurge(durationSeconds);
       return;
     }
+    if (this.biome === 'wave') {
+      this.waveLayer.triggerTempestTide(durationSeconds);
+      return;
+    }
     this.weatherLayer.triggerCherryBlossomShower(durationSeconds);
   }
 
@@ -421,6 +472,7 @@ export class PondEcosystem {
     this.oceanLayer.resize(width, height);
     this.spaceLayer.resize(width, height);
     this.auroraLayer.resize(width, height);
+    this.waveLayer.resize(width, height);
     if (this.rainEnabled && !this.isNonAquaticBiome()) {
       this.weatherLayer.seedRain(true);
     }
@@ -525,6 +577,13 @@ export class PondEcosystem {
       return;
     }
 
+    if (this.biome === 'wave') {
+      this.waveLayer.update(dt, this.time);
+      this.updateFireflies(dt);
+      this.weatherLayer.update(dt, this.time, false, ZERO_FLOW, false);
+      return;
+    }
+
     for (let i = 0; i < this.causticPoints.length; i++) {
       const c = this.causticPoints[i];
       c.x += c.vx * dt;
@@ -556,6 +615,11 @@ export class PondEcosystem {
     }
     if (this.biome === 'aurora') {
       this.auroraLayer.render(ctx, atlas, this.time, this.solarPhase, ecoActive);
+      ctx.globalAlpha = 1;
+      return;
+    }
+    if (this.biome === 'wave') {
+      this.waveLayer.render(ctx, atlas, this.time, this.solarPhase, ecoActive);
       ctx.globalAlpha = 1;
       return;
     }

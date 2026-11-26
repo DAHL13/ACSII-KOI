@@ -1,25 +1,32 @@
-/* --- Fauna Selector Trigger & Popover --- */
+/* --- macOS Control Center / Apple Configurator Popovers --- */
 .fauna-trigger-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 9px;
-  border-radius: 999px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.07);
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.12px;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 
-.fauna-trigger-btn:hover,
+.fauna-trigger-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
 .fauna-trigger-btn[aria-expanded="true"] {
   background: var(--accent-soft);
   border-color: var(--border-glass-focus);
+  color: var(--color-primary-on-dark);
 }
 
 .chevron-icon {
@@ -35,25 +42,24 @@
 
 .fauna-popover {
   position: fixed;
-  top: 66px;
+  top: 56px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 26;
-  width: min(440px, calc(100vw - 24px));
-  max-height: calc(100vh - 96px);
+  width: min(468px, calc(100vw - 24px));
+  max-height: calc(100vh - 82px);
   overflow-y: auto;
-  padding: 14px;
-  border-radius: 20px;
-  background: rgba(9, 14, 24, 0.84);
-  border: 1px solid var(--border-glass);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.58),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  border-radius: 22px;
+  background: var(--surface-sheet);
+  border: 1px solid var(--border-glass-rim);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  box-shadow: var(--shadow-sheet), var(--specular-top-strong);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  animation: applePopoverIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .fauna-popover[hidden],
@@ -70,10 +76,11 @@ body.zen-mode .fauna-popover {
 }
 
 .fauna-popover-title {
-  font-size: 12px;
+  font-family: var(--font-display);
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  color: var(--text-secondary);
+  letter-spacing: -0.22px;
+  color: var(--text-primary);
 }
 
 .fauna-presets {
@@ -82,21 +89,23 @@ body.zen-mode .fauna-popover {
 }
 
 .fauna-preset-btn {
-  padding: 3px 9px;
-  border-radius: 999px;
-  border: 1px solid var(--border-glass);
-  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .fauna-preset-btn:hover {
   color: var(--text-primary);
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .fauna-grid {
@@ -106,71 +115,90 @@ body.zen-mode .fauna-popover {
 }
 
 .species-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 11px;
+  gap: 11px;
+  padding: 12px 34px 12px 13px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--surface-tile);
   color: var(--text-secondary);
   font-family: var(--font-sans);
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .species-card:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface-tile-hover);
+  border-color: rgba(255, 255, 255, 0.18);
   color: var(--text-primary);
 }
 
 .species-card.is-active {
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  background: rgba(0, 113, 227, 0.16);
+  border-color: var(--color-primary-on-dark);
+  box-shadow: 0 0 0 2px rgba(41, 151, 255, 0.16);
   color: var(--text-primary);
 }
 
+.species-card.is-active::after,
+.biome-popover .biome-btn.is-active::after {
+  content: "✓";
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-solid);
+  color: var(--color-on-primary);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .species-swatch {
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.30),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22);
 }
 
 .swatch-koi {
   background: linear-gradient(135deg, #ffffff 45%, #ff3b2f 55%);
-  box-shadow: 0 0 8px rgba(255, 59, 47, 0.5);
 }
 
 .swatch-turtle {
   background: linear-gradient(135deg, #2d6a4f 45%, #e9c46a 65%);
-  box-shadow: 0 0 8px rgba(82, 183, 136, 0.5);
 }
 
 .swatch-whale {
   background: linear-gradient(135deg, #2c5364 45%, #e0f4ff 70%);
-  box-shadow: 0 0 8px rgba(224, 244, 255, 0.55);
 }
 
 .swatch-hammer {
   background: linear-gradient(135deg, #64748b 40%, #cbd5e1 70%);
-  box-shadow: 0 0 8px rgba(148, 163, 184, 0.5);
 }
 
 .swatch-manta {
   background: linear-gradient(135deg, #1e293b 35%, #94a3b8 75%);
-  box-shadow: 0 0 8px rgba(148, 163, 184, 0.55);
 }
 
 .swatch-carp {
   background: linear-gradient(135deg, #f59e0b 40%, #fde047 75%);
-  box-shadow: 0 0 8px rgba(253, 224, 71, 0.6);
 }
 
 .swatch-firefly {
   background: radial-gradient(circle, #fde047 20%, #bef264 75%);
-  box-shadow: 0 0 10px rgba(190, 242, 100, 0.7);
 }
 
 .species-info {
@@ -181,13 +209,15 @@ body.zen-mode .fauna-popover {
 }
 
 .species-name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: -0.14px;
   color: inherit;
 }
 
 .species-desc {
   font-size: 11.5px;
+  letter-spacing: -0.1px;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -197,8 +227,8 @@ body.zen-mode .fauna-popover {
 .fauna-env-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 10px;
+  gap: 10px;
+  padding-top: 14px;
   border-top: 1px solid var(--border-glass);
 }
 
@@ -209,27 +239,28 @@ body.zen-mode .fauna-popover {
 }
 
 .env-chip {
-  padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
+  letter-spacing: -0.12px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .env-chip:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .env-chip.is-active {
-  color: var(--text-primary);
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  color: var(--color-on-primary);
+  background: var(--accent-solid);
+  border-color: transparent;
 }
 
 .fauna-fireflies-row {
@@ -237,7 +268,7 @@ body.zen-mode .fauna-popover {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding-top: 10px;
+  padding-top: 14px;
   border-top: 1px solid var(--border-glass);
 }
 
@@ -245,62 +276,66 @@ body.zen-mode .fauna-popover {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
+  letter-spacing: -0.14px;
   color: var(--text-primary);
 }
 
 .firefly-modes {
   display: inline-flex;
-  gap: 4px;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-seg-track);
 }
 
 .firefly-mode-btn {
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 500;
+  letter-spacing: -0.1px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .firefly-mode-btn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.1);
 }
 
 .firefly-mode-btn.is-active {
   color: var(--text-primary);
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  background: var(--surface-seg-thumb);
+  border-color: transparent;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
 /* --- Background / Biome Selector Popover --- */
 .biome-popover {
   position: fixed;
-  top: 66px;
+  top: 56px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 26;
-  width: min(476px, calc(100vw - 24px));
-  max-height: calc(100vh - 96px);
+  width: min(504px, calc(100vw - 24px));
+  max-height: calc(100vh - 82px);
   overflow-y: auto;
-  padding: 14px;
-  border-radius: 20px;
-  background: rgba(9, 14, 24, 0.86);
-  border: 1px solid var(--border-glass);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.58),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  border-radius: 22px;
+  background: var(--surface-sheet);
+  border: 1px solid var(--border-glass-rim);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  box-shadow: var(--shadow-sheet), var(--specular-top-strong);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  animation: applePopoverIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .biome-popover[hidden],
@@ -312,7 +347,7 @@ body.zen-mode .biome-popover {
 .biome-group {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .biome-group-label {
@@ -330,52 +365,51 @@ body.zen-mode .biome-popover {
 }
 
 .biome-popover .biome-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 11px;
   width: 100%;
-  padding: 9px 11px;
+  padding: 12px 34px 12px 13px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--surface-tile);
   color: var(--text-secondary);
   font-family: var(--font-sans);
   text-align: left;
   cursor: pointer;
   white-space: normal;
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .biome-popover .biome-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface-tile-hover);
+  border-color: rgba(255, 255, 255, 0.18);
   color: var(--text-primary);
 }
 
 .biome-popover .biome-btn.is-active {
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  background: rgba(0, 113, 227, 0.16);
+  border-color: var(--color-primary-on-dark);
+  box-shadow: 0 0 0 2px rgba(41, 151, 255, 0.16);
   color: var(--text-primary);
 }
 
-.biome-card-featured {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.09), rgba(217, 119, 6, 0.04));
-}
-
-.biome-card-aurora {
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.09), rgba(167, 139, 250, 0.05));
+.biome-card-wave {
+  grid-column: 1 / -1;
 }
 
 .biome-popover .species-swatch {
-  width: 12px;
-  height: 12px;
+  width: 18px;
+  height: 18px;
 }
 
 .space-options-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 10px;
+  gap: 10px;
+  padding-top: 14px;
   border-top: 1px solid var(--border-glass);
 }
 
@@ -392,15 +426,16 @@ body.zen-mode .biome-popover {
 }
 
 .space-option-label {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
+  letter-spacing: -0.12px;
   color: var(--text-secondary);
 }
 
 .space-chip-group {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
@@ -408,27 +443,28 @@ body.zen-mode .biome-popover {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: rgba(255, 255, 255, 0.04);
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
+  letter-spacing: -0.12px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .space-chip:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .space-chip.is-active {
-  color: var(--text-primary);
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  color: var(--color-on-primary);
+  background: var(--accent-solid);
+  border-color: transparent;
 }
 
 .palette-dot {

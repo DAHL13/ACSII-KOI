@@ -23,6 +23,7 @@ export function createBiomePopoverController(options) {
     if (biome === 'winter') return { label: t('biomeWinter'), swatchClass: 'swatch swatch-winter' };
     if (biome === 'space') return { label: t('biomeSpace'), swatchClass: 'swatch swatch-space' };
     if (biome === 'aurora') return { label: t('biomeAurora'), swatchClass: 'swatch swatch-aurora' };
+    if (biome === 'wave') return { label: t('biomeWave'), swatchClass: 'swatch swatch-wave' };
     return { label: t('biomePond'), swatchClass: 'swatch swatch-pond' };
   }
 

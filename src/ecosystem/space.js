@@ -4,6 +4,7 @@ import { ObjectPool } from '../core/object-pool.js';
 
 const CAM_DIST = 14.0;
 const ORBIT_SPEED = 0.042;
+const BLACK_HOLE_RES = 1.5;
 const STARDUST_POOL_SIZE = 48;
 const METEOR_POOL_SIZE = 24;
 
@@ -211,6 +212,7 @@ export class SpaceLayer {
     this.candDy = new Float32Array(0);
     this.candHash = new Uint8Array(0);
     this.candOdd = new Uint8Array(0);
+    this.candEdgeFade = new Float32Array(0);
 
     this.stars = [];
     this.milkyWay = [];
@@ -402,9 +404,9 @@ export class SpaceLayer {
 
     const areaRatio = (w * h) / (1280 * 800);
     const cellScale = clamp(Math.sqrt(Math.max(0.45, areaRatio)), 0.94, 1.8);
-    const stepX = CELL_W * cellScale;
-    const stepY = CELL_H * cellScale;
-    this.glyphScale = 0.94 * Math.pow(cellScale, 0.72);
+    const stepX = (CELL_W * cellScale) / BLACK_HOLE_RES;
+    const stepY = (CELL_H * cellScale) / BLACK_HOLE_RES;
+    this.glyphScale = (0.94 * Math.pow(cellScale, 0.72)) / 1.44;
 
     const maxReachX = Math.min(w * 0.54, r0 * 8.2);
     const maxReachY = Math.min(h * 0.54, r0 * 3.6);
@@ -419,6 +421,7 @@ export class SpaceLayer {
     const dyArr = [];
     const hashArr = [];
     const oddArr = [];
+    const edgeFadeArr = [];
 
     for (let row = -halfRows; row <= halfRows; row++) {
       const py = this.centerY + row * stepY;
@@ -431,7 +434,10 @@ export class SpaceLayer {
         const dx = px - this.centerX;
 
         const normEll = (dx / maxReachX) * (dx / maxReachX) + (dy / maxReachY) * (dy / maxReachY);
-        if (normEll > 1.06) continue;
+        if (normEll > 1.04) continue;
+
+        const edgeFade = smoothstep(1.02, 0.70, Math.sqrt(normEll));
+        if (edgeFade <= 0.005) continue;
 
         const hash = Math.abs((col * 73856093) ^ (row * 19349663)) % 12;
         xArr.push(px);
@@ -440,6 +446,7 @@ export class SpaceLayer {
         dyArr.push(dy);
         hashArr.push(hash);
         oddArr.push((col + row) & 1);
+        edgeFadeArr.push(edgeFade);
       }
     }
 
@@ -450,6 +457,7 @@ export class SpaceLayer {
     this.candDy = Float32Array.from(dyArr);
     this.candHash = Uint8Array.from(hashArr);
     this.candOdd = Uint8Array.from(oddArr);
+    this.candEdgeFade = Float32Array.from(edgeFadeArr);
   }
 
   initStars() {
@@ -1073,7 +1081,7 @@ export class SpaceLayer {
     const solarBoost = 1.0;
     const emberKey = pal.ember;
     const rustKey = pal.rust;
-    const gScale = ecoActive ? this.glyphScale * 1.18 : this.glyphScale;
+    const gScale = ecoActive ? this.glyphScale * 1.22 : this.glyphScale;
 
     const sinE = Math.sin(cam.elev);
     const absSinE = Math.abs(sinE);
@@ -1081,8 +1089,6 @@ export class SpaceLayer {
     const signedTilt = sinE >= 0 ? absTilt : -absTilt;
     const edgeOnMix = 1.0 - smoothstep(0.0, 0.12, absSinE);
     const invR0Dyn = 1 / r0Dyn;
-    const invMaxReachX = 1 / this.maxReachX;
-    const invMaxReachY = 1 / this.maxReachY;
 
     for (let i = 0; i < count; i++) {
       if (ecoActive && this.candOdd[i]) continue;
@@ -1185,8 +1191,7 @@ export class SpaceLayer {
         heat = rawHeat * doppler * flareMult * solarBoost;
       }
 
-      const edgeNorm = Math.hypot(dx * invMaxReachX, dy * invMaxReachY);
-      heat *= smoothstep(1.02, 0.70, edgeNorm);
+      heat *= this.candEdgeFade[i];
 
       if (heat <= 0.04) continue;
 

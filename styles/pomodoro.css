@@ -1,17 +1,17 @@
-/* --- Pomodoro Widget --- */
+/* --- macOS Sonoma Desktop Widget Pomodoro --- */
 .pomodoro-widget {
   position: fixed;
   right: 20px;
-  bottom: 20px;
+  bottom: 18px;
   z-index: 20;
-  width: 224px;
-  padding: 10px 12px;
-  border-radius: 18px;
-  background: var(--surface-pill);
-  border: 1px solid var(--border-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  width: 236px;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: var(--surface-widget);
+  border: 1px solid var(--border-glass-rim);
+  backdrop-filter: blur(34px) saturate(190%);
+  -webkit-backdrop-filter: blur(34px) saturate(190%);
+  box-shadow: var(--shadow-dock), var(--specular-top);
   transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), width 0.25s ease;
 }
 
@@ -47,13 +47,13 @@ body.zen-mode .pomodoro-widget {
 
 .pomo-track {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: rgba(255, 255, 255, 0.12);
   stroke-width: 3;
 }
 
 .pomo-progress {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--color-primary-on-dark);
   stroke-width: 3;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.3s linear;
@@ -61,7 +61,8 @@ body.zen-mode .pomodoro-widget {
 
 .pomo-time {
   position: absolute;
-  font-family: var(--font-mono);
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -77,14 +78,17 @@ body.zen-mode .pomodoro-widget {
 }
 
 .pomo-title {
-  font-size: 12px;
+  font-family: var(--font-display);
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: -0.14px;
   color: var(--text-primary);
 }
 
 .pomo-status {
-  font-size: 11px;
-  color: var(--text-secondary);
+  font-size: 11.5px;
+  letter-spacing: -0.1px;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -106,7 +110,7 @@ body.zen-mode .pomodoro-widget {
 
 .pomo-collapse-btn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.10);
 }
 
 .pomodoro-widget.is-collapsed .pomo-collapse-btn {
@@ -116,9 +120,9 @@ body.zen-mode .pomodoro-widget {
 .pomo-body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 10px;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: 1px solid var(--border-glass);
 }
 
@@ -129,25 +133,35 @@ body.zen-mode .pomodoro-widget {
 .pomo-modes {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-seg-track);
 }
 
 .pomo-mode-btn {
-  padding: 4px 6px;
-  border-radius: 999px;
+  padding: 5px 6px;
+  border-radius: var(--radius-pill);
   border: 1px solid transparent;
-  background: rgba(255, 255, 255, 0.04);
+  background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-sans);
   font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pomo-mode-btn:hover {
+  color: var(--text-primary);
 }
 
 .pomo-mode-btn.is-active {
   color: var(--text-primary);
-  background: var(--accent-soft);
-  border-color: rgba(255, 255, 255, 0.14);
+  background: var(--surface-seg-thumb);
+  border-color: transparent;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
 .pomo-actions {
@@ -160,20 +174,20 @@ body.zen-mode .pomodoro-widget {
 .pomo-btn {
   flex: 1;
   height: 30px;
-  border-radius: 999px;
-  border: 1px solid var(--border-glass);
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
 }
 
 .pomo-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--border-glass-focus);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .pomo-btn:active {
@@ -181,8 +195,14 @@ body.zen-mode .pomodoro-widget {
 }
 
 .pomo-btn-primary {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--accent-solid);
+  color: var(--color-on-primary);
+  border-color: transparent;
+}
+
+.pomo-btn-primary:hover {
+  background: var(--accent-solid-hover);
+  border-color: transparent;
 }
 
 .pomo-btn-primary .icon-pause {
@@ -202,12 +222,6 @@ body.zen-mode .pomodoro-widget {
 }
 
 .pomo-btn-sakura:hover {
-  background: rgba(255, 183, 197, 0.2);
-  border-color: rgba(255, 183, 197, 0.45);
-}
-
-html[data-biome="space"] .pomo-btn-sakura:hover,
-html[data-biome="aurora"] .pomo-btn-sakura:hover {
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.22);
 }

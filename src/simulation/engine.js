@@ -141,6 +141,10 @@ export class KoiPondEngine {
     return Boolean(this.ecosystem && this.ecosystem.isSpaceBiome && this.ecosystem.isSpaceBiome());
   }
 
+  isWaveMode() {
+    return Boolean(this.ecosystem && this.ecosystem.isWaveBiome && this.ecosystem.isWaveBiome());
+  }
+
   isNonAquaticMode() {
     if (!this.ecosystem) return false;
     if (this.ecosystem.isNonAquaticBiome) return Boolean(this.ecosystem.isNonAquaticBiome());
@@ -418,6 +422,13 @@ export class KoiPondEngine {
       this.spawnRipple(x, y, 96, 1.25, 0.82);
       return;
     }
+    if (this.isWaveMode()) {
+      if (this.ecosystem.triggerWaveSurge) {
+        this.ecosystem.triggerWaveSurge(x, y);
+      }
+      this.spawnRipple(x, y, 92, 1.15, 0.78);
+      return;
+    }
     if (this.isNonAquaticMode()) {
       if (this.ecosystem.triggerAuroraPulse) {
         this.ecosystem.triggerAuroraPulse(x, y, 10);
@@ -439,6 +450,18 @@ export class KoiPondEngine {
       this.spawnRipple(cx - 120, cy - 18, 88, 1.2, 0.72);
       this.spawnRipple(cx, cy, 118, 1.35, 0.88);
       this.spawnRipple(cx + 120, cy + 18, 88, 1.2, 0.72);
+      return;
+    }
+    if (this.isWaveMode()) {
+      if (this.ecosystem.triggerWaveSwell) {
+        this.ecosystem.triggerWaveSwell();
+      }
+      const st = this.ecosystem.waveLayer && this.ecosystem.waveLayer.getWaveState();
+      const cx = st ? st.crestX : this.width * 0.34;
+      const cy = st ? st.crestY : this.height * 0.24;
+      this.spawnRipple(cx, cy, 118, 1.3, 0.88);
+      this.spawnRipple(this.width * 0.52, this.height * 0.64, 96, 1.2, 0.74);
+      this.spawnRipple(this.width * 0.76, this.height * 0.56, 88, 1.15, 0.7);
       return;
     }
     if (this.isNonAquaticMode()) {

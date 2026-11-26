@@ -1,4 +1,4 @@
-/* --- Settings & Custom Bangs Modal --- */
+/* --- macOS Sequoia System Settings Sheet --- */
 .settings-modal {
   position: fixed;
   inset: 0;
@@ -7,9 +7,9 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(4, 7, 14, 0.62);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.56);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .settings-modal[hidden] {
@@ -17,18 +17,21 @@
 }
 
 .settings-modal-card {
-  width: min(480px, 100%);
+  width: min(504px, 100%);
   max-height: calc(100vh - 36px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 20px;
-  border-radius: 20px;
-  background: rgba(11, 17, 29, 0.94);
-  border: 1px solid var(--border-glass);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.68);
+  padding: 24px;
+  border-radius: 22px;
+  background: var(--surface-modal-sheet);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid var(--border-glass-rim);
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.60), var(--specular-top-strong);
   color: var(--text-primary);
+  animation: appleSheetIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .settings-modal-header {
@@ -36,57 +39,65 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  padding-bottom: 2px;
 }
 
 .settings-modal-title {
   margin: 0;
-  font-size: 16px;
+  font-family: var(--font-display);
+  font-size: 19px;
   font-weight: 600;
+  letter-spacing: -0.26px;
+  color: var(--text-primary);
 }
 
 .settings-modal-btn {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border-glass);
-  background: rgba(255, 255, 255, 0.06);
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.09);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 500;
+  letter-spacing: -0.14px;
   cursor: pointer;
   transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .settings-modal-btn:hover {
-  background: var(--accent-soft);
-  border-color: var(--border-glass-focus);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.20);
 }
 
 .settings-btn-primary {
-  background: var(--accent);
-  color: #05080f;
+  background: var(--accent-solid);
+  color: var(--color-on-primary);
   border-color: transparent;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .settings-btn-primary:hover {
-  background: var(--accent);
-  opacity: 0.92;
+  background: var(--accent-solid-hover);
+  border-color: transparent;
 }
 
+/* Inset Grouped Settings Cards */
 .settings-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-glass);
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--surface-inset-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .settings-section-title {
   margin: 0;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
@@ -100,63 +111,121 @@
 }
 
 .settings-label {
-  font-size: 12.5px;
+  font-size: 13px;
+  letter-spacing: -0.14px;
   color: var(--text-secondary);
 }
 
 .settings-input {
-  padding: 7px 11px;
-  border-radius: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-glass);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 12.5px;
+  font-size: 13px;
+  letter-spacing: -0.14px;
   outline: none;
   min-width: 0;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .settings-input:focus {
-  border-color: var(--border-glass-focus);
+  border-color: var(--color-primary-on-dark);
+  box-shadow: 0 0 0 3px var(--accent-ring);
 }
 
 .settings-seg-group {
   display: inline-flex;
-  gap: 4px;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-seg-track);
 }
 
 .clock-format-btn,
 .eco-mode-btn {
-  padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border-glass);
-  background: rgba(255, 255, 255, 0.05);
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
+  letter-spacing: -0.12px;
   cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.clock-format-btn:hover,
+.eco-mode-btn:hover {
+  color: var(--text-primary);
 }
 
 .clock-format-btn.is-active,
 .eco-mode-btn.is-active {
-  background: var(--accent-soft);
+  background: var(--surface-seg-thumb);
   color: var(--text-primary);
-  border-color: var(--border-glass-focus);
+  border-color: transparent;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
+/* Native Apple iOS/macOS Pill Toggle Switch */
 .settings-checkbox-label {
-  display: inline-flex;
+  display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+  font-size: 13px;
+  letter-spacing: -0.14px;
   color: var(--text-secondary);
   cursor: pointer;
 }
 
+.settings-checkbox-label input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 24px;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.settings-checkbox-label input::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-canvas);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.settings-checkbox-label input:checked {
+  background: var(--accent-solid);
+  border-color: transparent;
+}
+
+.settings-checkbox-label input:checked::after {
+  transform: translateX(16px);
+}
+
 .settings-shortcuts-hint {
   margin: 0;
-  font-size: 11.5px;
+  font-size: 12px;
+  letter-spacing: -0.12px;
   color: var(--text-muted);
 }
 
@@ -174,15 +243,16 @@
   grid-template-columns: auto auto 1fr auto;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 12px;
 }
 
 .settings-bang-item code {
   font-family: var(--font-mono);
-  color: var(--accent);
+  color: var(--color-primary-on-dark);
 }
 
 .settings-bang-name {
@@ -205,18 +275,20 @@
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .settings-bang-del:hover {
-  background: #ef4444;
+  background: #ff453a;
   color: #fff;
-  border-color: #f87171;
+  border-color: #ff6961;
 }
 
 .settings-bang-empty,
 .settings-hint {
   margin: 0;
-  font-size: 11.5px;
+  font-size: 12px;
+  letter-spacing: -0.12px;
   color: var(--text-muted);
 }
 
@@ -230,8 +302,8 @@
 .settings-error {
   margin: 0;
   min-height: 16px;
-  font-size: 11.5px;
-  color: #fca5a5;
+  font-size: 12px;
+  color: #ff6961;
 }
 
 .settings-backup-row {
@@ -247,9 +319,9 @@
 }
 
 .settings-status[data-state="error"] {
-  color: #fca5a5;
+  color: #ff6961;
 }
 
 .settings-status[data-state="ok"] {
-  color: #86efac;
+  color: #30d158;
 }

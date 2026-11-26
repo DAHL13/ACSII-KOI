@@ -4,6 +4,28 @@
   box-sizing: border-box;
 }
 
+@keyframes appleSheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes applePopoverIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
 html {
   transition:
     --bg-base 0.9s ease,
@@ -23,6 +45,8 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -51,6 +75,7 @@ body {
 #koi-canvas,
 .top-bar,
 .fauna-popover,
+.biome-popover,
 .river-stones-dock,
 .pomodoro-widget,
 .zen-exit-btn,
@@ -89,8 +114,38 @@ body {
 .settings-input:focus-visible,
 .settings-checkbox-label input:focus-visible,
 .daily-focus-input:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--color-primary-on-dark);
   outline-offset: 2px;
+}
+
+.fauna-popover,
+.biome-popover,
+.settings-modal-card,
+.bang-suggestions {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.fauna-popover::-webkit-scrollbar,
+.biome-popover::-webkit-scrollbar,
+.settings-modal-card::-webkit-scrollbar,
+.bang-suggestions::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fauna-popover::-webkit-scrollbar-track,
+.biome-popover::-webkit-scrollbar-track,
+.settings-modal-card::-webkit-scrollbar-track,
+.bang-suggestions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fauna-popover::-webkit-scrollbar-thumb,
+.biome-popover::-webkit-scrollbar-thumb,
+.settings-modal-card::-webkit-scrollbar-thumb,
+.bang-suggestions::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill);
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -99,8 +154,21 @@ body {
   html[data-solar="sunset"],
   html[data-solar="night"],
   html[data-biome="space"],
-  html[data-biome="aurora"] {
-    --surface-glass: rgba(10, 16, 28, 0.88);
-    --surface-pill: rgba(9, 14, 24, 0.86);
+  html[data-biome="aurora"],
+  html[data-biome="wave"] {
+    --surface-menubar: rgba(20, 20, 22, 0.94);
+    --surface-dock: rgba(28, 28, 30, 0.92);
+    --surface-spotlight: rgba(34, 34, 36, 0.92);
+    --surface-spotlight-focus: rgba(42, 42, 46, 0.96);
+    --surface-widget: rgba(28, 28, 30, 0.94);
+    --surface-sheet: #1c1c1e;
+    --surface-modal-sheet: #1c1c1e;
+    --surface-bar: rgba(29, 29, 31, 0.94);
+    --surface-glass: rgba(29, 29, 31, 0.94);
+    --surface-glass-hover: rgba(39, 39, 41, 0.98);
+    --surface-pill: rgba(29, 29, 31, 0.94);
+    --surface-popover: #1c1c1e;
+    --surface-modal: #1c1c1e;
+    --surface-tile: rgba(39, 39, 41, 0.96);
   }
 }

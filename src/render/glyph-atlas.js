@@ -159,7 +159,26 @@ export const PALETTE_COLORS = {
   auroraTeal: '#0d9488',
   auroraViolet: '#a78bfa',
   auroraMagenta: '#e879f9',
-  mountainRidge: '#2a4858'
+  mountainRidge: '#2a4858',
+
+  waveAbyss: '#07152e',
+  wavePrussianDeep: '#0f2b5c',
+  wavePrussianMid: '#1d4e89',
+  wavePrussianLight: '#2e6fb3',
+  waveCerulean: '#5ba3d9',
+  waveSeafoam: '#9ed4f2',
+  waveFoamIce: '#d8effc',
+  waveFoamWhite: '#f6fbff',
+  waveWashiCream: '#e8d5b5',
+  waveWashiWarm: '#cbb28a',
+  waveFujiDark: '#182d52',
+  waveFujiMid: '#2a4a78',
+  waveWoodDark: '#7a5428',
+  waveWoodMid: '#b88948',
+  waveWoodLight: '#e4be7a',
+  waveInk: '#030a18',
+  waveFoamAqua: '#7ec4e8',
+  waveIndigoMid: '#153973'
 };
 
 const LOGICAL_CELL = 22;
